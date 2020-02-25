@@ -1,43 +1,42 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Core
 ( AppT(..)
-, runUtils
 ) where
 
 import Control.Monad.Reader
 
+import Branch
 import Env
 import GitTypes
 import GitUtils
-import Results
 
 newtype AppT m a = AppT { runAppT :: ReaderT Env m a }
   deriving (Functor, Applicative, Monad, MonadIO, MonadTrans, MonadReader Env)
 
 instance GitUtils m => GitUtils (AppT m) where
+  type UtilsType (AppT m) = UtilsType m
   type UtilsResult (AppT m) = UtilsResult m
 
-  grepBranches :: Env -> AppT m (UtilsResult m [Name])
+  grepBranches :: Env -> AppT m [Name]
   grepBranches = lift . grepBranches
 
-  isMerged :: Env -> Name -> AppT m (UtilsResult m Bool)
-  isMerged env = lift . isMerged env
-
-  logAuthDate :: Env -> Name -> AppT m (UtilsResult m NameLog)
+  logAuthDate :: Env -> [Name] -> AppT m [UtilsType m BranchLog]
   logAuthDate env = lift . logAuthDate env
 
-  collectResults :: Env -> AppT m Results
+  filterFreshBranches :: Env -> [UtilsType m BranchLog] -> AppT m [UtilsType m BranchLog]
+  filterFreshBranches env = lift . filterFreshBranches env
+
+  isMerged :: Env -> Name -> AppT m (UtilsType m Bool)
+  isMerged env = lift . isMerged env
+
+  toAnyBranch :: Env -> [UtilsType m BranchLog] -> AppT m [UtilsType m AnyBranch]
+  toAnyBranch env = lift . toAnyBranch env
+
+  collectResults :: [UtilsType m AnyBranch] -> AppT m (UtilsResult m)
   collectResults = lift . collectResults
 
-  display :: Results -> AppT m ()
+  display :: UtilsResult m -> AppT m ()
   display = lift . display
-
-runUtils :: GitUtils m => AppT m Results
-runUtils = do
-  e <- ask
-  collectResults e

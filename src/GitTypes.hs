@@ -5,6 +5,7 @@ module GitTypes
 , NameLog
 , NameAuthDateStr
 , NameAuthDay
+, BranchLog(..)
 ) where
 
 import Data.Text (Text)
@@ -16,3 +17,6 @@ newtype Author = Author Text deriving (Eq, Ord, Show)
 type NameLog = (Name, Log)
 type NameAuthDateStr = (Name, Author, Text)
 type NameAuthDay = (Name, Author, Day)
+
+newtype BranchLog = BranchLog (Name, Author, Day)
+  deriving (Eq, Ord, Show)

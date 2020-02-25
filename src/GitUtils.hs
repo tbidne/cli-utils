@@ -1,80 +1,119 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeFamilyDependencies #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module GitUtils
 ( GitUtils(..)
+, runWithReader
 , parseAuthDateStr
 , parseDay
 , parseLog
-, parseMerged
 , stale
 ) where
 
 import           Control.Exception (SomeException, try)
 import           Control.Monad
+import           Control.Monad.Reader (MonadReader, ask)
+import           Control.Concurrent.ParallelIO.Global (parallel, parallelE)
 import           Data.Kind (Type)
 import qualified Data.Text as Txt
 import           Data.Time.Calendar (Day, diffDays, fromGregorian)
-import qualified System.Process as P
+import           System.Process (readCreateProcess, shell, cwd)
 
 import Branch
 import Env
 import Error
 import GitTypes
-import Results
+import ResultsWithErrs
 
 class Monad m => GitUtils m where
-  type UtilsResult m :: Type -> Type
+  type UtilsType m :: Type -> Type
+  type UtilsResult m :: Type
 
-  grepBranches :: Env -> m (UtilsResult m [Name])
-  isMerged :: Env -> Name -> m (UtilsResult m Bool)
-  logAuthDate :: Env -> Name -> m (UtilsResult m NameLog)
-  collectResults :: Env -> m Results
-  display :: Results -> m ()
+  grepBranches :: Env -> m [Name]
+  logAuthDate :: Env -> [Name] -> m [UtilsType m BranchLog]
+  filterFreshBranches :: Env -> [UtilsType m BranchLog] -> m [UtilsType m BranchLog]
+  isMerged :: Env -> Name -> m (UtilsType m Bool)
+  toAnyBranch :: Env -> [UtilsType m BranchLog] -> m [UtilsType m AnyBranch]
+  collectResults :: [UtilsType m AnyBranch] -> m (UtilsResult m)
+  display :: (UtilsResult m) -> m ()
+
+runWithReader :: (GitUtils m, MonadReader Env m) => m ()
+runWithReader = do
+  env <- ask
+  branchNames <- grepBranches env
+  
+  logs <- (logAuthDate env) branchNames
+
+  staleLogs <- (filterFreshBranches env) logs
+
+  staleBranches <- (toAnyBranch env) staleLogs
+
+  res <- collectResults staleBranches
+
+  display res
 
 instance GitUtils IO where
-  type UtilsResult IO = Either Err
+  type UtilsType IO = Either Err
+  type UtilsResult IO = ResultsWithErrs
 
-  grepBranches :: Env -> IO (Either Err [Name])
-  grepBranches Env{..} = wrapErr GitBranches res
-    where cmd = case grepStr of
-                  Nothing -> "git branch -r"
-                  Just s  -> Txt.concat ["git branch -r | grep ", s, " -i"]
-          res = fmap (fmap Name . fmap Txt.strip . Txt.lines) (sh cmd path)
+  grepBranches :: Env -> IO [Name]
+  grepBranches Env{..} = do
+    res <- sh "git branch -r" path
+
+    logIfErr $ return $ toNames res
+
+    where maybeFilter = case grepStr of
+            Nothing -> id
+            Just s  -> filter $ Txt.isInfixOf s
+          toNames = fmap (Name . Txt.strip) . maybeFilter . Txt.lines
+
+  logAuthDate :: Env -> [Name] -> IO [Either Err BranchLog]
+  logAuthDate Env{..} ns = do
+    logs <- (parallelE (fmap (getLog path) ns)) :: IO [Either SomeException (Name, Txt.Text)]
+
+    return $ fmap parseErrAndRes logs
+
+    where getLog p nm@(Name n) = sequenceA (nm, sh (Txt.concat ["git log ", n, " --pretty=format:\"%an|%ad\" --date=short -n1"]) p)
+
+          parseErrAndRes :: Either SomeException (Name, Txt.Text) -> Either Err BranchLog
+          parseErrAndRes (Left x) = (Left . GitLog . Txt.pack . show) x
+          parseErrAndRes (Right (n, l)) = parseLog (n, Log l)
+
+  filterFreshBranches :: Env -> [Either Err BranchLog] -> IO [Either Err BranchLog]
+  filterFreshBranches Env{..} = return . filter f
+    where f (Left _) = True
+          f (Right bl) = stale limit today bl
 
   isMerged :: Env -> Name -> IO (Either Err Bool)
-  isMerged Env{..} (Name n) = wrapErr GitMerge res
-    where cmd = Txt.concat ["git rev-list --count origin/master..", n]
-          res = fmap ((== 0) . toInt) (sh cmd path)
-          --res = fmap (\_ -> True) (sh cmd path)
+  isMerged Env{..} (Name n) = do
 
-  logAuthDate :: Env -> Name -> IO (Either Err NameLog)
-  logAuthDate Env{..} nm@(Name n) = wrapErr GitLog res
-    where cmd = Txt.concat ["git log ", n, " --pretty=format:\"%an|%ad\" --date=short -n1"]
-          res = fmap (\l -> (nm, Log l)) (sh cmd path)
+    res <- sh (Txt.concat ["git rev-list --count origin/master..", n]) path
 
-  collectResults :: Env -> IO Results
-  collectResults env@Env{..} = do
-    branchNames <- grepBranches env
+    (wrapErr GitMerge . return . (== 0) . toInt) res
 
-    logs <- logBranchesIO env branchNames
+  toAnyBranch :: Env -> [Either Err BranchLog] -> IO [Either Err AnyBranch]
+  toAnyBranch env = parallel . fmap f
+    where f (Left x) = return $ Left x
+          f (Right (BranchLog (n, a, d))) = do
+            res <- isMerged env n
+            return $ case res of
+              Left err -> Left err
+              Right b -> Right $ mkAnyBranch n a d b
 
-    branches <- (parseBranchesIO env . filterErrLog limit today . parseErrLog) logs
+  collectResults :: [Either Err AnyBranch] -> IO ResultsWithErrs
+  collectResults = return . toResultsWithErrs
 
-    return $ toResults branches
-
-  display :: Results -> IO ()
+  display :: ResultsWithErrs -> IO ()
   display = print
 
-stale :: Integer -> Day -> NameAuthDay -> Bool
-stale lim day (_, _, d) = diffDays day d > lim
+stale :: Integer -> Day -> BranchLog -> Bool
+stale lim day (BranchLog (_, _, d)) = diffDays day d > lim
 
-parseLog :: NameLog -> Either Err NameAuthDay
+parseLog :: NameLog -> Either Err BranchLog
 parseLog = parseAuthDateStr >=> parseDay
 
 parseAuthDateStr :: NameLog -> Either Err NameAuthDateStr
@@ -83,45 +122,31 @@ parseAuthDateStr (n, (Log l)) =
     [a, t] -> Right (n, Author a, t)
     _      -> Left $ ParseLog l
 
-parseDay :: NameAuthDateStr -> Either Err NameAuthDay
+parseDay :: NameAuthDateStr -> Either Err BranchLog
 parseDay (n, a, t) =
   case fmap toInt (Txt.splitOn "-" t) of
-    [y, m, d] -> Right (n, a, fromGregorian (toInteger y) m d)
+    [y, m, d] -> Right $ BranchLog (n, a, fromGregorian (toInteger y) m d)
     _         -> Left $ ParseDate t
 
-parseMerged :: (GitUtils m, Functor (UtilsResult m)) => Env -> NameAuthDay -> m (UtilsResult m AnyBranch)
-parseMerged env (n, a, d) = (fmap . fmap) (mkAnyBranch n a d) (isMerged env n)
-
 sh :: Txt.Text -> Maybe FilePath -> IO Txt.Text
-sh cmd fp = Txt.pack <$> P.readCreateProcess proc ""
-  where proc = (P.shell (Txt.unpack cmd)) { P.cwd = fp }
+sh cmd fp = Txt.pack <$> readCreateProcess proc ""
+  where proc = (shell (Txt.unpack cmd)) { cwd = fp }
+
+logIfErr :: forall a. IO a -> IO a
+logIfErr io = do
+  res <- try io :: IO (Either SomeException a)
+  case res of
+    Left ex -> do
+      putStrLn $ "Died with error: " <> show ex
+      io
+    Right r -> return r
 
 wrapErr :: forall a. (Txt.Text -> Err) -> IO a -> IO (Either Err a)
 wrapErr errFn io = do
   res <- try io :: IO (Either SomeException a)
   return $ case res of
     Left ex -> Left $ (errFn . Txt.pack . show) ex
-    Right r -> Right r
-
-logBranchesIO :: Env -> Either Err [Name] -> IO [Either Err NameLog]
-logBranchesIO env xs = fmap (fmap join . sequenceA) (traverse (traverse (logAuthDate env)) xs)
-
-parseErrLog :: [Either Err NameLog] -> [Either Err NameAuthDay]
-parseErrLog es = fmap (parseLog =<<) es
-
-filterErrLog :: Integer -> Day -> [Either Err NameAuthDay] -> [Either Err NameAuthDay]
-filterErrLog limit today = filter f
-  where f (Left _) = True
-        f (Right l) = stale limit today l
-
-parseBranchesIO :: Env -> [Either Err NameAuthDay] -> IO [Either Err AnyBranch]
-parseBranchesIO env = traverseJoin (parseMerged env)
-
-traverseJoin :: (Monad m, Traversable m, Applicative n, Traversable f)
-  => (a -> n (m b))
-  -> f (m a)
-  -> n (f (m b))
-traverseJoin f xs = (fmap . fmap) join (traverse sequenceA ((fmap . fmap) f xs))
+    Right r -> return r
 
 toInt :: Txt.Text -> Int
 toInt = read . Txt.unpack
