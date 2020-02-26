@@ -2,7 +2,8 @@
 
 module Main (main) where
 
-import Control.Monad.Reader (runReaderT)
+import           Control.Concurrent.ParallelIO.Global
+import           Control.Monad.Reader (runReaderT)
 import qualified Data.Text as Txt
 import           Data.Time.Calendar (Day)
 import           Data.Time.Clock (utctDay, getCurrentTime)
@@ -17,14 +18,13 @@ currDay = fmap utctDay getCurrentTime
 
 main :: IO ()
 main = do
-  --g <- getLine
   args <- getArgs
   d <- currDay
   case mkEnv d args of
     Nothing  -> putStrLn "Usage: stack exec git-utils-exe <search str> <path> <limit>"
     Just env -> do
-      rs <- runReaderT (runAppT runUtils) env
-      display rs
+      runReaderT (runAppT runWithReader) env
+      stopGlobalPool
 
 mkEnv :: Day -> [String] -> Maybe Env
 mkEnv d =
