@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Results
+module Types.Results
 ( Results(..)
 , toResults
 ) where
@@ -10,8 +10,8 @@ import           Data.Foldable
 import qualified Data.Text as Txt
 import qualified Data.Map.Strict as Map
 
-import Branch
-import GitTypes
+import Types.Branch
+import Types.GitTypes
 
 type BranchMap a = Map.Map Author [Branch a]
 

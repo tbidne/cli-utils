@@ -7,7 +7,7 @@ import           Data.Time.Calendar.Julian (fromJulianYearAndDay)
 import qualified Data.Text as Txt
 import           Test.QuickCheck
 
-import GitTypes
+import Types.GitTypes
 
 instance Arbitrary Txt.Text where
   arbitrary :: Gen Txt.Text

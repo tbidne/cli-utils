@@ -7,8 +7,8 @@ import           Test.Hspec
 import           Test.Hspec.QuickCheck
 
 import Arbitraries()
-import Branch
-import GitTypes
+import Types.Branch
+import Types.GitTypes
 
 spec :: Spec
 spec = do

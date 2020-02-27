@@ -1,16 +1,16 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module ResultsWithErrs
+module Types.ResultsWithErrs
 ( ResultsWithErrs
 , toResultsWithErrs
 ) where
 
 import Data.Foldable (foldl')
 
-import Branch
-import Error
-import Results
+import Types.Branch
+import Types.Error
+import Types.Results
 
 data ResultsWithErrs = ResultsWithErrs
   { errList :: [Err]

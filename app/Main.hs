@@ -9,9 +9,9 @@ import           Data.Time.Calendar (Day)
 import           Data.Time.Clock (utctDay, getCurrentTime)
 import           System.Environment (getArgs)
 
-import Core
-import Env
-import GitUtils
+import App
+import GitUtils.Core
+import Types.Env
 
 currDay :: IO Day
 currDay = fmap utctDay getCurrentTime

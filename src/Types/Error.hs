@@ -1,4 +1,4 @@
-module Error (Err(..)) where
+module Types.Error (Err(..)) where
 
 import Data.Text (Text)
 
@@ -7,6 +7,5 @@ data Err
   | ParseDate Text
   | ParseMerge Text
   | GitBranches Text
-  | GitMerge Text
   | GitLog Text
   deriving Show
