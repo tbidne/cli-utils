@@ -40,5 +40,3 @@ guarded :: (a -> Bool) -> a -> Maybe a
 guarded f x
   | f x   = Just x
   | otherwise = Nothing
-
--- stack test --profile

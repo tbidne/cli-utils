@@ -68,7 +68,7 @@ instance GitUtils IO where
 
     where maybeFilter = case grepStr of
             Nothing -> id
-            Just s  -> filter $ Txt.isInfixOf s
+            Just s  -> filter (\t -> (Txt.toCaseFold s) `Txt.isInfixOf` (Txt.toCaseFold t))
           toNames = fmap (Name . Txt.strip) . maybeFilter . Txt.lines
 
   logAuthDate :: Env -> [Name] -> IO [Either Err BranchLog]
@@ -76,8 +76,11 @@ instance GitUtils IO where
     logs <- (parallelE (fmap (getLog path) ns)) :: IO [Either SomeException (Name, Txt.Text)]
 
     return $ fmap parseErrAndRes logs
-
-    where getLog p nm@(Name n) = sequenceA (nm, sh (Txt.concat ["git log ", n, " --pretty=format:\"%an|%ad\" --date=short -n1"]) p)
+    where format n = Txt.concat
+            [ "git log "
+            , "\"" , n , "\""
+            , " --pretty=format:\"%an|%ad\" --date=short -n1" ]
+          getLog p nm@(Name n) = sequenceA (nm, sh (format n) p)
 
           parseErrAndRes :: Either SomeException (Name, Txt.Text) -> Either Err BranchLog
           parseErrAndRes (Left x) = (Left . GitLog . Txt.pack . show) x
@@ -91,7 +94,7 @@ instance GitUtils IO where
   isMerged :: Env -> Name -> IO (Either Err Bool)
   isMerged Env{..} (Name n) = do
 
-    res <- sh (Txt.concat ["git rev-list --count origin/master..", n]) path
+    res <- sh (Txt.concat ["git rev-list --count origin/master..", "\"", n, "\""]) path
 
     (wrapErr GitMerge . return . (== 0) . toInt) res
 

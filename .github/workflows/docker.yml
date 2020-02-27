@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag tbidne/git-utils:github-latest
+        run: docker build . --file Dockerfile --tag tbidne/git-utils:latest
 
       - name: Push to Docker Hub
         uses: elgohr/Publish-Docker-Github-Action@master
@@ -20,4 +20,4 @@ jobs:
           name: tbidne/git-utils
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          tags: "github-latest"
+          tags: "latest"
