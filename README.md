@@ -1,5 +1,8 @@
 # Git Utils
 
+
+![Build](https://github.com/tbidne/git-utils/workflows/Build/badge.svg?branch=master) ![Deploy](https://github.com/tbidne/git-utils/workflows/Deploy/badge.svg?branch=master)
+
 Scans a `git` directory for branches based on a grep string then prints all stale branches, organized by author and merge status.
 
 ## Stack
