@@ -27,9 +27,6 @@ instance Applicative MockUtils where
   (MockUtils rs f) <*> (MockUtils ts x) = MockUtils (rs <> ts) (f x)
 
 instance Monad MockUtils where
-  return :: a -> MockUtils a
-  return = pure
-
   (>>=) :: MockUtils a -> (a -> MockUtils b) -> MockUtils b
   (MockUtils rs x) >>= f = MockUtils (rs <> ts) y
     where (MockUtils ts y) = f x
@@ -41,8 +38,6 @@ instance GitUtils MockUtils where
   grepBranches :: Env -> MockUtils [Name]
   grepBranches Env{..} = MockUtils [] (maybeFilter allBranches)
     where maybeFilter = case grepStr of
-            --Nothing -> True
-            --Just s  -> s `Txt.isInfixOf` n
             Nothing -> id
             Just s  -> filter (\(Name n) -> s `Txt.isInfixOf` n)
 
