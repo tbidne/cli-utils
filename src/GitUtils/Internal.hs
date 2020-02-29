@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
 
 module GitUtils.Internal
 ( parseLog
@@ -6,11 +7,13 @@ module GitUtils.Internal
 , parseDay
 , stale
 , toInt
+, safeRead
 ) where
 
 import           Control.Monad
 import qualified Data.Text as Txt
 import           Data.Time.Calendar (Day, diffDays, fromGregorian)
+import           Text.Read (readMaybe)
 
 import Types.Error
 import Types.GitTypes
@@ -25,13 +28,21 @@ parseAuthDateStr (n, l) =
     _      -> Left $ ParseLog l
 
 parseDay :: NameAuthDateStr -> Either Err NameAuthDay
-parseDay (n, a, t) =
-  case fmap toInt (Txt.splitOn "-" t) of
-    [y, m, d] -> Right $ (n, a, fromGregorian (toInteger y) m d)
-    _         -> Left $ ParseDate t
+parseDay (n, a, t) = fmap (n,a,) eitherDay
+  where eitherDay =
+          case traverse safeRead (Txt.splitOn "-" t) of
+            Right [y, m, d] -> Right $ fromGregorian (toInteger y) m d
+            Right xs        -> Left $ ParseDate $ Txt.pack $ show xs
+            Left x          -> Left x
 
 stale :: Integer -> Day -> NameAuthDay -> Bool
 stale lim day (_, _, d) = diffDays day d > lim
 
 toInt :: Txt.Text -> Int
 toInt = read . Txt.unpack
+
+safeRead :: Txt.Text -> Either Err Int
+safeRead t =
+  case readMaybe (Txt.unpack t) of
+    Nothing -> Left $ ReadInt t
+    Just i  -> Right i

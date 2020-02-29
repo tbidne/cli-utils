@@ -1,14 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module BranchSpec (spec) where
+module Types.BranchSpec (spec) where
 
 import           Data.Time.Calendar (Day)
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 
-import Arbitraries()
 import Types.Branch
 import Types.GitTypes
+
+import GitUtils.Arbitraries()
 
 spec :: Spec
 spec = do

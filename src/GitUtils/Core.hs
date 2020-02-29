@@ -40,7 +40,7 @@ runWithReader = do
   env <- ask
   branchNames <- grepBranches env
 
-  staleBranches <- (parseStaleBranches env) branchNames
+  staleBranches <- parseStaleBranches env branchNames
 
   res <- collectResults staleBranches
 
