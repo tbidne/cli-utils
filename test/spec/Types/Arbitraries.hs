@@ -8,7 +8,6 @@ import           Test.QuickCheck
 
 import Types.Branch
 import Types.Error
-import Types.Results
 
 import GitUtils.Arbitraries()
 
