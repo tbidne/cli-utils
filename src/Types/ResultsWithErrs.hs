@@ -2,7 +2,7 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Types.ResultsWithErrs
-( ResultsWithErrs
+( ResultsWithErrs(..)
 , toResultsWithErrs
 ) where
 
