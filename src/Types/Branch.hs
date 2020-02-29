@@ -3,17 +3,17 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Branch
+module Types.Branch
 ( BranchStatus(..)
 , Branch(..)
 , AnyBranch(..)
 , mkAnyBranch
-)where
+) where
 
 import qualified Data.Text as Txt
 import           Data.Time.Calendar (Day)
 
-import GitTypes
+import Types.GitTypes
 
 data BranchStatus where
   Merged :: BranchStatus

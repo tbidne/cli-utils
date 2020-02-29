@@ -1,13 +1,22 @@
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE OverloadedStrings #-}
 
-module Arbitraries (Arbitrary(..)) where
+module GitUtils.Arbitraries
+( Arbitrary(..)
+, genYear
+, genYearStr
+, genMonth
+, genMonthStr
+, genDay
+, genDayStr
+) where
 
 import           Data.Time.Calendar (Day)
 import           Data.Time.Calendar.Julian (fromJulianYearAndDay)
 import qualified Data.Text as Txt
 import           Test.QuickCheck
 
-import GitTypes
+import Types.GitTypes
 
 instance Arbitrary Txt.Text where
   arbitrary :: Gen Txt.Text
@@ -22,10 +31,27 @@ instance Arbitrary Author where
   arbitrary = fmap Author arbitrary
 
 genYear :: Gen Integer
-genYear = abs `fmap` (arbitrary :: Gen Integer) `suchThat` (\x -> x > 2000 && x < 2020)
+genYear = read . Txt.unpack <$> genYearStr
+
+genYearStr :: Gen Txt.Text
+genYearStr = fmap Txt.pack $ vectorOf 4 $ elements ['0'..'9']
+
+genMonth :: Gen Int
+genMonth = read . Txt.unpack <$> genMonthStr
+
+genMonthStr :: Gen Txt.Text
+genMonthStr = 
+  let ms = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+  in elements ms
 
 genDay :: Gen Int
-genDay = abs `fmap` (arbitrary :: Gen Int) `suchThat` (\x -> x > 0 && x < 365)
+genDay = read . Txt.unpack <$> genDayStr
+
+genDayStr :: Gen Txt.Text
+genDayStr = do
+  a <- elements ['0'..'2']
+  b <- elements ['0'..'8']
+  return $ Txt.pack $ [a, b]
 
 instance Arbitrary Day where
   arbitrary :: Gen Day

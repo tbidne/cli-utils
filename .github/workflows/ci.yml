@@ -1,7 +1,13 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - master
+
   pull_request:
+    branches:
+      - master
 
 jobs:
   build:
@@ -12,9 +18,6 @@ jobs:
       - name: Setup stack
         uses: mstksg/setup-stack@v1
 
-      - name: Build
-        run: stack build --ghc-options="-Werror"
-
-      - name: Test
-        run: stack test
+      - name: Build and test
+        run: stack test --ghc-options="-Werror"
 

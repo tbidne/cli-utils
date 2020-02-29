@@ -1,4 +1,4 @@
-module Env (Env(..)) where
+module Types.Env (Env(..)) where
 
 import Data.Text (Text)
 import Data.Time.Calendar (Day)
