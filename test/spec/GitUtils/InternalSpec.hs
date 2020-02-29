@@ -21,7 +21,7 @@ spec = do
   describe "Parsing Tests" $ do
     prop "Correctly formatted name log succeeds" goodLogSucceeds
 
-    prop "Badly formatted name log fails" goodLogSucceeds
+    prop "Badly formatted name log fails" badLogFails
 
     prop "Correctly formatted date string succeeds" goodDateStrSucceeds
 
@@ -77,8 +77,8 @@ newtype NameLogErr = NameLogErr NameLog
 instance Arbitrary NameLogErr where
   arbitrary :: Gen NameLogErr
   arbitrary = do
-    n <- arbitrary
-    l <- arbitrary
+    n <- arbitrary `suchThat` (\(Name n) -> Txt.all (/= '|') n)
+    l <- arbitrary `suchThat` Txt.all (/= '|')
     return $ NameLogErr (n, l)
 
 genValidLog :: Gen Txt.Text
