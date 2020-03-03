@@ -9,7 +9,7 @@ import           Test.QuickCheck
 import Types.Branch
 import Types.Error
 
-import GitUtils.Arbitraries()
+import Core.Arbitraries()
 
 instance Arbitrary Err where
   arbitrary :: Gen Err

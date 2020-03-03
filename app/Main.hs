@@ -10,7 +10,7 @@ import           Data.Time.Clock (utctDay, getCurrentTime)
 import           System.Environment (getArgs)
 
 import App
-import GitUtils.Core
+import Core.MonadGit
 import Types.Env
 
 currDay :: IO Day

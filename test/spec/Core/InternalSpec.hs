@@ -1,7 +1,7 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module GitUtils.InternalSpec where
+module Core.InternalSpec where
 
 import           Data.Either (isRight)
 import qualified Data.Text as Txt
@@ -10,11 +10,11 @@ import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck
 
-import GitUtils.Internal
+import Core.Internal
 import Types.Error
 import Types.GitTypes
 
-import GitUtils.Arbitraries
+import Core.Arbitraries
 
 spec :: Spec
 spec = do

@@ -8,7 +8,7 @@ module App
 
 import Control.Monad.Reader
 
-import GitUtils.Core
+import Core.MonadGit
 import Types.Branch
 import Types.Env
 import Types.GitTypes
@@ -16,7 +16,7 @@ import Types.GitTypes
 newtype AppT m a = AppT { runAppT :: ReaderT Env m a }
   deriving (Functor, Applicative, Monad, MonadIO, MonadTrans, MonadReader Env)
 
-instance GitUtils m => GitUtils (AppT m) where
+instance MonadGit m => MonadGit (AppT m) where
   type UtilsType (AppT m) = UtilsType m
   type UtilsResult (AppT m) = UtilsResult m
 

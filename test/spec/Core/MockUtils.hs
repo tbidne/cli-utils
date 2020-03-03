@@ -4,11 +4,11 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module GitUtils.MockUtils where
+module Core.MockUtils where
 
 import qualified Data.Text as Txt
 
-import GitUtils.Core
+import Core.MonadGit
 import Types.Branch
 import Types.Env
 import Types.GitTypes
@@ -31,7 +31,7 @@ instance Monad MockUtils where
   (MockUtils rs x) >>= f = MockUtils (rs <> ts) y
     where (MockUtils ts y) = f x
 
-instance GitUtils MockUtils where
+instance MonadGit MockUtils where
   type UtilsType MockUtils = Wrap
   type UtilsResult MockUtils = [AnyBranch]
 

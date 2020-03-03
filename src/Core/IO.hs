@@ -2,7 +2,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module GitUtils.IO
+module Core.IO
 ( parseLog
 , parseAuthDateStr
 , parseDay
@@ -18,7 +18,7 @@ import qualified Data.Text as Txt
 import           Control.Exception (SomeException, try)
 import           System.Process (readCreateProcess, shell, cwd)
 
-import GitUtils.Internal
+import Core.Internal
 import Types.Branch
 import Types.Env
 import Types.Error

@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TupleSections #-}
 
-module GitUtils.Internal
+module Core.Internal
 ( parseLog
 , parseAuthDateStr
 , parseDay
