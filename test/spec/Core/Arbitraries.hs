@@ -1,7 +1,7 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module GitUtils.Arbitraries
+module Core.Arbitraries
 ( Arbitrary(..)
 , genYear
 , genYearStr

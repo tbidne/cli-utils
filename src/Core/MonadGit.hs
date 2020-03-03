@@ -4,8 +4,8 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module GitUtils.Core
-( GitUtils(..)
+module Core.MonadGit
+( MonadGit(..)
 , runWithReader
 , parseAuthDateStr
 , parseDay
@@ -18,15 +18,15 @@ import           Control.Concurrent.ParallelIO.Global (parallelE)
 import           Data.Kind (Type)
 import qualified Data.Text as Txt
 
-import GitUtils.Internal
-import GitUtils.IO
+import Core.Internal
+import Core.IO
 import Types.Branch
 import Types.Env
 import Types.Error
 import Types.GitTypes
 import Types.ResultsWithErrs
 
-class Monad m => GitUtils m where
+class Monad m => MonadGit m where
   type UtilsType m :: Type -> Type
   type UtilsResult m :: Type
 
@@ -35,7 +35,7 @@ class Monad m => GitUtils m where
   collectResults :: [UtilsType m AnyBranch] -> m (UtilsResult m)
   display :: (UtilsResult m) -> m ()
 
-runWithReader :: (GitUtils m, MonadReader Env m) => m ()
+runWithReader :: (MonadGit m, MonadReader Env m) => m ()
 runWithReader = do
   env <- ask
   branchNames <- grepBranches env
@@ -46,7 +46,7 @@ runWithReader = do
 
   display res
 
-instance GitUtils IO where
+instance MonadGit IO where
   type UtilsType IO = Either Err
   type UtilsResult IO = ResultsWithErrs
 

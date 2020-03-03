@@ -1,16 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module GitUtils.MockSpec where
+module Core.MockSpec where
 
 import Control.Monad.Reader (runReaderT)
 import qualified Data.Text as Txt
 import Test.Hspec
 
 import App
-import GitUtils.Core
+import Core.MonadGit
 import Types.Env
 
-import GitUtils.MockUtils
+import Core.MockUtils
 
 spec :: Spec
 spec = do

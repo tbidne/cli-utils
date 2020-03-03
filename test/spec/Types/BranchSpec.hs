@@ -9,7 +9,7 @@ import           Test.Hspec.QuickCheck
 import Types.Branch
 import Types.GitTypes
 
-import GitUtils.Arbitraries()
+import Core.Arbitraries()
 
 spec :: Spec
 spec = do
