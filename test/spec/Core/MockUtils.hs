@@ -32,7 +32,7 @@ instance Monad MockUtils where
     where (MockUtils ts y) = f x
 
 instance MonadGit MockUtils where
-  type UtilsType MockUtils = Wrap
+  type UtilsType MockUtils a = Wrap a
   type UtilsResult MockUtils = [AnyBranch]
 
   grepBranches :: Env -> MockUtils [Name]

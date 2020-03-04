@@ -51,7 +51,7 @@ genDayStr :: Gen Txt.Text
 genDayStr = do
   a <- elements ['0'..'2']
   b <- elements ['0'..'8']
-  return $ Txt.pack $ [a, b]
+  return $ Txt.pack [a, b]
 
 instance Arbitrary Day where
   arbitrary :: Gen Day
