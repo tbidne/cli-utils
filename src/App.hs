@@ -16,18 +16,20 @@ import Types.GitTypes
 newtype AppT m a = AppT { runAppT :: ReaderT Env m a }
   deriving (Functor, Applicative, Monad, MonadIO, MonadTrans, MonadReader Env)
 
+newtype AppType a = AppType { unAppType :: a }
+newtype AppResult a = AppResult { unAppResult :: a }
 instance MonadGit m => MonadGit (AppT m) where
-  type UtilsType (AppT m) = UtilsType m
-  type UtilsResult (AppT m) = UtilsResult m
+  type UtilsType (AppT m) a = AppType (UtilsType m a)
+  type UtilsResult (AppT m) = AppResult (UtilsResult m)
 
   grepBranches :: Env -> AppT m [Name]
   grepBranches = lift . grepBranches
 
-  collectResults :: [UtilsType m AnyBranch] -> AppT m (UtilsResult m)
-  collectResults = lift . collectResults
+  parseStaleBranches :: Env -> [Name] -> AppT m [AppType (UtilsType m AnyBranch)]
+  parseStaleBranches env = lift . (fmap . fmap) AppType . parseStaleBranches env
 
-  display :: UtilsResult m -> AppT m ()
-  display = lift . display
+  collectResults :: [AppType (UtilsType m AnyBranch)] -> AppT m (AppResult (UtilsResult m))
+  collectResults = lift . fmap AppResult . collectResults . fmap unAppType
 
-  parseStaleBranches :: Env -> [Name] -> AppT m [UtilsType m AnyBranch]
-  parseStaleBranches env = lift . parseStaleBranches env
+  display :: AppResult (UtilsResult m) -> AppT m ()
+  display = lift . display . unAppResult

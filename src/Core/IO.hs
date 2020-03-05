@@ -28,17 +28,17 @@ nameToBranch :: Env -> Name -> IO (Either Err AnyBranch)
 nameToBranch env@Env{..} name = do
   nameLog <- getNameLog path name
 
-  (logsToBranches . parseLog) nameLog
+  logsToBranches $ parseLog nameLog
   where logsToBranches (Left x) = return $ Left x
         logsToBranches (Right (n, a, d)) = do
           res <- isMerged env n
           return $ Right $ mkAnyBranch n a d res
 
 getNameLog :: Maybe FilePath -> Name -> IO (Name, Txt.Text)
-getNameLog p nm@(Name n) = sequenceA (nm, sh (format n) p)
-  where format x = Txt.concat
+getNameLog p nm@(Name n) = sequenceA (nm, sh cmd p)
+  where cmd = Txt.concat
           [ "git log "
-          , "\"" , x , "\""
+          , "\"" , n , "\""
           , " --pretty=format:\"%an|%ad\" --date=short -n1" ]
 
 isMerged :: Env -> Name -> IO Bool
