@@ -41,9 +41,14 @@ instance MonadGit MockUtils where
             Nothing -> id
             Just s  -> filter (\(Name n) -> s `Txt.isInfixOf` n)
 
-  parseStaleBranches :: Env -> [Name] -> MockUtils [Wrap AnyBranch]
-  parseStaleBranches Env{..} = MockUtils [] . fmap (Wrap . toBranch)
-    where toBranch nm@(Name n) = mkAnyBranch nm (Author n) today True
+  getStaleLogs :: Env -> [Name] -> MockUtils (Filtered (Wrap NameAuthDay))
+  getStaleLogs Env{..} = MockUtils [] . mkFiltered removeStale . fmap (Wrap . toLog)
+    where toLog nm@(Name n) = (nm, Author n, today)
+          removeStale (Wrap ((Name n), _, _)) = not $ "stale" `Txt.isInfixOf` n
+
+  toBranches :: Env -> Filtered (Wrap NameAuthDay) -> MockUtils [Wrap AnyBranch]
+  toBranches Env{..} = MockUtils [] . (fmap . fmap) toBranch . unFiltered
+    where toBranch (n, a, d) = mkAnyBranch n a d True
 
   collectResults :: [Wrap AnyBranch] -> MockUtils [AnyBranch]
   collectResults = MockUtils [] . fmap unWrap
@@ -53,11 +58,16 @@ instance MonadGit MockUtils where
     where f = Txt.pack . show
 
 allBranches :: [Name]
-allBranches = [ Name "branch 1"
-               , Name "branch 2"
+allBranches = [ Name "branch 1 stale"
+               , Name "branch 2 stale"
                , Name "branch 3"
-               , Name "branch 4"
+               , Name "branch 4 stale"
                , Name "branch 5"
+               , Name "branch 6"
+               , Name "branch 7"
+               , Name "branch 8"
                , Name "other 1"
-               , Name "other 2"
-               , Name "other 3" ]
+               , Name "other 2 stale"
+               , Name "other 3"
+               , Name "other 4 stale"
+               , Name "other 5" ]

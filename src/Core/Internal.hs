@@ -6,6 +6,7 @@ module Core.Internal
 , parseAuthDateStr
 , parseDay
 , stale
+, staleNonErr
 , toInt
 , safeRead
 ) where
@@ -18,16 +19,16 @@ import           Text.Read (readMaybe)
 import Types.Error
 import Types.GitTypes
 
-parseLog :: NameLog -> Either Err NameAuthDay
+parseLog :: NameLog -> ErrOr NameAuthDay
 parseLog = parseAuthDateStr >=> parseDay
 
-parseAuthDateStr :: NameLog -> Either Err NameAuthDateStr
+parseAuthDateStr :: NameLog -> ErrOr NameAuthDateStr
 parseAuthDateStr (n, l) =
   case Txt.splitOn "|" l of
     [a, t] -> Right (n, Author a, t)
     _      -> Left $ ParseLog l
 
-parseDay :: NameAuthDateStr -> Either Err NameAuthDay
+parseDay :: NameAuthDateStr -> ErrOr NameAuthDay
 parseDay (n, a, t) = fmap (n,a,) eitherDay
   where eitherDay =
           case traverse safeRead (Txt.splitOn "-" t) of
@@ -38,10 +39,14 @@ parseDay (n, a, t) = fmap (n,a,) eitherDay
 stale :: Integer -> Day -> NameAuthDay -> Bool
 stale lim day (_, _, d) = diffDays day d > lim
 
+staleNonErr :: Integer -> Day -> ErrOr NameAuthDay -> Bool
+staleNonErr _ _ (Left _) =  True
+staleNonErr i d (Right nad) = stale i d nad
+
 toInt :: Txt.Text -> Int
 toInt = read . Txt.unpack
 
-safeRead :: Txt.Text -> Either Err Int
+safeRead :: Txt.Text -> ErrOr Int
 safeRead t =
   case readMaybe (Txt.unpack t) of
     Nothing -> Left $ ReadInt t
