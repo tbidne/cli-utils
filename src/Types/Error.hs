@@ -1,4 +1,7 @@
-module Types.Error (Err(..)) where
+module Types.Error
+( Err(..)
+, ErrOr
+) where
 
 import Data.Text (Text)
 
@@ -10,3 +13,5 @@ data Err
   | GitBranches Text
   | GitLog      Text
   deriving Show
+
+type ErrOr a = Either Err a

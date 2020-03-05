@@ -25,8 +25,11 @@ instance MonadGit m => MonadGit (AppT m) where
   grepBranches :: Env -> AppT m [Name]
   grepBranches = lift . grepBranches
 
-  parseStaleBranches :: Env -> [Name] -> AppT m [AppType (UtilsType m AnyBranch)]
-  parseStaleBranches env = lift . (fmap . fmap) AppType . parseStaleBranches env
+  getStaleLogs :: Env -> [Name] -> AppT m (Filtered (AppType (UtilsType m NameAuthDay)))
+  getStaleLogs env = lift . (fmap . fmap) AppType . getStaleLogs env
+
+  toBranches :: Env -> Filtered (AppType (UtilsType m NameAuthDay)) -> AppT m [AppType (UtilsType m AnyBranch)]
+  toBranches env = lift . (fmap . fmap) AppType . toBranches env . fmap unAppType
 
   collectResults :: [AppType (UtilsType m AnyBranch)] -> AppT m (AppResult (UtilsResult m))
   collectResults = lift . fmap AppResult . collectResults . fmap unAppType

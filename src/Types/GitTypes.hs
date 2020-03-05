@@ -1,9 +1,16 @@
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveTraversable #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Types.GitTypes
 ( Name(..)
 , Author(..)
 , NameLog
 , NameAuthDateStr
 , NameAuthDay
+, Filtered
+, mkFiltered
+, unFiltered
 ) where
 
 import Data.Text (Text)
@@ -14,3 +21,9 @@ newtype Author = Author Text deriving (Eq, Ord, Show)
 type NameLog = (Name, Text)
 type NameAuthDateStr = (Name, Author, Text)
 type NameAuthDay = (Name, Author, Day)
+
+newtype Filtered a = Filtered { unFiltered :: [a] }
+  deriving (Functor, Applicative, Monad, Foldable, Traversable)
+
+mkFiltered :: (a -> Bool) -> [a] -> Filtered a
+mkFiltered f = Filtered . filter f

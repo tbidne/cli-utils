@@ -14,6 +14,7 @@ import           Control.Concurrent.ParallelIO.Global (parallelE)
 import           Data.Kind (Type)
 import qualified Data.Text as Txt
 
+import Core.Internal
 import Core.IO
 import Types.Branch
 import Types.Env
@@ -29,12 +30,13 @@ class Monad m => MonadGit m where
     = (r :: Type) | r -> m
 
   grepBranches :: Env -> m [Name]
-  parseStaleBranches :: Env -> [Name] -> m [UtilsType m AnyBranch]
+  getStaleLogs :: Env -> [Name] -> m (Filtered (UtilsType m NameAuthDay))
+  toBranches :: Env -> Filtered (UtilsType m NameAuthDay) -> m [UtilsType m AnyBranch]
   collectResults :: [UtilsType m AnyBranch] -> m (UtilsResult m)
   display :: (UtilsResult m) -> m ()
 
 instance MonadGit IO where
-  type UtilsType IO a = Either Err a
+  type UtilsType IO a = ErrOr a
   type UtilsResult IO = ResultsWithErrs
 
   grepBranches :: Env -> IO [Name]
@@ -48,16 +50,23 @@ instance MonadGit IO where
             Just s  -> filter (\t -> (Txt.toCaseFold s) `Txt.isInfixOf` (Txt.toCaseFold t))
           toNames = fmap (Name . Txt.strip) . maybeFilter . Txt.lines
 
-  parseStaleBranches :: Env -> [Name] -> IO [Either Err AnyBranch]
-  parseStaleBranches env@Env{..} ns = do
-    branches <- parallelE (fmap (nameToBranch env) ns)
+  getStaleLogs :: Env -> [Name] -> IO (Filtered (ErrOr NameAuthDay))
+  getStaleLogs env@Env{..} ns = do
+    logs <- parallelE (fmap (nameToLog env) ns)
+
+    let filteredLogs = (filter' . fmap exceptToErr) logs
+
+    return filteredLogs
+    
+    where filter' = mkFiltered $ staleNonErr limit today
+
+  toBranches :: Env -> Filtered (ErrOr NameAuthDay) -> IO [ErrOr AnyBranch]
+  toBranches env ns = do
+    branches <- parallelE (fmap (errTupleToBranch env) (unFiltered ns))
 
     return $ fmap exceptToErr branches
-    
-    where exceptToErr (Left x) = Left $ GitLog $ Txt.pack (show x)
-          exceptToErr (Right r) = r
 
-  collectResults :: [Either Err AnyBranch] -> IO ResultsWithErrs
+  collectResults :: [ErrOr AnyBranch] -> IO ResultsWithErrs
   collectResults = return . toResultsWithErrs
 
   display :: ResultsWithErrs -> IO ()
@@ -68,7 +77,9 @@ runWithReader = do
   env <- ask
   branchNames <- grepBranches env
 
-  staleBranches <- parseStaleBranches env branchNames
+  staleLogs <- getStaleLogs env branchNames
+
+  staleBranches <- toBranches env staleLogs
 
   res <- collectResults staleBranches
 

@@ -6,16 +6,18 @@ module Core.IO
 ( parseLog
 , parseAuthDateStr
 , parseDay
-, nameToBranch
 , getNameLog
+, nameToLog
 , isMerged
+, errTupleToBranch
 , logIfErr
 , sh
+, exceptToErr
 )
 where
 
-import qualified Data.Text as Txt
 import           Control.Exception (SomeException, try)
+import qualified Data.Text as Txt
 import           System.Process (readCreateProcess, shell, cwd)
 
 import Core.Internal
@@ -24,17 +26,16 @@ import Types.Env
 import Types.Error
 import Types.GitTypes
 
-nameToBranch :: Env -> Name -> IO (Either Err AnyBranch)
-nameToBranch env@Env{..} name = do
-  nameLog <- getNameLog path name
+nameToLog :: Env -> Name -> IO (ErrOr NameAuthDay)
+nameToLog Env{..} name = parseLog <$> getNameLog path name
 
-  logsToBranches $ parseLog nameLog
-  where logsToBranches (Left x) = return $ Left x
-        logsToBranches (Right (n, a, d)) = do
-          res <- isMerged env n
-          return $ Right $ mkAnyBranch n a d res
+errTupleToBranch :: Env -> ErrOr NameAuthDay -> IO (ErrOr AnyBranch)
+errTupleToBranch _ (Left x) = return $ Left x
+errTupleToBranch env (Right (n, a, d)) = do
+  res <- isMerged env n
+  return $ Right $ mkAnyBranch n a d res
 
-getNameLog :: Maybe FilePath -> Name -> IO (Name, Txt.Text)
+getNameLog :: Maybe FilePath -> Name -> IO NameLog
 getNameLog p nm@(Name n) = sequenceA (nm, sh cmd p)
   where cmd = Txt.concat
           [ "git log "
@@ -60,3 +61,7 @@ logIfErr io = do
       putStrLn $ "Died with error: " <> show ex
       io
     Right r -> return r
+
+exceptToErr :: Show a => Either a (Either Err b) -> Either Err b
+exceptToErr (Left x) = Left $ GitLog $ Txt.pack (show x)
+exceptToErr (Right r) = r

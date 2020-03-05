@@ -21,11 +21,11 @@ instance Show ResultsWithErrs where
   show ResultsWithErrs{..} = concat str
     where str = ["ERRORS\n------\n", show errList, "\n\n", show results]
 
-toResultsWithErrs :: [Either Err AnyBranch] -> ResultsWithErrs
+toResultsWithErrs :: [ErrOr AnyBranch] -> ResultsWithErrs
 toResultsWithErrs xs = ResultsWithErrs errs (toResults results)
   where (errs, results) = splitErrs xs
 
-splitErrs :: [Either Err AnyBranch] -> ([Err], [AnyBranch])
+splitErrs :: [ErrOr AnyBranch] -> ([Err], [AnyBranch])
 splitErrs = foldl' f ([], [])
   where f (es, bs) (Left e)  = (e:es, bs)
         f (es, bs) (Right b) = (es, b:bs)

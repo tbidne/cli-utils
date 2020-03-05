@@ -18,14 +18,14 @@ spec = do
   describe "ResultsWithErrs tests" $ do
     prop "size(unique_branches) should equal size(merge_map) + size(unmerged_map) + size(errs)" sizesMatch
 
-sizesMatch :: [Either Err AnyBranch] -> Bool
+sizesMatch :: [ErrOr AnyBranch] -> Bool
 sizesMatch bs = numUnique bs == Map.size merged + Map.size unmerged + length errs
   where resultsErrs  = toResultsWithErrs bs
         merged   = mergedMap   $ results resultsErrs
         unmerged = unmergedMap $ results resultsErrs
         errs     = errList resultsErrs
 
-numUnique :: [Either Err AnyBranch] -> Int
+numUnique :: [ErrOr AnyBranch] -> Int
 numUnique bs = (setsLen . foldl' f (0, Set.empty, Set.empty)) bs
   where f (errs, m, u) (Left _)                                  = (errs + 1, m, u)
         f (errs, m, u) (Right (MergedBranch   (MkBranch _ a _))) = (errs, Set.insert a m, u)
