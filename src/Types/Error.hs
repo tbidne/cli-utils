@@ -1,9 +1,10 @@
 module Types.Error
-( Err(..)
-, ErrOr
-) where
+  ( Err(..)
+  , ErrOr
+  )
+where
 
-import Data.Text (Text)
+import           Data.Text                      ( Text )
 
 data Err
   = ParseLog    Text

@@ -20,9 +20,11 @@ To build with stack run `stack build`.
 
 Run with `stack exec git-utils-exe <grep> <directory> <limit>`.
 
-`grep` and `directory` are non-optional, but if no grep string is desired then `""` can be provided.
+`grep` is a mandatory string to grep branches on. If no grep string is desired then `""` can be provided.
 
-The default `limit` is 30.
+ `directory` is the mandatory path for the git directory.
+
+`limit` is the optional limit (in days) for which we consider a branch to be stale. The default is 30.
 
 ## Docker
 
@@ -46,6 +48,6 @@ docker run -v /path/to/dir:/share --rm <image> grep /share 30
 docker run -v /path/to/dir:/share:cached --rm <image> grep /share 30
 ```
 
-The default docker volume mounting for mac has terrible performance (no arg is equivalent to `consistent` and `default`). `cached` and `delegated` will likely have similar performance, though `cached` theoretically makes more sense given that docker is solely reading data, not writing. In any case, `cached` or `delegated` should dramatically improve performance. Of course if you have stack then you can skip all this and get much better performance than even `cached` ;-).
+The default docker volume mounting for mac has terrible performance. Docker has mitigates this by providing volume options. The ones most likely to help are `cached` and `delegated` (no arg is equivalent to `consistent`/`default`). `cached` and `delegated` will likely have similar performance, though `cached` theoretically makes more sense given that docker is solely reading data, not writing. In any case, `cached` or `delegated` should dramatically improve performance. Of course if you have stack then you can skip all this and get much better performance than even `cached` ;-).
 
 See [here](https://docs.docker.com/docker-for-mac/osxfs-caching/) for more info.

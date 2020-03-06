@@ -1,16 +1,17 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds       #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Types.ResultsWithErrs
-( ResultsWithErrs(..)
-, toResultsWithErrs
-) where
+  ( ResultsWithErrs(..)
+  , toResultsWithErrs
+  )
+where
 
-import Data.Foldable (foldl')
+import           Data.Foldable                  ( foldl' )
 
-import Types.Branch
-import Types.Error
-import Types.Results
+import           Types.Branch
+import           Types.Error
+import           Types.Results
 
 data ResultsWithErrs = ResultsWithErrs
   { errList :: [Err]
@@ -18,7 +19,7 @@ data ResultsWithErrs = ResultsWithErrs
   }
 
 instance Show ResultsWithErrs where
-  show ResultsWithErrs{..} = concat str
+  show ResultsWithErrs {..} = concat str
     where str = ["ERRORS\n------\n", show errList, "\n\n", show results]
 
 toResultsWithErrs :: [ErrOr AnyBranch] -> ResultsWithErrs
@@ -27,5 +28,6 @@ toResultsWithErrs xs = ResultsWithErrs errs (toResults results)
 
 splitErrs :: [ErrOr AnyBranch] -> ([Err], [AnyBranch])
 splitErrs = foldl' f ([], [])
-  where f (es, bs) (Left e)  = (e:es, bs)
-        f (es, bs) (Right b) = (es, b:bs)
+ where
+  f (es, bs) (Left  e) = (e : es, bs)
+  f (es, bs) (Right b) = (es, b : bs)
