@@ -20,26 +20,26 @@ newtype AppT m a = AppT { runAppT :: ReaderT Env m a }
 newtype AppType a = AppType { unAppType :: a }
 newtype AppResult a = AppResult { unAppResult :: a }
 instance MonadGit m => MonadGit (AppT m) where
-  type UtilsType (AppT m) a = AppType (UtilsType m a)
-  type UtilsResult (AppT m) = AppResult (UtilsResult m)
+  type GitType (AppT m) a = AppType (GitType m a)
+  type ResultType (AppT m) = AppResult (ResultType m)
 
   grepBranches :: Env -> AppT m [Name]
   grepBranches = lift . grepBranches
 
   getStaleLogs
-    :: Env -> [Name] -> AppT m (Filtered (AppType (UtilsType m NameAuthDay)))
+    :: Env -> [Name] -> AppT m (Filtered (AppType (GitType m NameAuthDay)))
   getStaleLogs env = lift . (fmap . fmap) AppType . getStaleLogs env
 
   toBranches
     :: Env
-    -> Filtered (AppType (UtilsType m NameAuthDay))
-    -> AppT m [AppType (UtilsType m AnyBranch)]
+    -> Filtered (AppType (GitType m NameAuthDay))
+    -> AppT m [AppType (GitType m AnyBranch)]
   toBranches env =
     lift . (fmap . fmap) AppType . toBranches env . fmap unAppType
 
   collectResults
-    :: [AppType (UtilsType m AnyBranch)] -> AppT m (AppResult (UtilsResult m))
+    :: [AppType (GitType m AnyBranch)] -> AppT m (AppResult (ResultType m))
   collectResults = lift . fmap AppResult . collectResults . fmap unAppType
 
-  display :: AppResult (UtilsResult m) -> AppT m ()
+  display :: AppResult (ResultType m) -> AppT m ()
   display = lift . display . unAppResult

@@ -13,14 +13,14 @@ module Types.GitTypes
   )
 where
 
-import           Data.Text                      ( Text )
-import           Data.Time.Calendar             ( Day )
+import qualified Data.Text as T 
+import qualified Data.Time.Calendar as C
 
-newtype Name = Name Text deriving (Eq, Ord, Show)
-newtype Author = Author Text deriving (Eq, Ord, Show)
-type NameLog = (Name, Text)
-type NameAuthDateStr = (Name, Author, Text)
-type NameAuthDay = (Name, Author, Day)
+newtype Name = Name T.Text deriving (Eq, Ord, Show)
+newtype Author = Author T.Text deriving (Eq, Ord, Show)
+type NameLog = (Name, T.Text)
+type NameAuthDateStr = (Name, Author, T.Text)
+type NameAuthDay = (Name, Author, C.Day)
 
 newtype Filtered a = Filtered { unFiltered :: [a] }
   deriving (Functor, Applicative, Monad)

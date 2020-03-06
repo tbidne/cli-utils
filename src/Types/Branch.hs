@@ -11,8 +11,8 @@ module Types.Branch
   )
 where
 
-import qualified Data.Text                     as T
-import           Data.Time.Calendar             ( Day )
+import qualified Data.Text as T
+import qualified Data.Time.Calendar as C
 
 import           Types.GitTypes
 
@@ -21,7 +21,7 @@ data BranchStatus where
   UnMerged ::BranchStatus
 
 data Branch (a :: BranchStatus) where
-  MkBranch ::Name -> Author -> Day -> Branch a
+  MkBranch ::Name -> Author -> C.Day -> Branch a
 
 instance Show (Branch a) where
   show (MkBranch (Name n) _ _) =
@@ -34,6 +34,6 @@ data AnyBranch where
   UnMergedBranch ::Branch 'UnMerged -> AnyBranch
   deriving Show
 
-mkAnyBranch :: Name -> Author -> Day -> Bool -> AnyBranch
+mkAnyBranch :: Name -> Author -> C.Day -> Bool -> AnyBranch
 mkAnyBranch n a d b | b         = MergedBranch $ MkBranch n a d
                     | otherwise = UnMergedBranch $ MkBranch n a d
