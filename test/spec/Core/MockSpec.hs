@@ -2,15 +2,15 @@
 
 module Core.MockSpec where
 
-import Control.Monad.Reader (runReaderT)
-import qualified Data.Text as Txt
-import Test.Hspec
+import           Control.Monad.Reader           ( runReaderT )
+import qualified Data.Text                     as Txt
+import           Test.Hspec
 
-import App
-import Core.MonadGit
-import Types.Env
+import           App
+import           Core.MonadGit
+import           Types.Env
 
-import Core.MockUtils
+import           Core.MockUtils
 
 spec :: Spec
 spec = do
@@ -18,15 +18,15 @@ spec = do
     it "Mock run with grep `branch` should return 5 results" $ do
       let (MockUtils res _) = runMock "branch"
       length res `shouldBe` 5
-    
+
     it "Mock run with grep `other` should return 3 results" $ do
       let (MockUtils res _) = runMock "other"
       length res `shouldBe` 3
-    
+
     it "Mock run with blank grep should return 8 results" $ do
       let (MockUtils res _) = runMock ""
       length res `shouldBe` 8
-    
+
     it "Mock run with wrong grep should return 0 results" $ do
       let (MockUtils res _) = runMock "nope"
       length res `shouldBe` 0
