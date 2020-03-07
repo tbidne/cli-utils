@@ -15,14 +15,9 @@ module Core.IO
   )
 where
 
-import           Control.Exception              ( SomeException
-                                                , try
-                                                )
-import qualified Data.Text                     as Txt
-import           System.Process                 ( cwd
-                                                , readCreateProcess
-                                                , shell
-                                                )
+import qualified Control.Exception as Ex
+import qualified Data.Text as T
+import qualified System.Process as P
 
 import           Core.Internal
 import           Types.Branch
@@ -42,25 +37,25 @@ errTupleToBranch env (Right (n, a, d)) = do
 getNameLog :: Maybe FilePath -> Name -> IO NameLog
 getNameLog p nm@(Name n) = sequenceA (nm, sh cmd p)
  where
-  cmd = Txt.concat
+  cmd = T.concat
     ["git log ", "\"", n, "\"", " --pretty=format:\"%an|%ad\" --date=short -n1"]
 
 isMerged :: Env -> Name -> IO Bool
 isMerged Env {..} (Name n) = do
 
   res <- sh
-    (Txt.concat ["git rev-list --count origin/master..", "\"", n, "\""])
+    (T.concat ["git rev-list --count origin/master..", "\"", n, "\""])
     path
 
   (return . (== 0) . toInt) res
 
-sh :: Txt.Text -> Maybe FilePath -> IO Txt.Text
-sh cmd fp = Txt.pack <$> readCreateProcess proc ""
-  where proc = (shell (Txt.unpack cmd)) { cwd = fp }
+sh :: T.Text -> Maybe FilePath -> IO T.Text
+sh cmd fp = T.pack <$> P.readCreateProcess proc ""
+  where proc = (P.shell (T.unpack cmd)) { P.cwd = fp }
 
 logIfErr :: forall a . IO a -> IO a
 logIfErr io = do
-  res <- try io :: IO (Either SomeException a)
+  res <- Ex.try io :: IO (Either Ex.SomeException a)
   case res of
     Left ex -> do
       putStrLn $ "Died with error: " <> show ex

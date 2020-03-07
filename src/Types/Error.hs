@@ -4,15 +4,15 @@ module Types.Error
   )
 where
 
-import           Data.Text                      ( Text )
+import qualified Data.Text as T
 
 data Err
-  = ParseLog    Text
-  | ParseDate   Text
-  | ParseMerge  Text
-  | ReadInt     Text
-  | GitBranches Text
-  | GitLog      Text
+  = ParseLog    T.Text
+  | ParseDate   T.Text
+  | ParseMerge  T.Text
+  | ReadInt     T.Text
+  | GitBranches T.Text
+  | GitLog      T.Text
   deriving Show
 
 type ErrOr a = Either Err a

@@ -31,8 +31,8 @@ instance Monad MockUtils where
   (MockUtils rs x) >>= f = MockUtils (rs <> ts) y where (MockUtils ts y) = f x
 
 instance MonadGit MockUtils where
-  type UtilsType MockUtils a = Wrap a
-  type UtilsResult MockUtils = [AnyBranch]
+  type GitType MockUtils a = Wrap a
+  type ResultType MockUtils = [AnyBranch]
 
   grepBranches :: Env -> MockUtils [Name]
   grepBranches Env {..} = MockUtils [] (maybeFilter allBranches)

@@ -3,13 +3,13 @@ module Types.Env
   )
 where
 
-import           Data.Text                      ( Text )
-import           Data.Time.Calendar             ( Day )
-import           System.IO                      ( )
+import qualified Data.Text as T
+import qualified Data.Time.Calendar as C
+import qualified System.IO as IO
 
 data Env = Env
-  { grepStr :: Maybe Text
-  , today :: Day
+  { grepStr :: Maybe T.Text
+  , today :: C.Day
   , limit :: Integer
-  , path :: Maybe FilePath
+  , path :: Maybe IO.FilePath
   }

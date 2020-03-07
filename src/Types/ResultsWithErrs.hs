@@ -7,7 +7,7 @@ module Types.ResultsWithErrs
   )
 where
 
-import           Data.Foldable                  ( foldl' )
+import qualified Data.Foldable as F
 
 import           Types.Branch
 import           Types.Error
@@ -27,7 +27,7 @@ toResultsWithErrs xs = ResultsWithErrs errs (toResults results)
   where (errs, results) = splitErrs xs
 
 splitErrs :: [ErrOr AnyBranch] -> ([Err], [AnyBranch])
-splitErrs = foldl' f ([], [])
+splitErrs = F.foldl' f ([], [])
  where
   f (es, bs) (Left  e) = (e : es, bs)
   f (es, bs) (Right b) = (es, b : bs)

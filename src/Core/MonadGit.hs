@@ -10,16 +10,13 @@ module Core.MonadGit
   )
 where
 
-import           Control.Monad.Reader           ( MonadReader
-                                                , ask
-                                                )
-import           Control.Concurrent.ParallelIO.Global
-                                                ( parallelE )
-import           Data.Kind                      ( Type )
-import qualified Data.Text                     as T
+import qualified Control.Concurrent.ParallelIO.Global as Par
+import qualified Control.Monad.Reader as R
+import qualified Data.Kind as K
+import qualified Data.Text as T
 
-import           Core.Internal
 import           Core.IO
+import           Core.Internal
 import           Types.Branch
 import           Types.Env
 import           Types.Error
@@ -27,47 +24,41 @@ import           Types.GitTypes
 import           Types.ResultsWithErrs
 
 class Monad m => MonadGit m where
-  type UtilsType (m :: Type -> Type) (a :: Type)
-    = (r :: Type) | r -> m a
+  type GitType (m :: K.Type -> K.Type) (a :: K.Type) = (r :: K.Type) | r -> m a
 
-  type UtilsResult (m :: Type -> Type)
-    = (r :: Type) | r -> m
+  type ResultType (m :: K.Type -> K.Type) = (r :: K.Type) | r -> m
 
   grepBranches :: Env -> m [Name]
-  getStaleLogs :: Env -> [Name] -> m (Filtered (UtilsType m NameAuthDay))
-  toBranches :: Env -> Filtered (UtilsType m NameAuthDay) -> m [UtilsType m AnyBranch]
-  collectResults :: [UtilsType m AnyBranch] -> m (UtilsResult m)
-  display :: UtilsResult m -> m ()
+  getStaleLogs :: Env -> [Name] -> m (Filtered (GitType m NameAuthDay))
+  toBranches :: Env -> Filtered (GitType m NameAuthDay) -> m [GitType m AnyBranch]
+  collectResults :: [GitType m AnyBranch] -> m (ResultType m)
+  display :: ResultType m -> m ()
 
 instance MonadGit IO where
-  type UtilsType IO a = ErrOr a
-  type UtilsResult IO = ResultsWithErrs
+  type GitType IO a = ErrOr a
+  type ResultType IO = ResultsWithErrs
 
   grepBranches :: Env -> IO [Name]
   grepBranches Env {..} = do
     res <- sh "git branch -r" path
-
     logIfErr $ return $ toNames res
-
    where
-    maybeFilter = case grepStr of
-      Nothing -> id
-      Just s  -> filter (\t -> (T.toCaseFold s) `T.isInfixOf` (T.toCaseFold t))
-    toNames = fmap (Name . T.strip) . maybeFilter . T.lines
+    f' = case grepStr of
+      Nothing -> not . badBranch
+      Just s ->
+        \t -> (not . badBranch) t && T.toCaseFold s `T.isInfixOf` T.toCaseFold t
+    toNames = fmap (Name . T.strip) . filter f' . T.lines
 
   getStaleLogs :: Env -> [Name] -> IO (Filtered (ErrOr NameAuthDay))
   getStaleLogs env@Env {..} ns = do
-    logs <- parallelE (fmap (nameToLog env) ns)
-
+    logs <- Par.parallelE (fmap (nameToLog env) ns)
     let filteredLogs = (filter' . fmap exceptToErr) logs
-
     return filteredLogs
     where filter' = mkFiltered $ staleNonErr limit today
 
   toBranches :: Env -> Filtered (ErrOr NameAuthDay) -> IO [ErrOr AnyBranch]
   toBranches env ns = do
-    branches <- parallelE (fmap (errTupleToBranch env) (unFiltered ns))
-
+    branches <- Par.parallelE (fmap (errTupleToBranch env) (unFiltered ns))
     return $ fmap exceptToErr branches
 
   collectResults :: [ErrOr AnyBranch] -> IO ResultsWithErrs
@@ -76,15 +67,11 @@ instance MonadGit IO where
   display :: ResultsWithErrs -> IO ()
   display = print
 
-runWithReader :: (MonadGit m, MonadReader Env m) => m ()
+runWithReader :: (MonadGit m, R.MonadReader Env m) => m ()
 runWithReader = do
-  env           <- ask
+  env           <- R.ask
   branchNames   <- grepBranches env
-
   staleLogs     <- getStaleLogs env branchNames
-
   staleBranches <- toBranches env staleLogs
-
   res           <- collectResults staleBranches
-
   display res
