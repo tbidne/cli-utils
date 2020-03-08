@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings   #-}
-{-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Core.IO
@@ -21,17 +20,16 @@ import qualified System.Process as P
 
 import           Core.Internal
 import           Types.Branch
-import           Types.Env
 import           Types.Error
 import           Types.GitTypes
 
-nameToLog :: Env -> Name -> IO (ErrOr NameAuthDay)
-nameToLog Env {..} name = parseLog <$> getNameLog path name
+nameToLog :: Maybe FilePath -> Name -> IO (ErrOr NameAuthDay)
+nameToLog path name = parseLog <$> getNameLog path name
 
-errTupleToBranch :: Env -> ErrOr NameAuthDay -> IO (ErrOr AnyBranch)
-errTupleToBranch _   (Left  x        ) = return $ Left x
-errTupleToBranch env (Right (n, a, d)) = do
-  res <- isMerged env n
+errTupleToBranch :: Maybe FilePath -> ErrOr NameAuthDay -> IO (ErrOr AnyBranch)
+errTupleToBranch _    (Left  x        ) = return $ Left x
+errTupleToBranch path (Right (n, a, d)) = do
+  res <- isMerged path n
   return $ Right $ mkAnyBranch n a d res
 
 getNameLog :: Maybe FilePath -> Name -> IO NameLog
@@ -40,12 +38,11 @@ getNameLog p nm@(Name n) = sequenceA (nm, sh cmd p)
   cmd = T.concat
     ["git log ", "\"", n, "\"", " --pretty=format:\"%an|%ad\" --date=short -n1"]
 
-isMerged :: Env -> Name -> IO Bool
-isMerged Env {..} (Name n) = do
+isMerged :: Maybe FilePath -> Name -> IO Bool
+isMerged path (Name n) = do
 
-  res <- sh
-    (T.concat ["git rev-list --count origin/master..", "\"", n, "\""])
-    path
+  res <- sh (T.concat ["git rev-list --count origin/master..", "\"", n, "\""])
+            path
 
   (return . (== 0) . toInt) res
 

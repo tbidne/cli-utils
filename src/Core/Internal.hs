@@ -14,10 +14,10 @@ module Core.Internal
   )
 where
 
-import           Control.Monad ((>=>))
-import qualified Data.Text as T
-import qualified Data.Time.Calendar as C
-import qualified Text.Read as R
+import           Control.Monad                  ( (>=>) )
+import qualified Data.Text                     as T
+import qualified Data.Time.Calendar            as C
+import qualified Text.Read                     as R
 
 import           Types.Error
 import           Types.GitTypes

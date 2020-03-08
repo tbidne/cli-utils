@@ -1,62 +1,77 @@
-{-# LANGUAGE DeriveFunctor     #-}
-{-# LANGUAGE InstanceSigs      #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE DeriveFunctor                  #-}
+{-# LANGUAGE FlexibleInstances              #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving     #-}
+{-# LANGUAGE InstanceSigs                   #-}
+{-# LANGUAGE OverloadedStrings              #-}
+{-# LANGUAGE TypeFamilies                   #-}
 
 module Core.MockUtils where
 
-import qualified Data.Text                     as Txt
+import           Control.Monad.Reader
+import qualified Data.Text as Txt
 
 import           Core.MonadGit
 import           Types.Branch
 import           Types.Env
 import           Types.GitTypes
 
-newtype Wrap a = Wrap { unWrap :: a }
+data Output a = Output [Txt.Text] a
   deriving (Eq, Ord, Show, Functor)
 
-data MockUtils a = MockUtils { output :: [Txt.Text], unMock :: a }
-  deriving (Eq, Ord, Show, Functor)
+instance Applicative Output where
+  pure :: a -> Output a
+  pure = Output []
 
-instance Applicative MockUtils where
-  pure :: a -> MockUtils a
-  pure = MockUtils []
+  (<*>) :: Output (a -> b) -> Output a -> Output b
+  (Output rs f) <*> (Output ts x) = Output (rs <> ts) (f x)
 
-  (<*>) :: MockUtils (a -> b) -> MockUtils a -> MockUtils b
-  (MockUtils rs f) <*> (MockUtils ts x) = MockUtils (rs <> ts) (f x)
+instance Monad Output where
+  (>>=) :: Output a -> (a -> Output b) -> Output b
+  (Output rs x) >>= f = Output (rs <> ts) y where (Output ts y) = f x
 
-instance Monad MockUtils where
-  (>>=) :: MockUtils a -> (a -> MockUtils b) -> MockUtils b
-  (MockUtils rs x) >>= f = MockUtils (rs <> ts) y where (MockUtils ts y) = f x
+putOutput :: Show a => [a] -> Output ()
+putOutput xs = Output (fmap (Txt.pack . show) xs) ()
 
-instance MonadGit MockUtils where
-  type GitType MockUtils a = Wrap a
-  type ResultType MockUtils = [AnyBranch]
+prependOut :: [Txt.Text] -> Output a -> Output a
+prependOut ts (Output rs x) = Output (ts <> rs) x
 
-  grepBranches :: Env -> MockUtils [Name]
-  grepBranches Env {..} = MockUtils [] (maybeFilter allBranches)
-   where
-    maybeFilter = case grepStr of
-      Nothing -> id
-      Just s  -> filter (\(Name n) -> s `Txt.isInfixOf` n)
+newtype MockUtilsT m a = MockUtilsT { runMockUtilsT :: ReaderT Env m a }
+  deriving (Functor, Applicative, Monad, MonadTrans, MonadReader Env)
 
-  getStaleLogs :: Env -> [Name] -> MockUtils (Filtered (Wrap NameAuthDay))
-  getStaleLogs Env {..} = MockUtils [] . mkFiltered removeStale . fmap
-    (Wrap . toLog)
-   where
-    toLog nm@(Name n) = (nm, Author n, today)
-    removeStale (Wrap ((Name n), _, _)) = not $ "stale" `Txt.isInfixOf` n
+type MockUtilsOut = MockUtilsT Output
+instance MonadGit MockUtilsOut where
+  type GitType MockUtilsOut a = a
+  type ResultType MockUtilsOut = [AnyBranch]
 
-  toBranches :: Env -> Filtered (Wrap NameAuthDay) -> MockUtils [Wrap AnyBranch]
-  toBranches Env {..} = MockUtils [] . (fmap . fmap) toBranch . unFiltered
+  grepBranches :: MockUtilsOut [Name]
+  grepBranches = do
+    grep <- asks grepStr
+
+    let maybeFilter = case grep of
+          Nothing -> id
+          Just s  -> filter (\(Name n) -> s `Txt.isInfixOf` n)
+
+    lift $ return $ maybeFilter allBranches
+
+  getStaleLogs :: [Name] -> MockUtilsOut (Filtered NameAuthDay)
+  getStaleLogs ns = do
+    let removeStale ((Name n), _, _) = not $ "stale" `Txt.isInfixOf` n
+        toLog nm@(Name n) = (nm, Author n, error "MockUtils -> getStaleLogs: day not defined")
+
+    lift $ return $ (mkFiltered removeStale . fmap toLog) ns
+
+  toBranches :: Filtered NameAuthDay -> MockUtilsOut [AnyBranch]
+  toBranches = lift . return . fmap toBranch . unFiltered
     where toBranch (n, a, d) = mkAnyBranch n a d True
 
-  collectResults :: [Wrap AnyBranch] -> MockUtils [AnyBranch]
-  collectResults = MockUtils [] . fmap unWrap
+  collectResults :: [AnyBranch] -> MockUtilsOut [AnyBranch]
+  collectResults = lift . return
 
-  display :: [AnyBranch] -> MockUtils ()
-  display bs = MockUtils (fmap f bs) () where f = Txt.pack . show
+  display :: [AnyBranch] -> MockUtilsOut ()
+  display = MockUtilsT . lift . putOutput
+
+addMockOut :: [Txt.Text] -> MockUtilsT Output a -> MockUtilsT Output a
+addMockOut ts = MockUtilsT . mapReaderT (prependOut ts) . runMockUtilsT
 
 allBranches :: [Name]
 allBranches =
