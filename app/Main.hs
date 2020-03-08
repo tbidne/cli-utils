@@ -23,7 +23,7 @@ main = do
   case mkEnv d args of
     Nothing  -> putStrLn "Usage: stack exec git-utils-exe <search str> <path> <limit>"
     Just env -> do
-      runReaderT (runAppT runWithReader) env
+      runReaderT (runAppT runGitUtils) env
       stopGlobalPool
 
 mkEnv :: Day -> [String] -> Maybe Env

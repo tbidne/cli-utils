@@ -1,12 +1,14 @@
-{-# LANGUAGE FlexibleContexts       #-}
-{-# LANGUAGE InstanceSigs           #-}
-{-# LANGUAGE OverloadedStrings      #-}
-{-# LANGUAGE RecordWildCards        #-}
-{-# LANGUAGE TypeFamilyDependencies #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE InstanceSigs               #-}
+{-# LANGUAGE LambdaCase                 #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE TypeFamilies               #-}
 
 module Core.MonadGit
   ( MonadGit(..)
-  , runWithReader
+  , runGitUtils
   )
 where
 
@@ -15,6 +17,7 @@ import qualified Control.Monad.Reader as R
 import qualified Data.Kind as K
 import qualified Data.Text as T
 
+import           App
 import           Core.IO
 import           Core.Internal
 import           Types.Branch
@@ -24,54 +27,61 @@ import           Types.GitTypes
 import           Types.ResultsWithErrs
 
 class Monad m => MonadGit m where
-  type GitType (m :: K.Type -> K.Type) (a :: K.Type) = (r :: K.Type) | r -> m a
+  type GitType m a :: K.Type
+  type ResultType m :: K.Type
 
-  type ResultType (m :: K.Type -> K.Type) = (r :: K.Type) | r -> m
-
-  grepBranches :: Env -> m [Name]
-  getStaleLogs :: Env -> [Name] -> m (Filtered (GitType m NameAuthDay))
-  toBranches :: Env -> Filtered (GitType m NameAuthDay) -> m [GitType m AnyBranch]
+  grepBranches :: m [Name]
+  getStaleLogs :: [Name] -> m (Filtered (GitType m NameAuthDay))
+  toBranches :: Filtered (GitType m NameAuthDay) -> m [GitType m AnyBranch]
   collectResults :: [GitType m AnyBranch] -> m (ResultType m)
   display :: ResultType m -> m ()
 
-instance MonadGit IO where
-  type GitType IO a = ErrOr a
-  type ResultType IO = ResultsWithErrs
+instance R.MonadIO m => MonadGit (AppT m) where
+  type GitType (AppT m) a = ErrOr a
+  type ResultType (AppT m) = ResultsWithErrs
 
-  grepBranches :: Env -> IO [Name]
-  grepBranches Env {..} = do
-    res <- sh "git branch -r" path
-    logIfErr $ return $ toNames res
-   where
-    f' = case grepStr of
-      Nothing -> not . badBranch
-      Just s ->
-        \t -> (not . badBranch) t && T.toCaseFold s `T.isInfixOf` T.toCaseFold t
-    toNames = fmap (Name . T.strip) . filter f' . T.lines
+  grepBranches :: (AppT m) [Name]
+  grepBranches = do
+    p <- R.asks path
+    searchStr <- R.asks grepStr
 
-  getStaleLogs :: Env -> [Name] -> IO (Filtered (ErrOr NameAuthDay))
-  getStaleLogs env@Env {..} ns = do
-    logs <- Par.parallelE (fmap (nameToLog env) ns)
-    let filteredLogs = (filter' . fmap exceptToErr) logs
-    return filteredLogs
-    where filter' = mkFiltered $ staleNonErr limit today
+    let branchFn = case searchStr of
+          Nothing -> not . badBranch
+          Just s ->
+            \t -> (not . badBranch) t && T.toCaseFold s `T.isInfixOf` T.toCaseFold t
+        toNames' = fmap (Name . T.strip) . filter branchFn . T.lines
 
-  toBranches :: Env -> Filtered (ErrOr NameAuthDay) -> IO [ErrOr AnyBranch]
-  toBranches env ns = do
-    branches <- Par.parallelE (fmap (errTupleToBranch env) (unFiltered ns))
-    return $ fmap exceptToErr branches
+    res <- R.liftIO $ sh "git branch -r" p
+    R.liftIO $ logIfErr $ return $ toNames' res
+  
+  getStaleLogs :: [Name] -> (AppT m) (Filtered (ErrOr NameAuthDay))
+  getStaleLogs ns = do
+    day <- R.asks today
+    lim <- R.asks limit
+    p <- R.asks path
+    
+    let staleFilter' = mkFiltered $ staleNonErr lim day
 
-  collectResults :: [ErrOr AnyBranch] -> IO ResultsWithErrs
+    logs <- R.liftIO $ Par.parallelE (fmap (nameToLog p) ns)
+    
+    R.liftIO $ return $ (staleFilter' . fmap exceptToErr) logs
+
+  toBranches :: Filtered (ErrOr NameAuthDay) -> (AppT m) [ErrOr AnyBranch]
+  toBranches ns = do
+    p <- R.asks path
+    branches <- R.liftIO $ Par.parallelE (fmap (errTupleToBranch p) (unFiltered ns))
+    R.liftIO $ return $ fmap exceptToErr branches
+
+  collectResults :: [ErrOr AnyBranch] -> (AppT m) ResultsWithErrs
   collectResults = return . toResultsWithErrs
 
-  display :: ResultsWithErrs -> IO ()
-  display = print
+  display :: ResultsWithErrs -> (AppT m) ()
+  display = R.liftIO . print
 
-runWithReader :: (MonadGit m, R.MonadReader Env m) => m ()
-runWithReader = do
-  env           <- R.ask
-  branchNames   <- grepBranches env
-  staleLogs     <- getStaleLogs env branchNames
-  staleBranches <- toBranches env staleLogs
+runGitUtils :: MonadGit m => m ()
+runGitUtils = do
+  branchNames   <- grepBranches
+  staleLogs     <- getStaleLogs branchNames
+  staleBranches <- toBranches staleLogs
   res           <- collectResults staleBranches
   display res
