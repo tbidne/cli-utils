@@ -1,13 +1,12 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module App
-  ( AppT(..)
+  ( AppT (..),
   )
 where
 
 import qualified Control.Monad.Reader as R
+import Types.Env
 
-import           Types.Env
-
-newtype AppT m a = AppT { runAppT :: R.ReaderT Env m a }
+newtype AppT m a = AppT {runAppT :: R.ReaderT Env m a}
   deriving (Functor, Applicative, Monad, R.MonadIO, R.MonadTrans, R.MonadReader Env)
