@@ -1,18 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Types.BranchSpec
-  ( spec
+  ( spec,
   )
 where
 
-import           Data.Time.Calendar             ( Day )
-import           Test.Hspec
-import           Test.Hspec.QuickCheck
-
-import           Types.Branch
-import           Types.GitTypes
-
-import           Core.Arbitraries               ( )
+import Core.Arbitraries ()
+import Data.Time.Calendar (Day)
+import Test.Hspec
+import Test.Hspec.QuickCheck
+import Types.Branch
+import Types.GitTypes
 
 spec :: Spec
 spec = do
@@ -21,5 +19,5 @@ spec = do
 
 vBranch :: Name -> Author -> Day -> Bool -> Bool
 vBranch n a d b = case mkAnyBranch n a d b of
-  MergedBranch   _ -> b
+  MergedBranch _ -> b
   UnMergedBranch _ -> not b

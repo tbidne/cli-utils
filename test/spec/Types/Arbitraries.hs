@@ -1,28 +1,26 @@
 {-# LANGUAGE InstanceSigs #-}
 
 module Types.Arbitraries
-  ( Arbitrary(..)
+  ( Arbitrary (..),
   )
 where
 
-import           Test.QuickCheck
-
-import           Types.Branch
-import           Types.Error
-
-import           Core.Arbitraries               ( )
+import Core.Arbitraries ()
+import Test.QuickCheck
+import Types.Branch
+import Types.Error
 
 instance Arbitrary Err where
   arbitrary :: Gen Err
   arbitrary = do
     e <- arbitrary
     elements
-      [ ParseLog e
-      , ParseDate e
-      , ParseMerge e
-      , ReadInt e
-      , GitBranches e
-      , GitLog e
+      [ ParseLog e,
+        ParseDate e,
+        ParseMerge e,
+        ReadInt e,
+        GitBranches e,
+        GitLog e
       ]
 
 instance Arbitrary BranchStatus where

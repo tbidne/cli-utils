@@ -1,67 +1,63 @@
-{-# LANGUAGE InstanceSigs      #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Core.InternalSpec where
 
-import           Data.Either                    ( isRight )
-import qualified Data.Text                     as Txt
-import           Data.Time.Calendar             ( Day
-                                                , diffDays
-                                                )
-import           Test.Hspec
-import           Test.Hspec.QuickCheck
-import           Test.QuickCheck
-
-import           Core.Internal
-import           Types.Error
-import           Types.GitTypes
-
-import           Core.Arbitraries
+import Core.Arbitraries
+import Core.Internal
+import Data.Either (isRight)
+import qualified Data.Text as Txt
+import Data.Time.Calendar
+  ( Day,
+    diffDays,
+  )
+import Test.Hspec
+import Test.Hspec.QuickCheck
+import Test.QuickCheck
+import Types.Error
+import Types.GitTypes
 
 spec :: Spec
 spec = do
   describe "Parsing Tests" $ do
-    prop "Correctly formatted name log succeeds"    goodLogSucceeds
-
-    prop "Badly formatted name log fails"           badLogFails
-
+    prop "Correctly formatted name log succeeds" goodLogSucceeds
+    prop "Badly formatted name log fails" badLogFails
     prop "Correctly formatted date string succeeds" goodDateStrSucceeds
-
-    prop "Badly formatted date string fails"        badDateStrFails
-
+    prop "Badly formatted date string fails" badDateStrFails
   describe "Stale tests" $ do
     prop "Log is stale iff diffDays day log > limit " vStale
 
 goodLogSucceeds :: NameLogSuccess -> Bool
 goodLogSucceeds (NameLogSuccess nl@(n, l)) = case parseAuthDateStr nl of
   Right (n', Author a, t) -> n' == n && [a, t] == Txt.splitOn "|" l
-  _                       -> False
+  _ -> False
 
 badLogFails :: NameLogErr -> Bool
 badLogFails (NameLogErr nl@(_, l)) = case parseAuthDateStr nl of
   Left (ParseLog e) -> e == l
-  _                 -> False
+  _ -> False
 
 goodDateStrSucceeds :: NameAuthDateSuccess -> Bool
 goodDateStrSucceeds (NameAuthDateSuccess nad) = case parseDay nad of
   Right _ -> True
-  _       -> False
+  _ -> False
 
 badDateStrFails :: NameAuthDateErr -> Bool
 badDateStrFails (NameAuthDateErr nad@(_, _, t)) = case parseDay nad of
   (Left (ParseDate _)) -> goodRead ts
-  (Left (ReadInt   _)) -> (not . goodRead) ts
-  _                    -> False
- where
-  ts = Txt.splitOn "-" t
-  goodRead xs = isRight $ traverse safeRead xs
+  (Left (ReadInt _)) -> (not . goodRead) ts
+  _ -> False
+  where
+    ts = Txt.splitOn "-" t
+    goodRead xs = isRight $ traverse safeRead xs
 
 vStale :: Integer -> Day -> NameAuthDay -> Bool
 vStale lim day nad@(_, _, d) = (diffDays day d > lim) == isStale
-  where isStale = stale lim day nad
+  where
+    isStale = stale lim day nad
 
 newtype NameLogSuccess = NameLogSuccess NameLog
-  deriving Show
+  deriving (Show)
 
 instance Arbitrary NameLogSuccess where
   arbitrary :: Gen NameLogSuccess
@@ -71,7 +67,7 @@ instance Arbitrary NameLogSuccess where
     return $ NameLogSuccess (n, l)
 
 newtype NameLogErr = NameLogErr NameLog
-  deriving Show
+  deriving (Show)
 
 instance Arbitrary NameLogErr where
   arbitrary :: Gen NameLogErr
@@ -87,7 +83,7 @@ genValidLog = do
   return $ a <> "|" <> l
 
 newtype NameAuthDateSuccess = NameAuthDateSuccess NameAuthDateStr
-  deriving Show
+  deriving (Show)
 
 instance Arbitrary NameAuthDateSuccess where
   arbitrary :: Gen NameAuthDateSuccess
@@ -98,7 +94,7 @@ instance Arbitrary NameAuthDateSuccess where
     return $ NameAuthDateSuccess (n, a, d)
 
 newtype NameAuthDateErr = NameAuthDateErr NameAuthDateStr
-  deriving Show
+  deriving (Show)
 
 instance Arbitrary NameAuthDateErr where
   arbitrary :: Gen NameAuthDateErr

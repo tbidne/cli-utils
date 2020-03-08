@@ -1,23 +1,22 @@
-{-# LANGUAGE InstanceSigs      #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Core.Arbitraries
-  ( Arbitrary(..)
-  , genDay
-  , genDayStr
-  , genMonth
-  , genMonthStr
-  , genYear
-  , genYearStr
+  ( Arbitrary (..),
+    genDay,
+    genDayStr,
+    genMonth,
+    genMonthStr,
+    genYear,
+    genYearStr,
   )
 where
 
-import           Data.Time.Calendar             ( Day )
-import           Data.Time.Calendar.Julian      ( fromJulianYearAndDay )
-import qualified Data.Text                     as Txt
-import           Test.QuickCheck
-
-import           Types.GitTypes
+import qualified Data.Text as Txt
+import Data.Time.Calendar (Day)
+import Data.Time.Calendar.Julian (fromJulianYearAndDay)
+import Test.QuickCheck
+import Types.GitTypes
 
 instance Arbitrary Txt.Text where
   arbitrary :: Gen Txt.Text
@@ -44,8 +43,8 @@ genMonth = read . Txt.unpack <$> genMonthStr
 genMonthStr :: Gen Txt.Text
 genMonthStr =
   let ms =
-          ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
-  in  elements ms
+        ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+   in elements ms
 
 genDay :: Gen Int
 genDay = read . Txt.unpack <$> genDayStr

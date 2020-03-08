@@ -1,30 +1,29 @@
-{-# LANGUAGE FlexibleContexts           #-}
-{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE InstanceSigs               #-}
-{-# LANGUAGE LambdaCase                 #-}
-{-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Core.MonadGit
-  ( MonadGit(..)
-  , runGitUtils
+  ( MonadGit (..),
+    runGitUtils,
   )
 where
 
+import App
 import qualified Control.Concurrent.ParallelIO.Global as Par
 import qualified Control.Monad.Reader as R
+import Core.IO
+import Core.Internal
 import qualified Data.Kind as K
 import qualified Data.Text as T
-
-import           App
-import           Core.IO
-import           Core.Internal
-import           Types.Branch
-import           Types.Env
-import           Types.Error
-import           Types.GitTypes
-import           Types.ResultsWithErrs
+import Types.Branch
+import Types.Env
+import Types.Error
+import Types.GitTypes
+import Types.ResultsWithErrs
 
 class Monad m => MonadGit m where
   type GitType m a :: K.Type
@@ -44,26 +43,21 @@ instance R.MonadIO m => MonadGit (AppT m) where
   grepBranches = do
     p <- R.asks path
     searchStr <- R.asks grepStr
-
     let branchFn = case searchStr of
           Nothing -> not . badBranch
           Just s ->
             \t -> (not . badBranch) t && T.toCaseFold s `T.isInfixOf` T.toCaseFold t
         toNames' = fmap (Name . T.strip) . filter branchFn . T.lines
-
     res <- R.liftIO $ sh "git branch -r" p
     R.liftIO $ logIfErr $ return $ toNames' res
-  
+
   getStaleLogs :: [Name] -> (AppT m) (Filtered (ErrOr NameAuthDay))
   getStaleLogs ns = do
     day <- R.asks today
     lim <- R.asks limit
     p <- R.asks path
-    
     let staleFilter' = mkFiltered $ staleNonErr lim day
-
     logs <- R.liftIO $ Par.parallelE (fmap (nameToLog p) ns)
-    
     R.liftIO $ return $ (staleFilter' . fmap exceptToErr) logs
 
   toBranches :: Filtered (ErrOr NameAuthDay) -> (AppT m) [ErrOr AnyBranch]
@@ -80,8 +74,8 @@ instance R.MonadIO m => MonadGit (AppT m) where
 
 runGitUtils :: MonadGit m => m ()
 runGitUtils = do
-  branchNames   <- grepBranches
-  staleLogs     <- getStaleLogs branchNames
+  branchNames <- grepBranches
+  staleLogs <- getStaleLogs branchNames
   staleBranches <- toBranches staleLogs
-  res           <- collectResults staleBranches
+  res <- collectResults staleBranches
   display res
