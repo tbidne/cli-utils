@@ -37,10 +37,10 @@ parseDay (n, a, t) = fmap (n,a,) eitherDay
       Right xs -> Left $ ParseDate $ T.pack $ show xs
       Left x -> Left x
 
-stale :: Integer -> C.Day -> NameAuthDay -> Bool
-stale lim day (_, _, d) = C.diffDays day d > lim
+stale :: Nat -> C.Day -> NameAuthDay -> Bool
+stale lim day (_, _, d) = C.diffDays day d > (unNat lim)
 
-staleNonErr :: Integer -> C.Day -> ErrOr NameAuthDay -> Bool
+staleNonErr :: Nat -> C.Day -> ErrOr NameAuthDay -> Bool
 staleNonErr _ _ (Left _) = True
 staleNonErr i d (Right nad) = stale i d nad
 

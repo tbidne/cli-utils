@@ -7,13 +7,11 @@ import Core.Arbitraries
 import Core.Internal
 import Data.Either (isRight)
 import qualified Data.Text as Txt
-import Data.Time.Calendar
-  ( Day,
-    diffDays,
-  )
+import qualified Data.Time.Calendar as C
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
+import Types.Arbitraries ()
 import Types.Error
 import Types.GitTypes
 
@@ -51,8 +49,8 @@ badDateStrFails (NameAuthDateErr nad@(_, _, t)) = case parseDay nad of
     ts = Txt.splitOn "-" t
     goodRead xs = isRight $ traverse safeRead xs
 
-vStale :: Integer -> Day -> NameAuthDay -> Bool
-vStale lim day nad@(_, _, d) = (diffDays day d > lim) == isStale
+vStale :: Nat -> C.Day -> NameAuthDay -> Bool
+vStale lim day nad@(_, _, d) = (C.diffDays day d > (unNat lim)) == isStale
   where
     isStale = stale lim day nad
 

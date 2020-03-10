@@ -6,8 +6,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Core.MonadGit
-  ( MonadGit (..),
+module Core.MonadStaleBranches
+  ( MonadStaleBranches (..),
     runGitUtils,
   )
 where
@@ -25,30 +25,32 @@ import Types.Error
 import Types.GitTypes
 import Types.ResultsWithErrs
 
-class Monad m => MonadGit m where
-  type GitType m a :: K.Type
-  type ResultType m :: K.Type
+class Monad m => MonadStaleBranches m where
+  type Handler m a :: K.Type
+  type FinalResults m :: K.Type
 
-  grepBranches :: m [Name]
-  getStaleLogs :: [Name] -> m (Filtered (GitType m NameAuthDay))
-  toBranches :: Filtered (GitType m NameAuthDay) -> m [GitType m AnyBranch]
-  collectResults :: [GitType m AnyBranch] -> m (ResultType m)
-  display :: ResultType m -> m ()
+  branchNamesByGrep :: m [Name]
+  getStaleLogs :: [Name] -> m (Filtered (Handler m NameAuthDay))
+  toBranches :: Filtered (Handler m NameAuthDay) -> m [Handler m AnyBranch]
+  collectResults :: [Handler m AnyBranch] -> m (FinalResults m)
+  display :: FinalResults m -> m ()
 
-instance R.MonadIO m => MonadGit (AppT m) where
-  type GitType (AppT m) a = ErrOr a
-  type ResultType (AppT m) = ResultsWithErrs
+instance R.MonadIO m => MonadStaleBranches (AppT m) where
+  type Handler (AppT m) a = ErrOr a
+  type FinalResults (AppT m) = ResultsWithErrs
 
-  grepBranches :: (AppT m) [Name]
-  grepBranches = do
+  branchNamesByGrep :: (AppT m) [Name]
+  branchNamesByGrep = do
     p <- R.asks path
     searchStr <- R.asks grepStr
+    bType <- R.asks branchType
     let branchFn = case searchStr of
           Nothing -> not . badBranch
           Just s ->
             \t -> (not . badBranch) t && T.toCaseFold s `T.isInfixOf` T.toCaseFold t
         toNames' = fmap (Name . T.strip) . filter branchFn . T.lines
-    res <- R.liftIO $ sh "git branch -r" p
+        cmd = ("git branch " <> T.pack (branchTypeToArg bType))
+    res <- R.liftIO $ sh cmd p
     R.liftIO $ logIfErr $ return $ toNames' res
 
   getStaleLogs :: [Name] -> (AppT m) (Filtered (ErrOr NameAuthDay))
@@ -72,9 +74,9 @@ instance R.MonadIO m => MonadGit (AppT m) where
   display :: ResultsWithErrs -> (AppT m) ()
   display = R.liftIO . print
 
-runGitUtils :: MonadGit m => m ()
+runGitUtils :: MonadStaleBranches m => m ()
 runGitUtils = do
-  branchNames <- grepBranches
+  branchNames <- branchNamesByGrep
   staleLogs <- getStaleLogs branchNames
   staleBranches <- toBranches staleLogs
   res <- collectResults staleBranches

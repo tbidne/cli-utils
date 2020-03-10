@@ -4,7 +4,7 @@ module Core.MockSpec where
 
 import Control.Monad.Reader (runReaderT)
 import Core.MockUtils
-import Core.MonadGit
+import Core.MonadStaleBranches
 import qualified Data.Text as Txt
 import Test.Hspec
 import Types.Env
@@ -30,5 +30,5 @@ runMock t = do
   runReaderT (runMockUtilsT runGitUtils) (envWithGrep t)
 
 envWithGrep :: Txt.Text -> Env
-envWithGrep "" = Env Nothing undefined undefined undefined
-envWithGrep s = Env (Just s) undefined undefined undefined
+envWithGrep "" = Env Nothing undefined undefined undefined undefined
+envWithGrep s = Env (Just s) undefined undefined undefined undefined

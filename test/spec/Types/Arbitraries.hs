@@ -8,6 +8,7 @@ where
 import Core.Arbitraries ()
 import Test.QuickCheck
 import Types.Branch
+import Types.Env
 import Types.Error
 
 instance Arbitrary Err where
@@ -35,3 +36,15 @@ instance Arbitrary AnyBranch where
     d <- arbitrary
     b <- arbitrary
     return $ mkAnyBranch n a d b
+
+instance Arbitrary BranchType where
+  arbitrary :: Gen BranchType
+  arbitrary = elements [All, Remote, Local]
+
+instance Arbitrary Nat where
+  arbitrary :: Gen Nat
+  arbitrary = do
+    (NonNegative lim) <- arbitrary :: Gen (NonNegative Integer)
+    case mkNat lim of
+      Nothing -> error "Error creating nat in test"
+      Just n -> return n

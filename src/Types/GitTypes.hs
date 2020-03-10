@@ -7,9 +7,12 @@ module Types.GitTypes
     NameLog,
     NameAuthDateStr,
     NameAuthDay,
+    Nat,
     Filtered,
     mkFiltered,
+    mkNat,
     unFiltered,
+    unNat,
   )
 where
 
@@ -31,3 +34,11 @@ newtype Filtered a = Filtered {unFiltered :: [a]}
 
 mkFiltered :: (a -> Bool) -> [a] -> Filtered a
 mkFiltered f = Filtered . filter f
+
+data Nat = Nat {unNat :: Integer}
+  deriving (Eq, Show)
+
+mkNat :: Integer -> Maybe Nat
+mkNat x
+  | x >= 0 = Just $ Nat x
+  | otherwise = Nothing
