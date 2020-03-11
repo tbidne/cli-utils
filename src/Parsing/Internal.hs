@@ -26,7 +26,7 @@ data ArgHolder
 
 holderToEnv :: Cal.Day -> Maybe ArgHolder -> Either String Env
 holderToEnv d (Just (ArgHolder (Just g) (Just p) (Just l) (Just b))) =
-  Right $ Env g l p b d
+  Right $ Env g p l b d
 holderToEnv _ (Just (ArgHolder Nothing _ _ _)) =
   Left "Bad format for [--grep=<string>]"
 holderToEnv _ (Just (ArgHolder _ Nothing _ _)) =

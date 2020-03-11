@@ -27,8 +27,8 @@ branchTypeToArg Local = ""
 data Env
   = Env
       { grepStr :: Maybe T.Text,
-        limit :: Nat,
         path :: Maybe IO.FilePath,
+        limit :: Nat,
         branchType :: BranchType,
         today :: C.Day
       }
