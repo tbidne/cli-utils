@@ -23,7 +23,7 @@ sizesMatch bs = numUnique bs == M.size merged + M.size unmerged + length errs
   where
     resultsErrs = toResultsWithErrs bs
     merged = mergedMap $ results resultsErrs
-    unmerged = unmergedMap $ results resultsErrs
+    unmerged = unMergedMap $ results resultsErrs
     errs = errList resultsErrs
 
 numUnique :: [ErrOr AnyBranch] -> Int

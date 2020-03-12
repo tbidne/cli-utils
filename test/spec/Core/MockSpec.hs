@@ -4,10 +4,13 @@ module Core.MockSpec where
 
 import Control.Monad.Reader (runReaderT)
 import Core.MockUtils
-import Core.MonadGit
+import Core.MonadStaleBranches
+import qualified Data.Maybe as M
 import qualified Data.Text as Txt
+import qualified Data.Time.Calendar as Cal
 import Test.Hspec
 import Types.Env
+import Types.Nat
 
 spec :: Spec
 spec = do
@@ -30,5 +33,11 @@ runMock t = do
   runReaderT (runMockUtilsT runGitUtils) (envWithGrep t)
 
 envWithGrep :: Txt.Text -> Env
-envWithGrep "" = Env Nothing undefined undefined undefined
-envWithGrep s = Env (Just s) undefined undefined undefined
+envWithGrep "" = Env Nothing (Just "/share") unsafeNat Remote "origin/" "origin/master" mkDay
+envWithGrep s = Env (Just s) (Just "/share") unsafeNat Remote "origin/" "origin/master" mkDay
+
+mkDay :: Cal.Day
+mkDay = Cal.fromGregorian 2017 7 27
+
+unsafeNat :: Nat
+unsafeNat = M.fromJust $ mkNat 30

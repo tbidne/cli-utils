@@ -1,8 +1,16 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
+-- |
+-- Module      : Types.Results
+-- License     : BSD3
+-- Maintainer  : tbidne@gmail.com
+-- Provides a `Results` type that wraps two maps, one for merged branches
+-- and one for unmerged.
 module Types.Results
   ( Results (..),
+    displayResults,
     toResults,
   )
 where
@@ -15,46 +23,55 @@ import Types.GitTypes
 
 type BranchMap a = M.Map Author [Branch a]
 
+-- | Wrapper for holding `M.Map` `Author` [`Branch` a] data.
 data Results
   = Results
-      { mergedMap :: BranchMap 'Merged,
-        unmergedMap :: BranchMap 'UnMerged
+      { -- | `M.Map` `Author` [`Branch` `Merged`]
+        mergedMap :: BranchMap 'Merged,
+        -- | `M.Map` `Author` [`Branch` `UnMerged`]
+        unMergedMap :: BranchMap 'UnMerged
       }
+  deriving (Show)
 
-instance Show Results where
-  show Results {..} = concat str
-    where
-      (m, s) = displayMap mergedMap
-      (u, t) = displayMap unmergedMap
-      str =
-        [ "MERGED: ",
-          show s,
-          "\n------\n",
-          m,
-          "\n\n",
-          "UNMERGED: ",
-          show t,
-          "\n--------\n",
-          u
-        ]
-
-displayMap :: M.Map Author [Branch a] -> (String, Int)
-displayMap = M.foldrWithKey f ("", 0)
+-- | Displays `Results`. Differs from `Show` in that it is formatted differently
+-- and strips the `T.Text` /prefix/ from the branch names.
+displayResults :: T.Text -> Results -> T.Text
+displayResults prefix Results {..} = T.concat str
   where
-    f :: Author -> [Branch a] -> (String, Int) -> (String, Int)
+    (m, s) = displayMap prefix mergedMap
+    (u, t) = displayMap prefix unMergedMap
+    str =
+      [ "MERGED: ",
+        T.pack (show s),
+        "\n------\n",
+        m,
+        "\n\n",
+        "UNMERGED: ",
+        T.pack (show t),
+        "\n--------\n",
+        u
+      ]
+
+displayMap :: T.Text -> M.Map Author [Branch a] -> (T.Text, Int)
+displayMap prefix = M.foldrWithKey f ("", 0)
+  where
+    f :: Author -> [Branch a] -> (T.Text, Int) -> (T.Text, Int)
     f (Author k) ns acc = case ns of
       [] -> acc
       xs ->
-        ( T.unpack k
+        ( k
             <> " ("
-            <> show (length xs)
+            <> T.pack (show (length xs))
             <> "): "
-            <> show ns
+            <> branchesToName prefix ns
             <> "\n\n"
             <> fst acc,
           snd acc + length xs
         )
 
+-- | Maps [`AnyBranch`] to `Results`. Pattern matches on `AnyBranch` to reveal
+-- the underlying `BranchStatus`, ensuring merged and unmerged branches are
+-- organized separately.
 toResults :: [AnyBranch] -> Results
 toResults = F.foldl' go mkResults
   where
@@ -65,15 +82,15 @@ mkResults :: Results
 mkResults = Results M.empty M.empty
 
 insertMerged :: Author -> Branch 'Merged -> Results -> Results
-insertMerged a b Results {..} = Results mergedMap' unmergedMap
+insertMerged a b Results {..} = Results mergedMap' unMergedMap
   where
     mergedMap' = case M.lookup a mergedMap of
       Nothing -> M.insert a [b] mergedMap
       Just bs -> M.insert a (b : bs) mergedMap
 
 insertUnMerged :: Author -> Branch 'UnMerged -> Results -> Results
-insertUnMerged a b Results {..} = Results mergedMap unmergedMap'
+insertUnMerged a b Results {..} = Results mergedMap unMergedMap'
   where
-    unmergedMap' = case M.lookup a unmergedMap of
-      Nothing -> M.insert a [b] unmergedMap
-      Just bs -> M.insert a (b : bs) unmergedMap
+    unMergedMap' = case M.lookup a unMergedMap of
+      Nothing -> M.insert a [b] unMergedMap
+      Just bs -> M.insert a (b : bs) unMergedMap

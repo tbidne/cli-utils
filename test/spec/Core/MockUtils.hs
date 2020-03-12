@@ -8,10 +8,11 @@
 module Core.MockUtils where
 
 import Control.Monad.Reader
-import Core.MonadGit
+import Core.MonadStaleBranches
 import qualified Data.Text as Txt
 import Types.Branch
 import Types.Env
+import Types.Filtered
 import Types.GitTypes
 
 data Output a = Output [Txt.Text] a
@@ -39,12 +40,12 @@ newtype MockUtilsT m a = MockUtilsT {runMockUtilsT :: ReaderT Env m a}
 
 type MockUtilsOut = MockUtilsT Output
 
-instance MonadGit MockUtilsOut where
-  type GitType MockUtilsOut a = a
-  type ResultType MockUtilsOut = [AnyBranch]
+instance MonadStaleBranches MockUtilsOut where
+  type Handler MockUtilsOut a = a
+  type FinalResults MockUtilsOut = [AnyBranch]
 
-  grepBranches :: MockUtilsOut [Name]
-  grepBranches = do
+  branchNamesByGrep :: MockUtilsOut [Name]
+  branchNamesByGrep = do
     grep <- asks grepStr
     let maybeFilter = case grep of
           Nothing -> id

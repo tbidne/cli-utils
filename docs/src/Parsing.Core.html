@@ -1,0 +1,573 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE ViewPatterns #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- Module      : Parsing.Core</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-8"></span><span class="hs-comment">-- Handles parsing of String args into Env.</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Parsing.Core</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Parsing.Core.html#parseArgs"><span class="hs-identifier">parseArgs</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Time.Calendar</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cal</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">System.IO</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IO</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Text.Read</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">R</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Types.Env.html"><span class="hs-identifier">Types.Env</span></a></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Types.Nat.html"><span class="hs-identifier">Types.Nat</span></a></span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- | Maps `Cal.Day` and parsed [`String`] args into `Right` `Env`, returning</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- any errors as `Left` `String`. All arguments are optional</span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- (i.e. an empty list is valid), but if any are provided then they must</span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- be valid or an error will be returned. Valid arguments are:</span><span>
+</span><span id="line-25"></span><span class="hs-comment">--</span><span>
+</span><span id="line-26"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-27"></span><span class="hs-comment">--   --grep=\&lt;string\&gt;</span><span>
+</span><span id="line-28"></span><span class="hs-comment">--       Used for filtering on branch names. Any `String` is fine, including</span><span>
+</span><span id="line-29"></span><span class="hs-comment">--       the empty string (i.e. --grep=). Defaults to the empty string.</span><span>
+</span><span id="line-30"></span><span class="hs-comment">--</span><span>
+</span><span id="line-31"></span><span class="hs-comment">--   --path=\&lt;string&gt;\</span><span>
+</span><span id="line-32"></span><span class="hs-comment">--       Path to the git directory. Any `String` is fine, including the empty</span><span>
+</span><span id="line-33"></span><span class="hs-comment">--       string (i.e. --path=). Defaults to /share.</span><span>
+</span><span id="line-34"></span><span class="hs-comment">--</span><span>
+</span><span id="line-35"></span><span class="hs-comment">--   --limit=\&lt;days\&gt;</span><span>
+</span><span id="line-36"></span><span class="hs-comment">--       Determines if a branch should be considered stale. Must be a</span><span>
+</span><span id="line-37"></span><span class="hs-comment">--       non-negative integer. Defaults to 30.</span><span>
+</span><span id="line-38"></span><span class="hs-comment">--</span><span>
+</span><span id="line-39"></span><span class="hs-comment">--   --branchType=\&lt;a[ll]|r[emote]|l[ocal]\&gt;</span><span>
+</span><span id="line-40"></span><span class="hs-comment">--       Determines which branches we should search. Must be one of</span><span>
+</span><span id="line-41"></span><span class="hs-comment">--       [a, all, r, remote, l, local]. Defaults to remote.</span><span>
+</span><span id="line-42"></span><span class="hs-comment">--</span><span>
+</span><span id="line-43"></span><span class="hs-comment">--   --remote=\&lt;string&gt;</span><span>
+</span><span id="line-44"></span><span class="hs-comment">--       Name of the remote, used for stripping out the the remote name for</span><span>
+</span><span id="line-45"></span><span class="hs-comment">--       display purposes. Any `String` is fine, including the empty string</span><span>
+</span><span id="line-46"></span><span class="hs-comment">--       (i.e. --remote=). Defaults to origin.</span><span>
+</span><span id="line-47"></span><span class="hs-comment">--</span><span>
+</span><span id="line-48"></span><span class="hs-comment">--   --master=\&lt;string&gt;</span><span>
+</span><span id="line-49"></span><span class="hs-comment">--       Name of the branch to consider merges against. Any `String` is fine,</span><span>
+</span><span id="line-50"></span><span class="hs-comment">--       including the empty string (i.e. --master=). Defaults to origin/master.</span><span>
+</span><span id="line-51"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-52"></span><span class="annot"><a href="Parsing.Core.html#parseArgs"><span class="hs-identifier hs-type">parseArgs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Cal.Day</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
+</span><span id="line-53"></span><span id="parseArgs"><span class="annot"><span class="annottext">parseArgs :: Day -&gt; [String] -&gt; Either String Env
+</span><a href="Parsing.Core.html#parseArgs"><span class="hs-identifier hs-var hs-var">parseArgs</span></a></span></span><span> </span><span id="local-6989586621679069843"><span class="annot"><span class="annottext">d :: Day
+</span><a href="#local-6989586621679069843"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span id="local-6989586621679069842"><span class="annot"><span class="annottext">args :: [String]
+</span><a href="#local-6989586621679069842"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Day -&gt; Maybe ArgHolder -&gt; Either String Env
+</span><a href="Parsing.Core.html#holderToEnv"><span class="hs-identifier hs-var">holderToEnv</span></a></span><span> </span><span class="annot"><span class="annottext">Day
+</span><a href="#local-6989586621679069843"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe ArgHolder
+</span><a href="#local-6989586621679069840"><span class="hs-identifier hs-var">holder</span></a></span><span>
+</span><span id="line-54"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-55"></span><span>    </span><span id="local-6989586621679069840"><span class="annot"><span class="annottext">holder :: Maybe ArgHolder
+</span><a href="#local-6989586621679069840"><span class="hs-identifier hs-var hs-var">holder</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Maybe ArgHolder -&gt; Maybe ArgHolder)
+-&gt; Maybe ArgHolder -&gt; [String] -&gt; Maybe ArgHolder
+forall (t :: * -&gt; *) a b.
+Foldable t =&gt;
+(a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span><span class="hs-identifier hs-var">foldr</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe ArgHolder -&gt; Maybe ArgHolder
+</span><a href="Parsing.Core.html#addArgToHolder"><span class="hs-identifier hs-var">addArgToHolder</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ArgHolder -&gt; Maybe ArgHolder
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">ArgHolder
+</span><a href="Parsing.Core.html#defaultHolder"><span class="hs-identifier hs-var">defaultHolder</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679069842"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-56"></span><span>
+</span><span id="line-57"></span><span class="hs-keyword">data</span><span> </span><span id="ArgHolder"><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-var">ArgHolder</span></a></span></span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="ArgHolder"><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-var">ArgHolder</span></a></span></span><span>
+</span><span id="line-59"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="grepArg"><span class="annot"><span class="annottext">ArgHolder -&gt; Maybe (Maybe Text)
+</span><a href="Parsing.Core.html#grepArg"><span class="hs-identifier hs-var hs-var">grepArg</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-60"></span><span>        </span><span id="pathArg"><span class="annot"><span class="annottext">ArgHolder -&gt; Maybe (Maybe String)
+</span><a href="Parsing.Core.html#pathArg"><span class="hs-identifier hs-var hs-var">pathArg</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO.FilePath</span></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-61"></span><span>        </span><span id="limitArg"><span class="annot"><span class="annottext">ArgHolder -&gt; Maybe Nat
+</span><a href="Parsing.Core.html#limitArg"><span class="hs-identifier hs-var hs-var">limitArg</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Types.Nat.html#Nat"><span class="hs-identifier hs-type">Nat</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-62"></span><span>        </span><span id="branchTypeArg"><span class="annot"><span class="annottext">ArgHolder -&gt; Maybe BranchType
+</span><a href="Parsing.Core.html#branchTypeArg"><span class="hs-identifier hs-var hs-var">branchTypeArg</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Types.Env.html#BranchType"><span class="hs-identifier hs-type">BranchType</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-63"></span><span>        </span><span id="remoteArg"><span class="annot"><span class="annottext">ArgHolder -&gt; Maybe Text
+</span><a href="Parsing.Core.html#remoteArg"><span class="hs-identifier hs-var hs-var">remoteArg</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">,</span><span>
+</span><span id="line-64"></span><span>        </span><span id="master"><span class="annot"><span class="annottext">ArgHolder -&gt; Maybe Text
+</span><a href="Parsing.Core.html#master"><span class="hs-identifier hs-var hs-var">master</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span>
+</span><span id="line-65"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-66"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679069825"><span id="local-6989586621679069827"><span class="annot"><span class="annottext">ArgHolder -&gt; ArgHolder -&gt; Bool
+(ArgHolder -&gt; ArgHolder -&gt; Bool)
+-&gt; (ArgHolder -&gt; ArgHolder -&gt; Bool) -&gt; Eq ArgHolder
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: ArgHolder -&gt; ArgHolder -&gt; Bool
+$c/= :: ArgHolder -&gt; ArgHolder -&gt; Bool
+== :: ArgHolder -&gt; ArgHolder -&gt; Bool
+$c== :: ArgHolder -&gt; ArgHolder -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679069818"><span id="local-6989586621679069820"><span id="local-6989586621679069822"><span class="annot"><span class="annottext">Int -&gt; ArgHolder -&gt; ShowS
+[ArgHolder] -&gt; ShowS
+ArgHolder -&gt; String
+(Int -&gt; ArgHolder -&gt; ShowS)
+-&gt; (ArgHolder -&gt; String)
+-&gt; ([ArgHolder] -&gt; ShowS)
+-&gt; Show ArgHolder
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [ArgHolder] -&gt; ShowS
+$cshowList :: [ArgHolder] -&gt; ShowS
+show :: ArgHolder -&gt; String
+$cshow :: ArgHolder -&gt; String
+showsPrec :: Int -&gt; ArgHolder -&gt; ShowS
+$cshowsPrec :: Int -&gt; ArgHolder -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-67"></span><span>
+</span><span id="line-68"></span><span class="annot"><a href="Parsing.Core.html#holderToEnv"><span class="hs-identifier hs-type">holderToEnv</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Cal.Day</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
+</span><span id="line-69"></span><span id="holderToEnv"><span class="annot"><span class="annottext">holderToEnv :: Day -&gt; Maybe ArgHolder -&gt; Either String Env
+</span><a href="Parsing.Core.html#holderToEnv"><span class="hs-identifier hs-var hs-var">holderToEnv</span></a></span></span><span> </span><span id="local-6989586621679069816"><span class="annot"><span class="annottext">d :: Day
+</span><a href="#local-6989586621679069816"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069815"><span class="annot"><span class="annottext">g :: Maybe Text
+</span><a href="#local-6989586621679069815"><span class="hs-identifier hs-var">g</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069814"><span class="annot"><span class="annottext">p :: Maybe String
+</span><a href="#local-6989586621679069814"><span class="hs-identifier hs-var">p</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069813"><span class="annot"><span class="annottext">l :: Nat
+</span><a href="#local-6989586621679069813"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069812"><span class="annot"><span class="annottext">b :: BranchType
+</span><a href="#local-6989586621679069812"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069811"><span class="annot"><span class="annottext">r :: Text
+</span><a href="#local-6989586621679069811"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069810"><span class="annot"><span class="annottext">m :: Text
+</span><a href="#local-6989586621679069810"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-70"></span><span>  </span><span class="annot"><span class="annottext">Env -&gt; Either String Env
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(Env -&gt; Either String Env) -&gt; Env -&gt; Either String Env
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+-&gt; Maybe String -&gt; Nat -&gt; BranchType -&gt; Text -&gt; Text -&gt; Day -&gt; Env
+</span><a href="Types.Env.html#Env"><span class="hs-identifier hs-var">Env</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069815"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe String
+</span><a href="#local-6989586621679069814"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Nat
+</span><a href="#local-6989586621679069813"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">BranchType
+</span><a href="#local-6989586621679069812"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679069811"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679069810"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Day
+</span><a href="#local-6989586621679069816"><span class="hs-identifier hs-var">d</span></a></span><span>
+</span><span id="line-71"></span><span class="annot"><a href="Parsing.Core.html#holderToEnv"><span class="hs-identifier hs-var">holderToEnv</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-72"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; Either String Env
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Bad format for [--grep=&lt;string&gt;]&quot;</span></span><span>
+</span><span id="line-73"></span><span class="annot"><a href="Parsing.Core.html#holderToEnv"><span class="hs-identifier hs-var">holderToEnv</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-74"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; Either String Env
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Bad format for [--path=&lt;path&gt;]&quot;</span></span><span>
+</span><span id="line-75"></span><span class="annot"><a href="Parsing.Core.html#holderToEnv"><span class="hs-identifier hs-var">holderToEnv</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-76"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; Either String Env
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Bad format for [--limit=&lt;days&gt;] where &lt;days&gt; is an integer&quot;</span></span><span>
+</span><span id="line-77"></span><span class="annot"><a href="Parsing.Core.html#holderToEnv"><span class="hs-identifier hs-var">holderToEnv</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-78"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; Either String Env
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Bad format for [--branches=&lt;a[ll]|r[emote]|l[ocal]&gt;]&quot;</span></span><span>
+</span><span id="line-79"></span><span class="annot"><a href="Parsing.Core.html#holderToEnv"><span class="hs-identifier hs-var">holderToEnv</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-80"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; Either String Env
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Bad format for [--remote=&lt;string&gt;]&quot;</span></span><span>
+</span><span id="line-81"></span><span class="annot"><a href="Parsing.Core.html#holderToEnv"><span class="hs-identifier hs-var">holderToEnv</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-82"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; Either String Env
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Bad format for [--master=&lt;string&gt;]&quot;</span></span><span>
+</span><span id="line-83"></span><span class="annot"><a href="Parsing.Core.html#holderToEnv"><span class="hs-identifier hs-var">holderToEnv</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-84"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; Either String Env
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Either String Env) -&gt; String -&gt; Either String Env
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-85"></span><span>    </span><span class="annot"><span class="hs-string">&quot;Bad argument. Valid args are &quot;</span></span><span>
+</span><span id="line-86"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[--grep=&lt;string&gt;], &quot;</span></span><span>
+</span><span id="line-87"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[--path=&lt;path&gt;], &quot;</span></span><span>
+</span><span id="line-88"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[--limit=&lt;days&gt;], &quot;</span></span><span>
+</span><span id="line-89"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[--branchType=&lt;a[ll]|r[emote]|l[ocal]&gt;], &quot;</span></span><span>
+</span><span id="line-90"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[--remote=&lt;string&gt;], &quot;</span></span><span>
+</span><span id="line-91"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[--master=&lt;string&gt;]&quot;</span></span><span>
+</span><span id="line-92"></span><span>
+</span><span id="line-93"></span><span class="annot"><a href="Parsing.Core.html#updateGrep"><span class="hs-identifier hs-type">updateGrep</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span>
+</span><span id="line-94"></span><span id="updateGrep"><span class="annot"><span class="annottext">updateGrep :: Maybe (Maybe Text) -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updateGrep"><span class="hs-identifier hs-var hs-var">updateGrep</span></a></span></span><span> </span><span id="local-6989586621679069807"><span class="annot"><span class="annottext">g' :: Maybe (Maybe Text)
+</span><a href="#local-6989586621679069807"><span class="hs-identifier hs-var">g'</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679069806"><span class="annot"><span class="annottext">p :: Maybe (Maybe String)
+</span><a href="#local-6989586621679069806"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679069805"><span class="annot"><span class="annottext">l :: Maybe Nat
+</span><a href="#local-6989586621679069805"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679069804"><span class="annot"><span class="annottext">b :: Maybe BranchType
+</span><a href="#local-6989586621679069804"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span id="local-6989586621679069803"><span class="annot"><span class="annottext">r :: Maybe Text
+</span><a href="#local-6989586621679069803"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679069802"><span class="annot"><span class="annottext">m :: Maybe Text
+</span><a href="#local-6989586621679069802"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+-&gt; Maybe (Maybe String)
+-&gt; Maybe Nat
+-&gt; Maybe BranchType
+-&gt; Maybe Text
+-&gt; Maybe Text
+-&gt; ArgHolder
+</span><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-var">ArgHolder</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+</span><a href="#local-6989586621679069807"><span class="hs-identifier hs-var">g'</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe String)
+</span><a href="#local-6989586621679069806"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Nat
+</span><a href="#local-6989586621679069805"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
+</span><a href="#local-6989586621679069804"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069803"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069802"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-95"></span><span>
+</span><span id="line-96"></span><span class="annot"><a href="Parsing.Core.html#updatePath"><span class="hs-identifier hs-type">updatePath</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO.FilePath</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span>
+</span><span id="line-97"></span><span id="updatePath"><span class="annot"><span class="annottext">updatePath :: Maybe (Maybe String) -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updatePath"><span class="hs-identifier hs-var hs-var">updatePath</span></a></span></span><span> </span><span id="local-6989586621679069800"><span class="annot"><span class="annottext">p' :: Maybe (Maybe String)
+</span><a href="#local-6989586621679069800"><span class="hs-identifier hs-var">p'</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span id="local-6989586621679069799"><span class="annot"><span class="annottext">g :: Maybe (Maybe Text)
+</span><a href="#local-6989586621679069799"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679069798"><span class="annot"><span class="annottext">l :: Maybe Nat
+</span><a href="#local-6989586621679069798"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679069797"><span class="annot"><span class="annottext">b :: Maybe BranchType
+</span><a href="#local-6989586621679069797"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span id="local-6989586621679069796"><span class="annot"><span class="annottext">r :: Maybe Text
+</span><a href="#local-6989586621679069796"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679069795"><span class="annot"><span class="annottext">m :: Maybe Text
+</span><a href="#local-6989586621679069795"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+-&gt; Maybe (Maybe String)
+-&gt; Maybe Nat
+-&gt; Maybe BranchType
+-&gt; Maybe Text
+-&gt; Maybe Text
+-&gt; ArgHolder
+</span><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-var">ArgHolder</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+</span><a href="#local-6989586621679069799"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe String)
+</span><a href="#local-6989586621679069800"><span class="hs-identifier hs-var">p'</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Nat
+</span><a href="#local-6989586621679069798"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
+</span><a href="#local-6989586621679069797"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069796"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069795"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-98"></span><span>
+</span><span id="line-99"></span><span class="annot"><a href="Parsing.Core.html#updateLimit"><span class="hs-identifier hs-type">updateLimit</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Types.Nat.html#Nat"><span class="hs-identifier hs-type">Nat</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span>
+</span><span id="line-100"></span><span id="updateLimit"><span class="annot"><span class="annottext">updateLimit :: Maybe Nat -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updateLimit"><span class="hs-identifier hs-var hs-var">updateLimit</span></a></span></span><span> </span><span id="local-6989586621679069793"><span class="annot"><span class="annottext">l' :: Maybe Nat
+</span><a href="#local-6989586621679069793"><span class="hs-identifier hs-var">l'</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span id="local-6989586621679069792"><span class="annot"><span class="annottext">g :: Maybe (Maybe Text)
+</span><a href="#local-6989586621679069792"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679069791"><span class="annot"><span class="annottext">p :: Maybe (Maybe String)
+</span><a href="#local-6989586621679069791"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679069790"><span class="annot"><span class="annottext">b :: Maybe BranchType
+</span><a href="#local-6989586621679069790"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span id="local-6989586621679069789"><span class="annot"><span class="annottext">r :: Maybe Text
+</span><a href="#local-6989586621679069789"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679069788"><span class="annot"><span class="annottext">m :: Maybe Text
+</span><a href="#local-6989586621679069788"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+-&gt; Maybe (Maybe String)
+-&gt; Maybe Nat
+-&gt; Maybe BranchType
+-&gt; Maybe Text
+-&gt; Maybe Text
+-&gt; ArgHolder
+</span><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-var">ArgHolder</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+</span><a href="#local-6989586621679069792"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe String)
+</span><a href="#local-6989586621679069791"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Nat
+</span><a href="#local-6989586621679069793"><span class="hs-identifier hs-var">l'</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
+</span><a href="#local-6989586621679069790"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069789"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069788"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-101"></span><span>
+</span><span id="line-102"></span><span class="annot"><a href="Parsing.Core.html#updateBranchType"><span class="hs-identifier hs-type">updateBranchType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Types.Env.html#BranchType"><span class="hs-identifier hs-type">BranchType</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span>
+</span><span id="line-103"></span><span id="updateBranchType"><span class="annot"><span class="annottext">updateBranchType :: Maybe BranchType -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updateBranchType"><span class="hs-identifier hs-var hs-var">updateBranchType</span></a></span></span><span> </span><span id="local-6989586621679069786"><span class="annot"><span class="annottext">b' :: Maybe BranchType
+</span><a href="#local-6989586621679069786"><span class="hs-identifier hs-var">b'</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span id="local-6989586621679069785"><span class="annot"><span class="annottext">g :: Maybe (Maybe Text)
+</span><a href="#local-6989586621679069785"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679069784"><span class="annot"><span class="annottext">p :: Maybe (Maybe String)
+</span><a href="#local-6989586621679069784"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679069783"><span class="annot"><span class="annottext">l :: Maybe Nat
+</span><a href="#local-6989586621679069783"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679069782"><span class="annot"><span class="annottext">r :: Maybe Text
+</span><a href="#local-6989586621679069782"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679069781"><span class="annot"><span class="annottext">m :: Maybe Text
+</span><a href="#local-6989586621679069781"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+-&gt; Maybe (Maybe String)
+-&gt; Maybe Nat
+-&gt; Maybe BranchType
+-&gt; Maybe Text
+-&gt; Maybe Text
+-&gt; ArgHolder
+</span><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-var">ArgHolder</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+</span><a href="#local-6989586621679069785"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe String)
+</span><a href="#local-6989586621679069784"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Nat
+</span><a href="#local-6989586621679069783"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
+</span><a href="#local-6989586621679069786"><span class="hs-identifier hs-var">b'</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069782"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069781"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-104"></span><span>
+</span><span id="line-105"></span><span class="annot"><a href="Parsing.Core.html#updateRemote"><span class="hs-identifier hs-type">updateRemote</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span>
+</span><span id="line-106"></span><span id="updateRemote"><span class="annot"><span class="annottext">updateRemote :: Maybe Text -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updateRemote"><span class="hs-identifier hs-var hs-var">updateRemote</span></a></span></span><span> </span><span id="local-6989586621679069779"><span class="annot"><span class="annottext">r' :: Maybe Text
+</span><a href="#local-6989586621679069779"><span class="hs-identifier hs-var">r'</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span id="local-6989586621679069778"><span class="annot"><span class="annottext">g :: Maybe (Maybe Text)
+</span><a href="#local-6989586621679069778"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679069777"><span class="annot"><span class="annottext">p :: Maybe (Maybe String)
+</span><a href="#local-6989586621679069777"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679069776"><span class="annot"><span class="annottext">l :: Maybe Nat
+</span><a href="#local-6989586621679069776"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679069775"><span class="annot"><span class="annottext">b :: Maybe BranchType
+</span><a href="#local-6989586621679069775"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679069774"><span class="annot"><span class="annottext">m :: Maybe Text
+</span><a href="#local-6989586621679069774"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+-&gt; Maybe (Maybe String)
+-&gt; Maybe Nat
+-&gt; Maybe BranchType
+-&gt; Maybe Text
+-&gt; Maybe Text
+-&gt; ArgHolder
+</span><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-var">ArgHolder</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+</span><a href="#local-6989586621679069778"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe String)
+</span><a href="#local-6989586621679069777"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Nat
+</span><a href="#local-6989586621679069776"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
+</span><a href="#local-6989586621679069775"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069779"><span class="hs-identifier hs-var">r'</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069774"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-107"></span><span>
+</span><span id="line-108"></span><span class="annot"><a href="Parsing.Core.html#updateMaster"><span class="hs-identifier hs-type">updateMaster</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span>
+</span><span id="line-109"></span><span id="updateMaster"><span class="annot"><span class="annottext">updateMaster :: Maybe Text -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updateMaster"><span class="hs-identifier hs-var hs-var">updateMaster</span></a></span></span><span> </span><span id="local-6989586621679069772"><span class="annot"><span class="annottext">m' :: Maybe Text
+</span><a href="#local-6989586621679069772"><span class="hs-identifier hs-var">m'</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span id="local-6989586621679069771"><span class="annot"><span class="annottext">g :: Maybe (Maybe Text)
+</span><a href="#local-6989586621679069771"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679069770"><span class="annot"><span class="annottext">p :: Maybe (Maybe String)
+</span><a href="#local-6989586621679069770"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679069769"><span class="annot"><span class="annottext">l :: Maybe Nat
+</span><a href="#local-6989586621679069769"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679069768"><span class="annot"><span class="annottext">b :: Maybe BranchType
+</span><a href="#local-6989586621679069768"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span id="local-6989586621679069767"><span class="annot"><span class="annottext">r :: Maybe Text
+</span><a href="#local-6989586621679069767"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+-&gt; Maybe (Maybe String)
+-&gt; Maybe Nat
+-&gt; Maybe BranchType
+-&gt; Maybe Text
+-&gt; Maybe Text
+-&gt; ArgHolder
+</span><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-var">ArgHolder</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+</span><a href="#local-6989586621679069771"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Maybe String)
+</span><a href="#local-6989586621679069770"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Nat
+</span><a href="#local-6989586621679069769"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
+</span><a href="#local-6989586621679069768"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069767"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679069772"><span class="hs-identifier hs-var">m'</span></a></span><span>
+</span><span id="line-110"></span><span>
+</span><span id="line-111"></span><span class="annot"><a href="Parsing.Core.html#defaultHolder"><span class="hs-identifier hs-type">defaultHolder</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span>
+</span><span id="line-112"></span><span id="defaultHolder"><span class="annot"><span class="annottext">defaultHolder :: ArgHolder
+</span><a href="Parsing.Core.html#defaultHolder"><span class="hs-identifier hs-var hs-var">defaultHolder</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-113"></span><span>  </span><span class="annot"><span class="annottext">Maybe (Maybe Text)
+-&gt; Maybe (Maybe String)
+-&gt; Maybe Nat
+-&gt; Maybe BranchType
+-&gt; Maybe Text
+-&gt; Maybe Text
+-&gt; ArgHolder
+</span><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-var">ArgHolder</span></a></span><span>
+</span><span id="line-114"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe Text -&gt; Maybe (Maybe Text)
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span class="hs-special">)</span><span>
+</span><span id="line-115"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe String -&gt; Maybe (Maybe String)
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe String
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="hs-string">&quot;/share&quot;</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-116"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Integer -&gt; Maybe Nat
+</span><a href="Types.Nat.html#mkNat"><span class="hs-identifier hs-var">mkNat</span></a></span><span> </span><span class="annot"><span class="hs-number">30</span></span><span class="hs-special">)</span><span>
+</span><span id="line-117"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
+</span><a href="Types.Env.html#Remote"><span class="hs-identifier hs-var">Remote</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-118"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="hs-string">&quot;origin/&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-119"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="hs-string">&quot;origin/master&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-120"></span><span>
+</span><span id="line-121"></span><span class="annot"><a href="Parsing.Core.html#addArgToHolder"><span class="hs-identifier hs-type">addArgToHolder</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Parsing.Core.html#ArgHolder"><span class="hs-identifier hs-type">ArgHolder</span></a></span><span>
+</span><span id="line-122"></span><span id="addArgToHolder"><span class="annot"><span class="annottext">addArgToHolder :: String -&gt; Maybe ArgHolder -&gt; Maybe ArgHolder
+</span><a href="Parsing.Core.html#addArgToHolder"><span class="hs-identifier hs-var hs-var">addArgToHolder</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; String -&gt; Maybe String
+forall a. Eq a =&gt; [a] -&gt; [a] -&gt; Maybe [a]
+</span><a href="Parsing.Core.html#startsWith"><span class="hs-identifier hs-var">startsWith</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;--grep=&quot;</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069763"><span class="annot"><span class="annottext">rest :: String
+</span><a href="#local-6989586621679069763"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679069762"><span class="annot"><span class="annottext">h :: Maybe ArgHolder
+</span><a href="#local-6989586621679069762"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ArgHolder -&gt; ArgHolder) -&gt; Maybe ArgHolder -&gt; Maybe ArgHolder
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe (Maybe Text) -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updateGrep"><span class="hs-identifier hs-var">updateGrep</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe (Maybe Text)
+</span><a href="Parsing.Core.html#parseGrep"><span class="hs-identifier hs-var">parseGrep</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679069763"><span class="hs-identifier hs-var">rest</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ArgHolder
+</span><a href="#local-6989586621679069762"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-123"></span><span class="annot"><a href="Parsing.Core.html#addArgToHolder"><span class="hs-identifier hs-var">addArgToHolder</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; String -&gt; Maybe String
+forall a. Eq a =&gt; [a] -&gt; [a] -&gt; Maybe [a]
+</span><a href="Parsing.Core.html#startsWith"><span class="hs-identifier hs-var">startsWith</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;--path=&quot;</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069760"><span class="annot"><span class="annottext">rest :: String
+</span><a href="#local-6989586621679069760"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679069759"><span class="annot"><span class="annottext">h :: Maybe ArgHolder
+</span><a href="#local-6989586621679069759"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ArgHolder -&gt; ArgHolder) -&gt; Maybe ArgHolder -&gt; Maybe ArgHolder
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe (Maybe String) -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updatePath"><span class="hs-identifier hs-var">updatePath</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe (Maybe String)
+</span><a href="Parsing.Core.html#parsePath"><span class="hs-identifier hs-var">parsePath</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679069760"><span class="hs-identifier hs-var">rest</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ArgHolder
+</span><a href="#local-6989586621679069759"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-124"></span><span class="annot"><a href="Parsing.Core.html#addArgToHolder"><span class="hs-identifier hs-var">addArgToHolder</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; String -&gt; Maybe String
+forall a. Eq a =&gt; [a] -&gt; [a] -&gt; Maybe [a]
+</span><a href="Parsing.Core.html#startsWith"><span class="hs-identifier hs-var">startsWith</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;--limit=&quot;</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069757"><span class="annot"><span class="annottext">rest :: String
+</span><a href="#local-6989586621679069757"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679069756"><span class="annot"><span class="annottext">h :: Maybe ArgHolder
+</span><a href="#local-6989586621679069756"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ArgHolder -&gt; ArgHolder) -&gt; Maybe ArgHolder -&gt; Maybe ArgHolder
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe Nat -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updateLimit"><span class="hs-identifier hs-var">updateLimit</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe Nat
+</span><a href="Parsing.Core.html#parseLimit"><span class="hs-identifier hs-var">parseLimit</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679069757"><span class="hs-identifier hs-var">rest</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ArgHolder
+</span><a href="#local-6989586621679069756"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-125"></span><span class="annot"><a href="Parsing.Core.html#addArgToHolder"><span class="hs-identifier hs-var">addArgToHolder</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; String -&gt; Maybe String
+forall a. Eq a =&gt; [a] -&gt; [a] -&gt; Maybe [a]
+</span><a href="Parsing.Core.html#startsWith"><span class="hs-identifier hs-var">startsWith</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;--branchType=&quot;</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069754"><span class="annot"><span class="annottext">rest :: String
+</span><a href="#local-6989586621679069754"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679069753"><span class="annot"><span class="annottext">h :: Maybe ArgHolder
+</span><a href="#local-6989586621679069753"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ArgHolder -&gt; ArgHolder) -&gt; Maybe ArgHolder -&gt; Maybe ArgHolder
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe BranchType -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updateBranchType"><span class="hs-identifier hs-var">updateBranchType</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe BranchType
+</span><a href="Parsing.Core.html#parseBranchType"><span class="hs-identifier hs-var">parseBranchType</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679069754"><span class="hs-identifier hs-var">rest</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ArgHolder
+</span><a href="#local-6989586621679069753"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-126"></span><span class="annot"><a href="Parsing.Core.html#addArgToHolder"><span class="hs-identifier hs-var">addArgToHolder</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; String -&gt; Maybe String
+forall a. Eq a =&gt; [a] -&gt; [a] -&gt; Maybe [a]
+</span><a href="Parsing.Core.html#startsWith"><span class="hs-identifier hs-var">startsWith</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;--remote=&quot;</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069751"><span class="annot"><span class="annottext">rest :: String
+</span><a href="#local-6989586621679069751"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679069750"><span class="annot"><span class="annottext">h :: Maybe ArgHolder
+</span><a href="#local-6989586621679069750"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ArgHolder -&gt; ArgHolder) -&gt; Maybe ArgHolder -&gt; Maybe ArgHolder
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe Text -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updateRemote"><span class="hs-identifier hs-var">updateRemote</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe Text
+</span><a href="Parsing.Core.html#parseRemote"><span class="hs-identifier hs-var">parseRemote</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679069751"><span class="hs-identifier hs-var">rest</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ArgHolder
+</span><a href="#local-6989586621679069750"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-127"></span><span class="annot"><a href="Parsing.Core.html#addArgToHolder"><span class="hs-identifier hs-var">addArgToHolder</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; String -&gt; Maybe String
+forall a. Eq a =&gt; [a] -&gt; [a] -&gt; Maybe [a]
+</span><a href="Parsing.Core.html#startsWith"><span class="hs-identifier hs-var">startsWith</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;--master=&quot;</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679069748"><span class="annot"><span class="annottext">rest :: String
+</span><a href="#local-6989586621679069748"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679069747"><span class="annot"><span class="annottext">h :: Maybe ArgHolder
+</span><a href="#local-6989586621679069747"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ArgHolder -&gt; ArgHolder) -&gt; Maybe ArgHolder -&gt; Maybe ArgHolder
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe Text -&gt; ArgHolder -&gt; ArgHolder
+</span><a href="Parsing.Core.html#updateMaster"><span class="hs-identifier hs-var">updateMaster</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe Text
+</span><a href="Parsing.Core.html#parseMaster"><span class="hs-identifier hs-var">parseMaster</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679069748"><span class="hs-identifier hs-var">rest</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ArgHolder
+</span><a href="#local-6989586621679069747"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-128"></span><span class="annot"><a href="Parsing.Core.html#addArgToHolder"><span class="hs-identifier hs-var">addArgToHolder</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe ArgHolder
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-129"></span><span>
+</span><span id="line-130"></span><span id="local-6989586621679069853"><span class="annot"><a href="Parsing.Core.html#startsWith"><span class="hs-identifier hs-type">startsWith</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Eq</span></span><span> </span><span class="annot"><a href="#local-6989586621679069853"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679069853"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679069853"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679069853"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span></span><span>
+</span><span id="line-131"></span><span id="startsWith"><span class="annot"><span class="annottext">startsWith :: [a] -&gt; [a] -&gt; Maybe [a]
+</span><a href="Parsing.Core.html#startsWith"><span class="hs-identifier hs-var hs-var">startsWith</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span id="local-6989586621679069745"><span class="annot"><span class="annottext">ys :: [a]
+</span><a href="#local-6989586621679069745"><span class="hs-identifier hs-var">ys</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Maybe [a]
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679069745"><span class="hs-identifier hs-var">ys</span></a></span><span>
+</span><span id="line-132"></span><span class="annot"><a href="Parsing.Core.html#startsWith"><span class="hs-identifier hs-var">startsWith</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe [a]
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-133"></span><span class="annot"><a href="Parsing.Core.html#startsWith"><span class="hs-identifier hs-var">startsWith</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679069744"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679069744"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span id="local-6989586621679069743"><span class="annot"><span class="annottext">xs :: [a]
+</span><a href="#local-6989586621679069743"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679069742"><span class="annot"><span class="annottext">y :: a
+</span><a href="#local-6989586621679069742"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span id="local-6989586621679069741"><span class="annot"><span class="annottext">ys :: [a]
+</span><a href="#local-6989586621679069741"><span class="hs-identifier hs-var">ys</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-134"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679069744"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679069742"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [a] -&gt; Maybe [a]
+forall a. Eq a =&gt; [a] -&gt; [a] -&gt; Maybe [a]
+</span><a href="Parsing.Core.html#startsWith"><span class="hs-identifier hs-var">startsWith</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679069743"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679069741"><span class="hs-identifier hs-var">ys</span></a></span><span>
+</span><span id="line-135"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe [a]
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-136"></span><span>
+</span><span id="line-137"></span><span class="annot"><a href="Parsing.Core.html#parseGrep"><span class="hs-identifier hs-type">parseGrep</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-138"></span><span id="parseGrep"><span class="annot"><span class="annottext">parseGrep :: String -&gt; Maybe (Maybe Text)
+</span><a href="Parsing.Core.html#parseGrep"><span class="hs-identifier hs-var hs-var">parseGrep</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Text -&gt; Maybe (Maybe Text)
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-139"></span><span class="annot"><a href="Parsing.Core.html#parseGrep"><span class="hs-identifier hs-var">parseGrep</span></a></span><span> </span><span id="local-6989586621679069740"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679069740"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Text -&gt; Maybe (Maybe Text)
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Maybe Text -&gt; Maybe (Maybe Text))
+-&gt; Maybe Text -&gt; Maybe (Maybe Text)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Maybe Text) -&gt; Text -&gt; Maybe Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679069740"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-140"></span><span>
+</span><span id="line-141"></span><span class="annot"><a href="Parsing.Core.html#parsePath"><span class="hs-identifier hs-type">parsePath</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO.FilePath</span></span><span class="hs-special">)</span><span>
+</span><span id="line-142"></span><span id="parsePath"><span class="annot"><span class="annottext">parsePath :: String -&gt; Maybe (Maybe String)
+</span><a href="Parsing.Core.html#parsePath"><span class="hs-identifier hs-var hs-var">parsePath</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe String -&gt; Maybe (Maybe String)
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-143"></span><span class="annot"><a href="Parsing.Core.html#parsePath"><span class="hs-identifier hs-var">parsePath</span></a></span><span> </span><span id="local-6989586621679069738"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679069738"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe String -&gt; Maybe (Maybe String)
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Maybe String -&gt; Maybe (Maybe String))
+-&gt; Maybe String -&gt; Maybe (Maybe String)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe String
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679069738"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-144"></span><span>
+</span><span id="line-145"></span><span class="annot"><a href="Parsing.Core.html#parseLimit"><span class="hs-identifier hs-type">parseLimit</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Types.Nat.html#Nat"><span class="hs-identifier hs-type">Nat</span></a></span><span>
+</span><span id="line-146"></span><span id="parseLimit"><span class="annot"><span class="annottext">parseLimit :: String -&gt; Maybe Nat
+</span><a href="Parsing.Core.html#parseLimit"><span class="hs-identifier hs-var hs-var">parseLimit</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Nat
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-147"></span><span class="annot"><a href="Parsing.Core.html#parseLimit"><span class="hs-identifier hs-var">parseLimit</span></a></span><span> </span><span id="local-6989586621679069737"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679069737"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe Integer
+forall a. Read a =&gt; String -&gt; Maybe a
+</span><span class="hs-identifier hs-var">R.readMaybe</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679069737"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Integer -&gt; (Integer -&gt; Maybe Nat) -&gt; Maybe Nat
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Maybe Nat
+</span><a href="Types.Nat.html#mkNat"><span class="hs-identifier hs-var">mkNat</span></a></span><span>
+</span><span id="line-148"></span><span>
+</span><span id="line-149"></span><span class="annot"><a href="Parsing.Core.html#parseBranchType"><span class="hs-identifier hs-type">parseBranchType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Types.Env.html#BranchType"><span class="hs-identifier hs-type">BranchType</span></a></span><span>
+</span><span id="line-150"></span><span id="parseBranchType"><span class="annot"><span class="annottext">parseBranchType :: String -&gt; Maybe BranchType
+</span><a href="Parsing.Core.html#parseBranchType"><span class="hs-identifier hs-var hs-var">parseBranchType</span></a></span></span><span> </span><span class="hs-string">&quot;a&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
+</span><a href="Types.Env.html#All"><span class="hs-identifier hs-var">All</span></a></span><span>
+</span><span id="line-151"></span><span class="annot"><a href="Parsing.Core.html#parseBranchType"><span class="hs-identifier hs-var">parseBranchType</span></a></span><span> </span><span class="hs-string">&quot;all&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
+</span><a href="Types.Env.html#All"><span class="hs-identifier hs-var">All</span></a></span><span>
+</span><span id="line-152"></span><span class="annot"><a href="Parsing.Core.html#parseBranchType"><span class="hs-identifier hs-var">parseBranchType</span></a></span><span> </span><span class="hs-string">&quot;r&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
+</span><a href="Types.Env.html#Remote"><span class="hs-identifier hs-var">Remote</span></a></span><span>
+</span><span id="line-153"></span><span class="annot"><a href="Parsing.Core.html#parseBranchType"><span class="hs-identifier hs-var">parseBranchType</span></a></span><span> </span><span class="hs-string">&quot;remote&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
+</span><a href="Types.Env.html#Remote"><span class="hs-identifier hs-var">Remote</span></a></span><span>
+</span><span id="line-154"></span><span class="annot"><a href="Parsing.Core.html#parseBranchType"><span class="hs-identifier hs-var">parseBranchType</span></a></span><span> </span><span class="hs-string">&quot;l&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
+</span><a href="Types.Env.html#Local"><span class="hs-identifier hs-var">Local</span></a></span><span>
+</span><span id="line-155"></span><span class="annot"><a href="Parsing.Core.html#parseBranchType"><span class="hs-identifier hs-var">parseBranchType</span></a></span><span> </span><span class="hs-string">&quot;local&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
+</span><a href="Types.Env.html#Local"><span class="hs-identifier hs-var">Local</span></a></span><span>
+</span><span id="line-156"></span><span class="annot"><a href="Parsing.Core.html#parseBranchType"><span class="hs-identifier hs-var">parseBranchType</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-157"></span><span>
+</span><span id="line-158"></span><span class="annot"><a href="Parsing.Core.html#parseRemote"><span class="hs-identifier hs-type">parseRemote</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span>
+</span><span id="line-159"></span><span id="parseRemote"><span class="annot"><span class="annottext">parseRemote :: String -&gt; Maybe Text
+</span><a href="Parsing.Core.html#parseRemote"><span class="hs-identifier hs-var hs-var">parseRemote</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-160"></span><span class="annot"><a href="Parsing.Core.html#parseRemote"><span class="hs-identifier hs-var">parseRemote</span></a></span><span> </span><span id="local-6989586621679069733"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679069733"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Maybe Text) -&gt; Text -&gt; Maybe Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679069733"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;/&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-161"></span><span>
+</span><span id="line-162"></span><span class="annot"><a href="Parsing.Core.html#parseMaster"><span class="hs-identifier hs-type">parseMaster</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span>
+</span><span id="line-163"></span><span id="parseMaster"><span class="annot"><span class="annottext">parseMaster :: String -&gt; Maybe Text
+</span><a href="Parsing.Core.html#parseMaster"><span class="hs-identifier hs-var hs-var">parseMaster</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-164"></span><span class="annot"><a href="Parsing.Core.html#parseMaster"><span class="hs-identifier hs-var">parseMaster</span></a></span><span> </span><span id="local-6989586621679069732"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679069732"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Maybe Text) -&gt; Text -&gt; Maybe Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679069732"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-165"></span></pre></body></html>

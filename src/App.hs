@@ -1,5 +1,10 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
+-- |
+-- Module      : App
+-- License     : BSD3
+-- Maintainer  : tbidne@gmail.com
+-- Provides the main component used in this application.
 module App
   ( AppT (..),
   )
