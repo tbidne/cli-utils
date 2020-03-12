@@ -27,56 +27,56 @@
 </span><span id="line-27"></span><span class="hs-comment">-- `Right` `NameAuthDay` otherwise.</span><span>
 </span><span id="line-28"></span><span class="annot"><a href="Core.IO.html#nameToLog"><span class="hs-identifier hs-type">nameToLog</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="Types.GitTypes.html#NameAuthDay"><span class="hs-identifier hs-type">NameAuthDay</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-29"></span><span id="nameToLog"><span class="annot"><span class="annottext">nameToLog :: Maybe FilePath -&gt; ErrOr Name -&gt; IO (ErrOr NameAuthDay)
-</span><a href="Core.IO.html#nameToLog"><span class="hs-identifier hs-var hs-var">nameToLog</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679070024"><span class="annot"><span class="annottext">err :: Err
-</span><a href="#local-6989586621679070024"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ErrOr NameAuthDay -&gt; IO (ErrOr NameAuthDay)
-forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
-</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(ErrOr NameAuthDay -&gt; IO (ErrOr NameAuthDay))
+</span><a href="Core.IO.html#nameToLog"><span class="hs-identifier hs-var hs-var">nameToLog</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679068340"><span class="annot"><span class="annottext">err :: Err
+</span><a href="#local-6989586621679068340"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ErrOr NameAuthDay -&gt; IO (ErrOr NameAuthDay)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(ErrOr NameAuthDay -&gt; IO (ErrOr NameAuthDay))
 -&gt; ErrOr NameAuthDay -&gt; IO (ErrOr NameAuthDay)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Err -&gt; ErrOr NameAuthDay
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">Err
-</span><a href="#local-6989586621679070024"><span class="hs-identifier hs-var">err</span></a></span><span>
-</span><span id="line-30"></span><span class="annot"><a href="Core.IO.html#nameToLog"><span class="hs-identifier hs-var">nameToLog</span></a></span><span> </span><span id="local-6989586621679070023"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679070023"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679070022"><span class="annot"><span class="annottext">name :: Name
-</span><a href="#local-6989586621679070022"><span class="hs-identifier hs-var">name</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NameLog -&gt; ErrOr NameAuthDay
+</span><a href="#local-6989586621679068340"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-30"></span><span class="annot"><a href="Core.IO.html#nameToLog"><span class="hs-identifier hs-var">nameToLog</span></a></span><span> </span><span id="local-6989586621679068339"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679068339"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679068338"><span class="annot"><span class="annottext">name :: Name
+</span><a href="#local-6989586621679068338"><span class="hs-identifier hs-var">name</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NameLog -&gt; ErrOr NameAuthDay
 </span><a href="Core.Internal.html#parseLog"><span class="hs-identifier hs-var">parseLog</span></a></span><span> </span><span class="annot"><span class="annottext">(NameLog -&gt; ErrOr NameAuthDay)
 -&gt; IO NameLog -&gt; IO (ErrOr NameAuthDay)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath -&gt; Name -&gt; IO NameLog
 </span><a href="Core.IO.html#getNameLog"><span class="hs-identifier hs-var">getNameLog</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679070023"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679070022"><span class="hs-identifier hs-var">name</span></a></span><span>
+</span><a href="#local-6989586621679068339"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">Name
+</span><a href="#local-6989586621679068338"><span class="hs-identifier hs-var">name</span></a></span><span>
 </span><span id="line-31"></span><span>
 </span><span id="line-32"></span><span class="hs-comment">-- | Maps a `NameAuthDay` on `FilePath` to `AnyBranch`. Returns `Left` `Err`</span><span>
 </span><span id="line-33"></span><span class="hs-comment">-- if any errors occur, `Right` `NameAuthDay` otherwise.</span><span>
 </span><span id="line-34"></span><span class="annot"><a href="Core.IO.html#errTupleToBranch"><span class="hs-identifier hs-type">errTupleToBranch</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="Types.GitTypes.html#NameAuthDay"><span class="hs-identifier hs-type">NameAuthDay</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="Types.Branch.html#AnyBranch"><span class="hs-identifier hs-type">AnyBranch</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-35"></span><span id="errTupleToBranch"><span class="annot"><span class="annottext">errTupleToBranch :: Maybe FilePath -&gt; Text -&gt; ErrOr NameAuthDay -&gt; IO (ErrOr AnyBranch)
-</span><a href="Core.IO.html#errTupleToBranch"><span class="hs-identifier hs-var hs-var">errTupleToBranch</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679070018"><span class="annot"><span class="annottext">x :: Err
-</span><a href="#local-6989586621679070018"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ErrOr AnyBranch -&gt; IO (ErrOr AnyBranch)
-forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
-</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(ErrOr AnyBranch -&gt; IO (ErrOr AnyBranch))
+</span><a href="Core.IO.html#errTupleToBranch"><span class="hs-identifier hs-var hs-var">errTupleToBranch</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679068334"><span class="annot"><span class="annottext">x :: Err
+</span><a href="#local-6989586621679068334"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ErrOr AnyBranch -&gt; IO (ErrOr AnyBranch)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(ErrOr AnyBranch -&gt; IO (ErrOr AnyBranch))
 -&gt; ErrOr AnyBranch -&gt; IO (ErrOr AnyBranch)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Err -&gt; ErrOr AnyBranch
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">Err
-</span><a href="#local-6989586621679070018"><span class="hs-identifier hs-var">x</span></a></span><span>
-</span><span id="line-36"></span><span class="annot"><a href="Core.IO.html#errTupleToBranch"><span class="hs-identifier hs-var">errTupleToBranch</span></a></span><span> </span><span id="local-6989586621679070017"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679070017"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679070016"><span class="annot"><span class="annottext">master :: Text
-</span><a href="#local-6989586621679070016"><span class="hs-identifier hs-var">master</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679070015"><span class="annot"><span class="annottext">n :: Name
-</span><a href="#local-6989586621679070015"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679070014"><span class="annot"><span class="annottext">a :: Author
-</span><a href="#local-6989586621679070014"><span class="hs-identifier hs-var">a</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679070013"><span class="annot"><span class="annottext">d :: Day
-</span><a href="#local-6989586621679070013"><span class="hs-identifier hs-var">d</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-37"></span><span>  </span><span id="local-6989586621679070012"><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621679070012"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath -&gt; Text -&gt; Name -&gt; IO Bool
+</span><a href="#local-6989586621679068334"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-36"></span><span class="annot"><a href="Core.IO.html#errTupleToBranch"><span class="hs-identifier hs-var">errTupleToBranch</span></a></span><span> </span><span id="local-6989586621679068333"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679068333"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679068332"><span class="annot"><span class="annottext">master :: Text
+</span><a href="#local-6989586621679068332"><span class="hs-identifier hs-var">master</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679068331"><span class="annot"><span class="annottext">n :: Name
+</span><a href="#local-6989586621679068331"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068330"><span class="annot"><span class="annottext">a :: Author
+</span><a href="#local-6989586621679068330"><span class="hs-identifier hs-var">a</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068329"><span class="annot"><span class="annottext">d :: Day
+</span><a href="#local-6989586621679068329"><span class="hs-identifier hs-var">d</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-37"></span><span>  </span><span id="local-6989586621679068328"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679068328"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath -&gt; Text -&gt; Name -&gt; IO Bool
 </span><a href="Core.IO.html#isMerged"><span class="hs-identifier hs-var">isMerged</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679070017"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679070016"><span class="hs-identifier hs-var">master</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679070015"><span class="hs-identifier hs-var">n</span></a></span><span>
+</span><a href="#local-6989586621679068333"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679068332"><span class="hs-identifier hs-var">master</span></a></span><span> </span><span class="annot"><span class="annottext">Name
+</span><a href="#local-6989586621679068331"><span class="hs-identifier hs-var">n</span></a></span><span>
 </span><span id="line-38"></span><span>  </span><span class="annot"><span class="annottext">ErrOr AnyBranch -&gt; IO (ErrOr AnyBranch)
-forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
-</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(ErrOr AnyBranch -&gt; IO (ErrOr AnyBranch))
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(ErrOr AnyBranch -&gt; IO (ErrOr AnyBranch))
 -&gt; ErrOr AnyBranch -&gt; IO (ErrOr AnyBranch)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">AnyBranch -&gt; ErrOr AnyBranch
@@ -85,53 +85,53 @@ forall a b. b -&gt; Either a b
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; Author -&gt; Day -&gt; Bool -&gt; AnyBranch
 </span><a href="Types.Branch.html#mkAnyBranch"><span class="hs-identifier hs-var">mkAnyBranch</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679070015"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Author
-</span><a href="#local-6989586621679070014"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Day
-</span><a href="#local-6989586621679070013"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621679070012"><span class="hs-identifier hs-var">res</span></a></span><span>
+</span><a href="#local-6989586621679068331"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Author
+</span><a href="#local-6989586621679068330"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Day
+</span><a href="#local-6989586621679068329"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679068328"><span class="hs-identifier hs-var">res</span></a></span><span>
 </span><span id="line-39"></span><span>
 </span><span id="line-40"></span><span class="annot"><a href="Core.IO.html#getNameLog"><span class="hs-identifier hs-type">getNameLog</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Types.GitTypes.html#NameLog"><span class="hs-identifier hs-type">NameLog</span></a></span><span>
 </span><span id="line-41"></span><span id="getNameLog"><span class="annot"><span class="annottext">getNameLog :: Maybe FilePath -&gt; Name -&gt; IO NameLog
-</span><a href="Core.IO.html#getNameLog"><span class="hs-identifier hs-var hs-var">getNameLog</span></a></span></span><span> </span><span id="local-6989586621679070009"><span class="annot"><span class="annottext">p :: Maybe FilePath
-</span><a href="#local-6989586621679070009"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679070008"><span class="annot"><span class="annottext">nm :: Name
-</span><a href="#local-6989586621679070008"><span class="hs-identifier hs-var">nm</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679070006"><span class="annot"><span class="annottext">n :: Text
-</span><a href="#local-6989586621679070006"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Name, IO Text) -&gt; IO NameLog
+</span><a href="Core.IO.html#getNameLog"><span class="hs-identifier hs-var hs-var">getNameLog</span></a></span></span><span> </span><span id="local-6989586621679068325"><span class="annot"><span class="annottext">p :: Maybe FilePath
+</span><a href="#local-6989586621679068325"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679068324"><span class="annot"><span class="annottext">nm :: Name
+</span><a href="#local-6989586621679068324"><span class="hs-identifier hs-var">nm</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679068322"><span class="annot"><span class="annottext">n :: Text
+</span><a href="#local-6989586621679068322"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Name, IO Text) -&gt; IO NameLog
 forall (t :: * -&gt; *) (f :: * -&gt; *) a.
 (Traversable t, Applicative f) =&gt;
 t (f a) -&gt; f (t a)
 </span><span class="hs-identifier hs-var">sequenceA</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679070008"><span class="hs-identifier hs-var">nm</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO Text
+</span><a href="#local-6989586621679068324"><span class="hs-identifier hs-var">nm</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO Text
 </span><a href="Core.IO.html#sh"><span class="hs-identifier hs-var">sh</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679070004"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679070009"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679068320"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679068325"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-42"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-43"></span><span>    </span><span id="local-6989586621679070004"><span class="annot"><span class="annottext">cmd :: Text
-</span><a href="#local-6989586621679070004"><span class="hs-identifier hs-var hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-43"></span><span>    </span><span id="local-6989586621679068320"><span class="annot"><span class="annottext">cmd :: Text
+</span><a href="#local-6989586621679068320"><span class="hs-identifier hs-var hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-44"></span><span>      </span><span class="annot"><span class="annottext">[Text] -&gt; Text
 </span><span class="hs-identifier hs-var">T.concat</span></span><span>
 </span><span id="line-45"></span><span>        </span><span class="hs-special">[</span><span class="annot"><span class="hs-string">&quot;git log &quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;\&quot;&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679070006"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;\&quot;&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot; --pretty=format:\&quot;%an|%ad\&quot; --date=short -n1&quot;</span></span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679068322"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;\&quot;&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot; --pretty=format:\&quot;%an|%ad\&quot; --date=short -n1&quot;</span></span><span class="hs-special">]</span><span>
 </span><span id="line-46"></span><span>
 </span><span id="line-47"></span><span class="annot"><a href="Core.IO.html#isMerged"><span class="hs-identifier hs-type">isMerged</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
 </span><span id="line-48"></span><span id="isMerged"><span class="annot"><span class="annottext">isMerged :: Maybe FilePath -&gt; Text -&gt; Name -&gt; IO Bool
-</span><a href="Core.IO.html#isMerged"><span class="hs-identifier hs-var hs-var">isMerged</span></a></span></span><span> </span><span id="local-6989586621679070002"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679070002"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679070001"><span class="annot"><span class="annottext">master :: Text
-</span><a href="#local-6989586621679070001"><span class="hs-identifier hs-var">master</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679070000"><span class="annot"><span class="annottext">n :: Text
-</span><a href="#local-6989586621679070000"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-49"></span><span>  </span><span id="local-6989586621679069999"><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679069999"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><a href="Core.IO.html#isMerged"><span class="hs-identifier hs-var hs-var">isMerged</span></a></span></span><span> </span><span id="local-6989586621679068318"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679068318"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679068317"><span class="annot"><span class="annottext">master :: Text
+</span><a href="#local-6989586621679068317"><span class="hs-identifier hs-var">master</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679068316"><span class="annot"><span class="annottext">n :: Text
+</span><a href="#local-6989586621679068316"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-49"></span><span>  </span><span id="local-6989586621679068315"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679068315"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
 </span><span id="line-50"></span><span>    </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO Text
 </span><a href="Core.IO.html#sh"><span class="hs-identifier hs-var">sh</span></a></span><span>
 </span><span id="line-51"></span><span>      </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Text] -&gt; Text
 </span><span class="hs-identifier hs-var">T.concat</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-string">&quot;git rev-list --count &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679070001"><span class="hs-identifier hs-var">master</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><a href="#local-6989586621679068317"><span class="hs-identifier hs-var">master</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;..&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;\&quot;&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679070000"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;\&quot;&quot;</span></span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679068316"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;\&quot;&quot;</span></span><span class="hs-special">]</span><span class="hs-special">)</span><span>
 </span><span id="line-52"></span><span>      </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679070002"><span class="hs-identifier hs-var">path</span></a></span><span>
+</span><a href="#local-6989586621679068318"><span class="hs-identifier hs-var">path</span></a></span><span>
 </span><span id="line-53"></span><span>  </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Bool -&gt; IO Bool
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
 </span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(Bool -&gt; IO Bool) -&gt; (Text -&gt; Bool) -&gt; Text -&gt; IO Bool
@@ -142,42 +142,42 @@ forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Int
 </span><a href="Core.Internal.html#unsafeToInt"><span class="hs-identifier hs-var">unsafeToInt</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679069999"><span class="hs-identifier hs-var">res</span></a></span><span>
+</span><a href="#local-6989586621679068315"><span class="hs-identifier hs-var">res</span></a></span><span>
 </span><span id="line-54"></span><span>
 </span><span id="line-55"></span><span class="hs-comment">-- | Runs a shell command given by `T.Text` on `FilePath`.</span><span>
 </span><span id="line-56"></span><span class="annot"><a href="Core.IO.html#sh"><span class="hs-identifier hs-type">sh</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span>
 </span><span id="line-57"></span><span id="sh"><span class="annot"><span class="annottext">sh :: Text -&gt; Maybe FilePath -&gt; IO Text
-</span><a href="Core.IO.html#sh"><span class="hs-identifier hs-var hs-var">sh</span></a></span></span><span> </span><span id="local-6989586621679069996"><span class="annot"><span class="annottext">cmd :: Text
-</span><a href="#local-6989586621679069996"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679069995"><span class="annot"><span class="annottext">fp :: Maybe FilePath
-</span><a href="#local-6989586621679069995"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Text
+</span><a href="Core.IO.html#sh"><span class="hs-identifier hs-var hs-var">sh</span></a></span></span><span> </span><span id="local-6989586621679068312"><span class="annot"><span class="annottext">cmd :: Text
+</span><a href="#local-6989586621679068312"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679068311"><span class="annot"><span class="annottext">fp :: Maybe FilePath
+</span><a href="#local-6989586621679068311"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Text
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">(FilePath -&gt; Text) -&gt; IO FilePath -&gt; IO Text
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">CreateProcess -&gt; FilePath -&gt; IO FilePath
 </span><span class="hs-identifier hs-var">P.readCreateProcess</span></span><span> </span><span class="annot"><span class="annottext">CreateProcess
-</span><a href="#local-6989586621679069992"><span class="hs-identifier hs-var">proc</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
+</span><a href="#local-6989586621679068308"><span class="hs-identifier hs-var">proc</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
 </span><span id="line-58"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-59"></span><span>    </span><span id="local-6989586621679069992"><span class="annot"><span class="annottext">proc :: CreateProcess
-</span><a href="#local-6989586621679069992"><span class="hs-identifier hs-var hs-var">proc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath -&gt; CreateProcess
+</span><span id="line-59"></span><span>    </span><span id="local-6989586621679068308"><span class="annot"><span class="annottext">proc :: CreateProcess
+</span><a href="#local-6989586621679068308"><span class="hs-identifier hs-var hs-var">proc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath -&gt; CreateProcess
 </span><span class="hs-identifier hs-var">P.shell</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; FilePath
 </span><span class="hs-identifier hs-var">T.unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679069996"><span class="hs-identifier hs-var">cmd</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">cwd :: Maybe FilePath
+</span><a href="#local-6989586621679068312"><span class="hs-identifier hs-var">cmd</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">cwd :: Maybe FilePath
 </span><span class="hs-identifier hs-var">P.cwd</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679069995"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679068311"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-60"></span><span>
 </span><span id="line-61"></span><span class="hs-comment">-- | Runs an `IO` action and logs the error if any occur.</span><span>
-</span><span id="line-62"></span><span class="annot"><a href="Core.IO.html#logIfErr"><span class="hs-identifier hs-type">logIfErr</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679069988"><span class="annot"><a href="#local-6989586621679069988"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="#local-6989586621679069988"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="#local-6989586621679069988"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-62"></span><span class="annot"><a href="Core.IO.html#logIfErr"><span class="hs-identifier hs-type">logIfErr</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679068304"><span class="annot"><a href="#local-6989586621679068304"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="#local-6989586621679068304"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="#local-6989586621679068304"><span class="hs-identifier hs-type">a</span></a></span><span>
 </span><span id="line-63"></span><span id="logIfErr"><span class="annot"><span class="annottext">logIfErr :: IO a -&gt; IO a
-</span><a href="Core.IO.html#logIfErr"><span class="hs-identifier hs-var hs-var">logIfErr</span></a></span></span><span> </span><span id="local-6989586621679069987"><span class="annot"><span class="annottext">io :: IO a
-</span><a href="#local-6989586621679069987"><span class="hs-identifier hs-var">io</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-64"></span><span>  </span><span id="local-6989586621679069986"><span class="annot"><span class="annottext">Either SomeException a
-</span><a href="#local-6989586621679069986"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO a -&gt; IO (Either SomeException a)
+</span><a href="Core.IO.html#logIfErr"><span class="hs-identifier hs-var hs-var">logIfErr</span></a></span></span><span> </span><span id="local-6989586621679068303"><span class="annot"><span class="annottext">io :: IO a
+</span><a href="#local-6989586621679068303"><span class="hs-identifier hs-var">io</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-64"></span><span>  </span><span id="local-6989586621679068302"><span class="annot"><span class="annottext">Either SomeException a
+</span><a href="#local-6989586621679068302"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO a -&gt; IO (Either SomeException a)
 forall e a. Exception e =&gt; IO a -&gt; IO (Either e a)
 </span><span class="hs-identifier hs-var">Ex.try</span></span><span> </span><span class="annot"><span class="annottext">IO a
-</span><a href="#local-6989586621679069987"><span class="hs-identifier hs-var">io</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ex.SomeException</span></span><span> </span><span class="annot"><a href="#local-6989586621679069988"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679068303"><span class="hs-identifier hs-var">io</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ex.SomeException</span></span><span> </span><span class="annot"><a href="#local-6989586621679068304"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-65"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either SomeException a
-</span><a href="#local-6989586621679069986"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-66"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679069984"><span class="annot"><span class="annottext">ex :: SomeException
-</span><a href="#local-6989586621679069984"><span class="hs-identifier hs-var">ex</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="#local-6989586621679068302"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-66"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679068300"><span class="annot"><span class="annottext">ex :: SomeException
+</span><a href="#local-6989586621679068300"><span class="hs-identifier hs-var">ex</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-67"></span><span>      </span><span class="annot"><span class="annottext">FilePath -&gt; IO ()
 </span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="annottext">(FilePath -&gt; IO ()) -&gt; FilePath -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -186,12 +186,12 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">SomeException -&gt; FilePath
 forall a. Show a =&gt; a -&gt; FilePath
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">SomeException
-</span><a href="#local-6989586621679069984"><span class="hs-identifier hs-var">ex</span></a></span><span>
+</span><a href="#local-6989586621679068300"><span class="hs-identifier hs-var">ex</span></a></span><span>
 </span><span id="line-68"></span><span>      </span><span class="annot"><span class="annottext">IO a
-</span><a href="#local-6989586621679069987"><span class="hs-identifier hs-var">io</span></a></span><span>
-</span><span id="line-69"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679069981"><span class="annot"><span class="annottext">r :: a
-</span><a href="#local-6989586621679069981"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; IO a
-forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
-</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679069981"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><a href="#local-6989586621679068303"><span class="hs-identifier hs-var">io</span></a></span><span>
+</span><span id="line-69"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679068297"><span class="annot"><span class="annottext">r :: a
+</span><a href="#local-6989586621679068297"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679068297"><span class="hs-identifier hs-var">r</span></a></span><span>
 </span><span id="line-70"></span></pre></body></html>

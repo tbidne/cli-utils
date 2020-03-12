@@ -5,7 +5,7 @@
 -- | Please see the README on GitHub at
 --   <a>https://github.com/tbidne/git-utils#readme</a>
 @package git-utils
-@version 0.1.0.0
+@version 1.0.0
 
 
 -- | Provides <a>Err</a> type for describing any errors encountered.
@@ -28,6 +28,7 @@ GitLog :: Text -> Err
 type ErrOr a = Either Err a
 instance GHC.Show.Show Types.Error.Err
 
+
 module Types.Filtered
 
 -- | Intermediate type to ensure <a>getStaleLogs</a> filters stale logs.
@@ -36,10 +37,10 @@ data Filtered a
 -- | Constructs <a>Filtered</a> <i>a</i> based on filter function.
 mkFiltered :: (a -> Bool) -> [a] -> Filtered a
 unFiltered :: Filtered a -> [a]
-instance GHC.Base.Monad Types.Filtered.Filtered
-instance GHC.Base.Applicative Types.Filtered.Filtered
-instance GHC.Base.Functor Types.Filtered.Filtered
 instance GHC.Show.Show a => GHC.Show.Show (Types.Filtered.Filtered a)
+instance GHC.Base.Functor Types.Filtered.Filtered
+instance GHC.Base.Applicative Types.Filtered.Filtered
+instance GHC.Base.Monad Types.Filtered.Filtered
 
 
 -- | Provides types to describe data returned by the underlying
@@ -160,12 +161,12 @@ module App
 newtype AppT m a
 AppT :: ReaderT Env m a -> AppT m a
 [runAppT] :: AppT m a -> ReaderT Env m a
-instance GHC.Base.Monad m => Control.Monad.Reader.Class.MonadReader Types.Env.Env (App.AppT m)
+instance GHC.Base.Functor m => GHC.Base.Functor (App.AppT m)
+instance GHC.Base.Applicative f => GHC.Base.Applicative (App.AppT f)
+instance GHC.Base.Monad m => GHC.Base.Monad (App.AppT m)
 instance Control.Monad.Trans.Class.MonadTrans App.AppT
 instance Control.Monad.IO.Class.MonadIO m => Control.Monad.IO.Class.MonadIO (App.AppT m)
-instance GHC.Base.Monad m => GHC.Base.Monad (App.AppT m)
-instance GHC.Base.Applicative m => GHC.Base.Applicative (App.AppT m)
-instance GHC.Base.Functor m => GHC.Base.Functor (App.AppT m)
+instance GHC.Base.Monad m => Control.Monad.Reader.Class.MonadReader Types.Env.Env (App.AppT m)
 
 
 -- | Handles parsing of String args into Env.

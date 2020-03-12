@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
-</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
-</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE RecordWildCards #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE NamedFieldPuns #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
 </span><span id="line-4"></span><span>
 </span><span id="line-5"></span><span class="hs-comment">-- |</span><span>
 </span><span id="line-6"></span><span class="hs-comment">-- Module      : Types.Results</span><span>
@@ -21,7 +21,7 @@
 </span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Types.Branch.html"><span class="hs-identifier">Types.Branch</span></a></span><span>
 </span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Types.GitTypes.html"><span class="hs-identifier">Types.GitTypes</span></a></span><span>
 </span><span id="line-23"></span><span>
-</span><span id="line-24"></span><span class="hs-keyword">type</span><span> </span><span id="BranchMap"><span class="annot"><a href="Types.Results.html#BranchMap"><span class="hs-identifier hs-var">BranchMap</span></a></span></span><span> </span><span id="local-6989586621679070126"><span class="annot"><a href="#local-6989586621679070126"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">M.Map</span></span><span> </span><span class="annot"><a href="Types.GitTypes.html#Author"><span class="hs-identifier hs-type">Author</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Types.Branch.html#Branch"><span class="hs-identifier hs-type">Branch</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679070126"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-24"></span><span class="hs-keyword">type</span><span> </span><span id="BranchMap"><span class="annot"><a href="Types.Results.html#BranchMap"><span class="hs-identifier hs-var">BranchMap</span></a></span></span><span> </span><span id="local-6989586621679068444"><span class="annot"><a href="#local-6989586621679068444"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">M.Map</span></span><span> </span><span class="annot"><a href="Types.GitTypes.html#Author"><span class="hs-identifier hs-type">Author</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Types.Branch.html#Branch"><span class="hs-identifier hs-type">Branch</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068444"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-25"></span><span>
 </span><span id="line-26"></span><span class="hs-comment">-- | Wrapper for holding `M.Map` `Author` [`Branch` a] data.</span><span>
 </span><span id="line-27"></span><span class="hs-keyword">data</span><span> </span><span id="Results"><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-var">Results</span></a></span></span><span>
@@ -33,7 +33,7 @@
 </span><span id="line-32"></span><span>        </span><span id="unMergedMap"><span class="annot"><span class="annottext">Results -&gt; BranchMap 'UnMerged
 </span><a href="Types.Results.html#unMergedMap"><span class="hs-identifier hs-var hs-var">unMergedMap</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Types.Results.html#BranchMap"><span class="hs-identifier hs-type">BranchMap</span></a></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Types.Branch.html#UnMerged"><span class="hs-identifier hs-type">UnMerged</span></a></span><span>
 </span><span id="line-33"></span><span>      </span><span class="hs-special">}</span><span>
-</span><span id="line-34"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679070117"><span id="local-6989586621679070119"><span id="local-6989586621679070121"><span class="annot"><span class="annottext">Int -&gt; Results -&gt; ShowS
+</span><span id="line-34"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679068435"><span id="local-6989586621679068437"><span id="local-6989586621679068439"><span class="annot"><span class="annottext">Int -&gt; Results -&gt; ShowS
 [Results] -&gt; ShowS
 Results -&gt; String
 (Int -&gt; Results -&gt; ShowS)
@@ -52,74 +52,80 @@ $cshowsPrec :: Int -&gt; Results -&gt; ShowS
 </span><span id="line-37"></span><span class="hs-comment">-- and strips the `T.Text` /prefix/ from the branch names.</span><span>
 </span><span id="line-38"></span><span class="annot"><a href="Types.Results.html#displayResults"><span class="hs-identifier hs-type">displayResults</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span>
 </span><span id="line-39"></span><span id="displayResults"><span class="annot"><span class="annottext">displayResults :: Text -&gt; Results -&gt; Text
-</span><a href="Types.Results.html#displayResults"><span class="hs-identifier hs-var hs-var">displayResults</span></a></span></span><span> </span><span id="local-6989586621679070115"><span class="annot"><span class="annottext">prefix :: Text
-</span><a href="#local-6989586621679070115"><span class="hs-identifier hs-var">prefix</span></a></span></span><span> </span><span id="local-6989586621679070113"><span id="local-6989586621679070114"><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; Text
+</span><a href="Types.Results.html#displayResults"><span class="hs-identifier hs-var hs-var">displayResults</span></a></span></span><span> </span><span id="local-6989586621679068433"><span class="annot"><span class="annottext">prefix :: Text
+</span><a href="#local-6989586621679068433"><span class="hs-identifier hs-var">prefix</span></a></span></span><span> </span><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679068432"><span class="annot"><span class="annottext">BranchMap 'Merged
+mergedMap :: BranchMap 'Merged
+mergedMap :: Results -&gt; BranchMap 'Merged
+</span><a href="#local-6989586621679068432"><span class="hs-identifier hs-var hs-var">mergedMap</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068431"><span class="annot"><span class="annottext">BranchMap 'UnMerged
+unMergedMap :: BranchMap 'UnMerged
+unMergedMap :: Results -&gt; BranchMap 'UnMerged
+</span><a href="#local-6989586621679068431"><span class="hs-identifier hs-var hs-var">unMergedMap</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; Text
 </span><span class="hs-identifier hs-var">T.concat</span></span><span> </span><span class="annot"><span class="annottext">[Text]
-</span><a href="#local-6989586621679070111"><span class="hs-identifier hs-var">str</span></a></span><span>
+</span><a href="#local-6989586621679068429"><span class="hs-identifier hs-var">str</span></a></span><span>
 </span><span id="line-40"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-41"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679070110"><span class="annot"><span class="annottext">m :: Text
-</span><a href="#local-6989586621679070110"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679070109"><span class="annot"><span class="annottext">s :: Int
-</span><a href="#local-6989586621679070109"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; BranchMap 'Merged -&gt; (Text, Int)
+</span><span id="line-41"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679068428"><span class="annot"><span class="annottext">m :: Text
+</span><a href="#local-6989586621679068428"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068427"><span class="annot"><span class="annottext">s :: Int
+</span><a href="#local-6989586621679068427"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; BranchMap 'Merged -&gt; (Text, Int)
 forall (a :: BranchStatus).
 Text -&gt; Map Author [Branch a] -&gt; (Text, Int)
 </span><a href="Types.Results.html#displayMap"><span class="hs-identifier hs-var">displayMap</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679070115"><span class="hs-identifier hs-var">prefix</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged
-</span><a href="#local-6989586621679070114"><span class="hs-identifier hs-var">mergedMap</span></a></span><span>
-</span><span id="line-42"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679070107"><span class="annot"><span class="annottext">u :: Text
-</span><a href="#local-6989586621679070107"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679070106"><span class="annot"><span class="annottext">t :: Int
-</span><a href="#local-6989586621679070106"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; BranchMap 'UnMerged -&gt; (Text, Int)
+</span><a href="#local-6989586621679068433"><span class="hs-identifier hs-var">prefix</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged
+</span><a href="#local-6989586621679068432"><span class="hs-identifier hs-var">mergedMap</span></a></span><span>
+</span><span id="line-42"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679068425"><span class="annot"><span class="annottext">u :: Text
+</span><a href="#local-6989586621679068425"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068424"><span class="annot"><span class="annottext">t :: Int
+</span><a href="#local-6989586621679068424"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; BranchMap 'UnMerged -&gt; (Text, Int)
 forall (a :: BranchStatus).
 Text -&gt; Map Author [Branch a] -&gt; (Text, Int)
 </span><a href="Types.Results.html#displayMap"><span class="hs-identifier hs-var">displayMap</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679070115"><span class="hs-identifier hs-var">prefix</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
-</span><a href="#local-6989586621679070113"><span class="hs-identifier hs-var">unMergedMap</span></a></span><span>
-</span><span id="line-43"></span><span>    </span><span id="local-6989586621679070111"><span class="annot"><span class="annottext">str :: [Text]
-</span><a href="#local-6989586621679070111"><span class="hs-identifier hs-var hs-var">str</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="#local-6989586621679068433"><span class="hs-identifier hs-var">prefix</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
+</span><a href="#local-6989586621679068431"><span class="hs-identifier hs-var">unMergedMap</span></a></span><span>
+</span><span id="line-43"></span><span>    </span><span id="local-6989586621679068429"><span class="annot"><span class="annottext">str :: [Text]
+</span><a href="#local-6989586621679068429"><span class="hs-identifier hs-var hs-var">str</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-44"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="hs-string">&quot;MERGED: &quot;</span></span><span class="hs-special">,</span><span>
 </span><span id="line-45"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; Text
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; String
 forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679070109"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><a href="#local-6989586621679068427"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
 </span><span id="line-46"></span><span>        </span><span class="annot"><span class="hs-string">&quot;\n------\n&quot;</span></span><span class="hs-special">,</span><span>
 </span><span id="line-47"></span><span>        </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679070110"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">,</span><span>
+</span><a href="#local-6989586621679068428"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">,</span><span>
 </span><span id="line-48"></span><span>        </span><span class="annot"><span class="hs-string">&quot;\n\n&quot;</span></span><span class="hs-special">,</span><span>
 </span><span id="line-49"></span><span>        </span><span class="annot"><span class="hs-string">&quot;UNMERGED: &quot;</span></span><span class="hs-special">,</span><span>
 </span><span id="line-50"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; Text
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; String
 forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679070106"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><a href="#local-6989586621679068424"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
 </span><span id="line-51"></span><span>        </span><span class="annot"><span class="hs-string">&quot;\n--------\n&quot;</span></span><span class="hs-special">,</span><span>
 </span><span id="line-52"></span><span>        </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679070107"><span class="hs-identifier hs-var">u</span></a></span><span>
+</span><a href="#local-6989586621679068425"><span class="hs-identifier hs-var">u</span></a></span><span>
 </span><span id="line-53"></span><span>      </span><span class="hs-special">]</span><span>
 </span><span id="line-54"></span><span>
-</span><span id="line-55"></span><span id="local-6989586621679070156"><span class="annot"><a href="Types.Results.html#displayMap"><span class="hs-identifier hs-type">displayMap</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">M.Map</span></span><span> </span><span class="annot"><a href="Types.GitTypes.html#Author"><span class="hs-identifier hs-type">Author</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Types.Branch.html#Branch"><span class="hs-identifier hs-type">Branch</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679070156"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-55"></span><span id="local-6989586621679068474"><span class="annot"><a href="Types.Results.html#displayMap"><span class="hs-identifier hs-type">displayMap</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">M.Map</span></span><span> </span><span class="annot"><a href="Types.GitTypes.html#Author"><span class="hs-identifier hs-type">Author</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Types.Branch.html#Branch"><span class="hs-identifier hs-type">Branch</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068474"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span></span><span>
 </span><span id="line-56"></span><span id="displayMap"><span class="annot"><span class="annottext">displayMap :: Text -&gt; Map Author [Branch a] -&gt; (Text, Int)
-</span><a href="Types.Results.html#displayMap"><span class="hs-identifier hs-var hs-var">displayMap</span></a></span></span><span> </span><span id="local-6989586621679070103"><span class="annot"><span class="annottext">prefix :: Text
-</span><a href="#local-6989586621679070103"><span class="hs-identifier hs-var">prefix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Author -&gt; [Branch a] -&gt; (Text, Int) -&gt; (Text, Int))
+</span><a href="Types.Results.html#displayMap"><span class="hs-identifier hs-var hs-var">displayMap</span></a></span></span><span> </span><span id="local-6989586621679068421"><span class="annot"><span class="annottext">prefix :: Text
+</span><a href="#local-6989586621679068421"><span class="hs-identifier hs-var">prefix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Author -&gt; [Branch a] -&gt; (Text, Int) -&gt; (Text, Int))
 -&gt; (Text, Int) -&gt; Map Author [Branch a] -&gt; (Text, Int)
 forall k a b. (k -&gt; a -&gt; b -&gt; b) -&gt; b -&gt; Map k a -&gt; b
 </span><span class="hs-identifier hs-var">M.foldrWithKey</span></span><span> </span><span class="annot"><span class="annottext">Author -&gt; [Branch a] -&gt; (Text, Int) -&gt; (Text, Int)
 forall (a :: BranchStatus).
 Author -&gt; [Branch a] -&gt; (Text, Int) -&gt; (Text, Int)
-</span><a href="#local-6989586621679070101"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-number">0</span></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679068419"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-number">0</span></span><span class="hs-special">)</span><span>
 </span><span id="line-57"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-58"></span><span>    </span><span id="local-6989586621679070149"><span class="annot"><a href="#local-6989586621679070101"><span class="hs-identifier hs-type">f</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Types.GitTypes.html#Author"><span class="hs-identifier hs-type">Author</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Types.Branch.html#Branch"><span class="hs-identifier hs-type">Branch</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679070149"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span></span><span>
-</span><span id="line-59"></span><span>    </span><span id="local-6989586621679070101"><span class="annot"><span class="annottext">f :: Author -&gt; [Branch a] -&gt; (Text, Int) -&gt; (Text, Int)
-</span><a href="#local-6989586621679070101"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Types.GitTypes.html#Author"><span class="hs-identifier hs-type">Author</span></a></span><span> </span><span id="local-6989586621679070099"><span class="annot"><span class="annottext">k :: Text
-</span><a href="#local-6989586621679070099"><span class="hs-identifier hs-var">k</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679070098"><span class="annot"><span class="annottext">ns :: [Branch a]
-</span><a href="#local-6989586621679070098"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span id="local-6989586621679070097"><span class="annot"><span class="annottext">acc :: (Text, Int)
-</span><a href="#local-6989586621679070097"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[Branch a]
-</span><a href="#local-6989586621679070098"><span class="hs-identifier hs-var">ns</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-58"></span><span>    </span><span id="local-6989586621679068467"><span class="annot"><a href="#local-6989586621679068419"><span class="hs-identifier hs-type">f</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Types.GitTypes.html#Author"><span class="hs-identifier hs-type">Author</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Types.Branch.html#Branch"><span class="hs-identifier hs-type">Branch</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068467"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-59"></span><span>    </span><span id="local-6989586621679068419"><span class="annot"><span class="annottext">f :: Author -&gt; [Branch a] -&gt; (Text, Int) -&gt; (Text, Int)
+</span><a href="#local-6989586621679068419"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Types.GitTypes.html#Author"><span class="hs-identifier hs-type">Author</span></a></span><span> </span><span id="local-6989586621679068417"><span class="annot"><span class="annottext">k :: Text
+</span><a href="#local-6989586621679068417"><span class="hs-identifier hs-var">k</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679068416"><span class="annot"><span class="annottext">ns :: [Branch a]
+</span><a href="#local-6989586621679068416"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span id="local-6989586621679068415"><span class="annot"><span class="annottext">acc :: (Text, Int)
+</span><a href="#local-6989586621679068415"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[Branch a]
+</span><a href="#local-6989586621679068416"><span class="hs-identifier hs-var">ns</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-60"></span><span>      </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(Text, Int)
-</span><a href="#local-6989586621679070097"><span class="hs-identifier hs-var">acc</span></a></span><span>
-</span><span id="line-61"></span><span>      </span><span id="local-6989586621679070096"><span class="annot"><span class="annottext">xs :: [Branch a]
-</span><a href="#local-6989586621679070096"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><a href="#local-6989586621679068415"><span class="hs-identifier hs-var">acc</span></a></span><span>
+</span><span id="line-61"></span><span>      </span><span id="local-6989586621679068414"><span class="annot"><span class="annottext">xs :: [Branch a]
+</span><a href="#local-6989586621679068414"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-62"></span><span>        </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679070099"><span class="hs-identifier hs-var">k</span></a></span><span>
+</span><a href="#local-6989586621679068417"><span class="hs-identifier hs-var">k</span></a></span><span>
 </span><span id="line-63"></span><span>            </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot; (&quot;</span></span><span>
@@ -131,7 +137,7 @@ forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Branch a] -&gt; Int
 forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
 </span><span class="hs-identifier hs-var">length</span></span><span> </span><span class="annot"><span class="annottext">[Branch a]
-</span><a href="#local-6989586621679070096"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679068414"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-65"></span><span>            </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;): &quot;</span></span><span>
@@ -140,8 +146,8 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; [Branch a] -&gt; Text
 forall (a :: BranchStatus). Text -&gt; [Branch a] -&gt; Text
 </span><a href="Types.Branch.html#branchesToName"><span class="hs-identifier hs-var">branchesToName</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679070103"><span class="hs-identifier hs-var">prefix</span></a></span><span> </span><span class="annot"><span class="annottext">[Branch a]
-</span><a href="#local-6989586621679070098"><span class="hs-identifier hs-var">ns</span></a></span><span>
+</span><a href="#local-6989586621679068421"><span class="hs-identifier hs-var">prefix</span></a></span><span> </span><span class="annot"><span class="annottext">[Branch a]
+</span><a href="#local-6989586621679068416"><span class="hs-identifier hs-var">ns</span></a></span><span>
 </span><span id="line-67"></span><span>            </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\n\n&quot;</span></span><span>
@@ -150,16 +156,16 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">(Text, Int) -&gt; Text
 forall a b. (a, b) -&gt; a
 </span><span class="hs-identifier hs-var">fst</span></span><span> </span><span class="annot"><span class="annottext">(Text, Int)
-</span><a href="#local-6989586621679070097"><span class="hs-identifier hs-var">acc</span></a></span><span class="hs-special">,</span><span>
+</span><a href="#local-6989586621679068415"><span class="hs-identifier hs-var">acc</span></a></span><span class="hs-special">,</span><span>
 </span><span id="line-69"></span><span>          </span><span class="annot"><span class="annottext">(Text, Int) -&gt; Int
 forall a b. (a, b) -&gt; b
 </span><span class="hs-identifier hs-var">snd</span></span><span> </span><span class="annot"><span class="annottext">(Text, Int)
-</span><a href="#local-6989586621679070097"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679068415"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">[Branch a] -&gt; Int
 forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
 </span><span class="hs-identifier hs-var">length</span></span><span> </span><span class="annot"><span class="annottext">[Branch a]
-</span><a href="#local-6989586621679070096"><span class="hs-identifier hs-var">xs</span></a></span><span>
+</span><a href="#local-6989586621679068414"><span class="hs-identifier hs-var">xs</span></a></span><span>
 </span><span id="line-70"></span><span>        </span><span class="hs-special">)</span><span>
 </span><span id="line-71"></span><span>
 </span><span id="line-72"></span><span class="hs-comment">-- | Maps [`AnyBranch`] to `Results`. Pattern matches on `AnyBranch` to reveal</span><span>
@@ -173,26 +179,26 @@ forall (t :: * -&gt; *) b a.
 Foldable t =&gt;
 (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
 </span><span class="hs-identifier hs-var">F.foldl'</span></span><span> </span><span class="annot"><span class="annottext">Results -&gt; AnyBranch -&gt; Results
-</span><a href="#local-6989586621679070091"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Results
+</span><a href="#local-6989586621679068409"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Results
 </span><a href="Types.Results.html#mkResults"><span class="hs-identifier hs-var">mkResults</span></a></span><span>
 </span><span id="line-77"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-78"></span><span>    </span><span id="local-6989586621679070091"><span class="annot"><span class="annottext">go :: Results -&gt; AnyBranch -&gt; Results
-</span><a href="#local-6989586621679070091"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679070089"><span class="annot"><span class="annottext">mp :: Results
-</span><a href="#local-6989586621679070089"><span class="hs-identifier hs-var">mp</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Types.Branch.html#MergedBranch"><span class="hs-identifier hs-type">MergedBranch</span></a></span><span> </span><span id="local-6989586621679070087"><span class="annot"><span class="annottext">b :: Branch 'Merged
-</span><a href="#local-6989586621679070087"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Types.Branch.html#MkBranch"><span class="hs-identifier hs-type">MkBranch</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679070085"><span class="annot"><span class="annottext">a :: Author
-</span><a href="#local-6989586621679070085"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Author -&gt; Branch 'Merged -&gt; Results -&gt; Results
+</span><span id="line-78"></span><span>    </span><span id="local-6989586621679068409"><span class="annot"><span class="annottext">go :: Results -&gt; AnyBranch -&gt; Results
+</span><a href="#local-6989586621679068409"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679068407"><span class="annot"><span class="annottext">mp :: Results
+</span><a href="#local-6989586621679068407"><span class="hs-identifier hs-var">mp</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Types.Branch.html#MergedBranch"><span class="hs-identifier hs-type">MergedBranch</span></a></span><span> </span><span id="local-6989586621679068405"><span class="annot"><span class="annottext">b :: Branch 'Merged
+</span><a href="#local-6989586621679068405"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Types.Branch.html#MkBranch"><span class="hs-identifier hs-type">MkBranch</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679068403"><span class="annot"><span class="annottext">a :: Author
+</span><a href="#local-6989586621679068403"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Author -&gt; Branch 'Merged -&gt; Results -&gt; Results
 </span><a href="Types.Results.html#insertMerged"><span class="hs-identifier hs-var">insertMerged</span></a></span><span> </span><span class="annot"><span class="annottext">Author
-</span><a href="#local-6989586621679070085"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Branch 'Merged
-</span><a href="#local-6989586621679070087"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Results
-</span><a href="#local-6989586621679070089"><span class="hs-identifier hs-var">mp</span></a></span><span>
-</span><span id="line-79"></span><span>    </span><span class="annot"><a href="#local-6989586621679070091"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679070083"><span class="annot"><span class="annottext">mp :: Results
-</span><a href="#local-6989586621679070083"><span class="hs-identifier hs-var">mp</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Types.Branch.html#UnMergedBranch"><span class="hs-identifier hs-type">UnMergedBranch</span></a></span><span> </span><span id="local-6989586621679070081"><span class="annot"><span class="annottext">b :: Branch 'UnMerged
-</span><a href="#local-6989586621679070081"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Types.Branch.html#MkBranch"><span class="hs-identifier hs-type">MkBranch</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679070080"><span class="annot"><span class="annottext">a :: Author
-</span><a href="#local-6989586621679070080"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Author -&gt; Branch 'UnMerged -&gt; Results -&gt; Results
+</span><a href="#local-6989586621679068403"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Branch 'Merged
+</span><a href="#local-6989586621679068405"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Results
+</span><a href="#local-6989586621679068407"><span class="hs-identifier hs-var">mp</span></a></span><span>
+</span><span id="line-79"></span><span>    </span><span class="annot"><a href="#local-6989586621679068409"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679068401"><span class="annot"><span class="annottext">mp :: Results
+</span><a href="#local-6989586621679068401"><span class="hs-identifier hs-var">mp</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Types.Branch.html#UnMergedBranch"><span class="hs-identifier hs-type">UnMergedBranch</span></a></span><span> </span><span id="local-6989586621679068399"><span class="annot"><span class="annottext">b :: Branch 'UnMerged
+</span><a href="#local-6989586621679068399"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Types.Branch.html#MkBranch"><span class="hs-identifier hs-type">MkBranch</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679068398"><span class="annot"><span class="annottext">a :: Author
+</span><a href="#local-6989586621679068398"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Author -&gt; Branch 'UnMerged -&gt; Results -&gt; Results
 </span><a href="Types.Results.html#insertUnMerged"><span class="hs-identifier hs-var">insertUnMerged</span></a></span><span> </span><span class="annot"><span class="annottext">Author
-</span><a href="#local-6989586621679070080"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Branch 'UnMerged
-</span><a href="#local-6989586621679070081"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Results
-</span><a href="#local-6989586621679070083"><span class="hs-identifier hs-var">mp</span></a></span><span>
+</span><a href="#local-6989586621679068398"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Branch 'UnMerged
+</span><a href="#local-6989586621679068399"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Results
+</span><a href="#local-6989586621679068401"><span class="hs-identifier hs-var">mp</span></a></span><span>
 </span><span id="line-80"></span><span>
 </span><span id="line-81"></span><span class="annot"><a href="Types.Results.html#mkResults"><span class="hs-identifier hs-type">mkResults</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span>
 </span><span id="line-82"></span><span id="mkResults"><span class="annot"><span class="annottext">mkResults :: Results
@@ -205,69 +211,81 @@ forall k a. Map k a
 </span><span id="line-83"></span><span>
 </span><span id="line-84"></span><span class="annot"><a href="Types.Results.html#insertMerged"><span class="hs-identifier hs-type">insertMerged</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Types.GitTypes.html#Author"><span class="hs-identifier hs-type">Author</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Types.Branch.html#Branch"><span class="hs-identifier hs-type">Branch</span></a></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Types.Branch.html#Merged"><span class="hs-identifier hs-type">Merged</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span>
 </span><span id="line-85"></span><span id="insertMerged"><span class="annot"><span class="annottext">insertMerged :: Author -&gt; Branch 'Merged -&gt; Results -&gt; Results
-</span><a href="Types.Results.html#insertMerged"><span class="hs-identifier hs-var hs-var">insertMerged</span></a></span></span><span> </span><span id="local-6989586621679070077"><span class="annot"><span class="annottext">a :: Author
-</span><a href="#local-6989586621679070077"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679070076"><span class="annot"><span class="annottext">b :: Branch 'Merged
-</span><a href="#local-6989586621679070076"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span id="local-6989586621679070074"><span id="local-6989586621679070075"><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged -&gt; BranchMap 'UnMerged -&gt; Results
+</span><a href="Types.Results.html#insertMerged"><span class="hs-identifier hs-var hs-var">insertMerged</span></a></span></span><span> </span><span id="local-6989586621679068395"><span class="annot"><span class="annottext">a :: Author
+</span><a href="#local-6989586621679068395"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679068394"><span class="annot"><span class="annottext">b :: Branch 'Merged
+</span><a href="#local-6989586621679068394"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679068393"><span class="annot"><span class="annottext">BranchMap 'Merged
+mergedMap :: BranchMap 'Merged
+mergedMap :: Results -&gt; BranchMap 'Merged
+</span><a href="#local-6989586621679068393"><span class="hs-identifier hs-var hs-var">mergedMap</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068392"><span class="annot"><span class="annottext">BranchMap 'UnMerged
+unMergedMap :: BranchMap 'UnMerged
+unMergedMap :: Results -&gt; BranchMap 'UnMerged
+</span><a href="#local-6989586621679068392"><span class="hs-identifier hs-var hs-var">unMergedMap</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged -&gt; BranchMap 'UnMerged -&gt; Results
 </span><a href="Types.Results.html#Results"><span class="hs-identifier hs-var">Results</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged
-</span><a href="#local-6989586621679070073"><span class="hs-identifier hs-var">mergedMap'</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
-</span><a href="#local-6989586621679070074"><span class="hs-identifier hs-var">unMergedMap</span></a></span><span>
+</span><a href="#local-6989586621679068391"><span class="hs-identifier hs-var">mergedMap'</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
+</span><a href="#local-6989586621679068392"><span class="hs-identifier hs-var">unMergedMap</span></a></span><span>
 </span><span id="line-86"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-87"></span><span>    </span><span id="local-6989586621679070073"><span class="annot"><span class="annottext">mergedMap' :: BranchMap 'Merged
-</span><a href="#local-6989586621679070073"><span class="hs-identifier hs-var hs-var">mergedMap'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Author -&gt; BranchMap 'Merged -&gt; Maybe [Branch 'Merged]
+</span><span id="line-87"></span><span>    </span><span id="local-6989586621679068391"><span class="annot"><span class="annottext">mergedMap' :: BranchMap 'Merged
+</span><a href="#local-6989586621679068391"><span class="hs-identifier hs-var hs-var">mergedMap'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Author -&gt; BranchMap 'Merged -&gt; Maybe [Branch 'Merged]
 forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">M.lookup</span></span><span> </span><span class="annot"><span class="annottext">Author
-</span><a href="#local-6989586621679070077"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged
-</span><a href="#local-6989586621679070075"><span class="hs-identifier hs-var">mergedMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679068395"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged
+</span><a href="#local-6989586621679068393"><span class="hs-identifier hs-var">mergedMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-88"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Author
 -&gt; [Branch 'Merged] -&gt; BranchMap 'Merged -&gt; BranchMap 'Merged
 forall k a. Ord k =&gt; k -&gt; a -&gt; Map k a -&gt; Map k a
 </span><span class="hs-identifier hs-var">M.insert</span></span><span> </span><span class="annot"><span class="annottext">Author
-</span><a href="#local-6989586621679070077"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Branch 'Merged
-</span><a href="#local-6989586621679070076"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged
-</span><a href="#local-6989586621679070075"><span class="hs-identifier hs-var">mergedMap</span></a></span><span>
-</span><span id="line-89"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679070070"><span class="annot"><span class="annottext">bs :: [Branch 'Merged]
-</span><a href="#local-6989586621679070070"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Author
+</span><a href="#local-6989586621679068395"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Branch 'Merged
+</span><a href="#local-6989586621679068394"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged
+</span><a href="#local-6989586621679068393"><span class="hs-identifier hs-var">mergedMap</span></a></span><span>
+</span><span id="line-89"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679068388"><span class="annot"><span class="annottext">bs :: [Branch 'Merged]
+</span><a href="#local-6989586621679068388"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Author
 -&gt; [Branch 'Merged] -&gt; BranchMap 'Merged -&gt; BranchMap 'Merged
 forall k a. Ord k =&gt; k -&gt; a -&gt; Map k a -&gt; Map k a
 </span><span class="hs-identifier hs-var">M.insert</span></span><span> </span><span class="annot"><span class="annottext">Author
-</span><a href="#local-6989586621679070077"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Branch 'Merged
-</span><a href="#local-6989586621679070076"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Branch 'Merged -&gt; [Branch 'Merged] -&gt; [Branch 'Merged]
+</span><a href="#local-6989586621679068395"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Branch 'Merged
+</span><a href="#local-6989586621679068394"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Branch 'Merged -&gt; [Branch 'Merged] -&gt; [Branch 'Merged]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[Branch 'Merged]
-</span><a href="#local-6989586621679070070"><span class="hs-identifier hs-var">bs</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged
-</span><a href="#local-6989586621679070075"><span class="hs-identifier hs-var">mergedMap</span></a></span><span>
+</span><a href="#local-6989586621679068388"><span class="hs-identifier hs-var">bs</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged
+</span><a href="#local-6989586621679068393"><span class="hs-identifier hs-var">mergedMap</span></a></span><span>
 </span><span id="line-90"></span><span>
 </span><span id="line-91"></span><span class="annot"><a href="Types.Results.html#insertUnMerged"><span class="hs-identifier hs-type">insertUnMerged</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Types.GitTypes.html#Author"><span class="hs-identifier hs-type">Author</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Types.Branch.html#Branch"><span class="hs-identifier hs-type">Branch</span></a></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Types.Branch.html#UnMerged"><span class="hs-identifier hs-type">UnMerged</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span>
 </span><span id="line-92"></span><span id="insertUnMerged"><span class="annot"><span class="annottext">insertUnMerged :: Author -&gt; Branch 'UnMerged -&gt; Results -&gt; Results
-</span><a href="Types.Results.html#insertUnMerged"><span class="hs-identifier hs-var hs-var">insertUnMerged</span></a></span></span><span> </span><span id="local-6989586621679070069"><span class="annot"><span class="annottext">a :: Author
-</span><a href="#local-6989586621679070069"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679070068"><span class="annot"><span class="annottext">b :: Branch 'UnMerged
-</span><a href="#local-6989586621679070068"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span id="local-6989586621679070066"><span id="local-6989586621679070067"><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged -&gt; BranchMap 'UnMerged -&gt; Results
+</span><a href="Types.Results.html#insertUnMerged"><span class="hs-identifier hs-var hs-var">insertUnMerged</span></a></span></span><span> </span><span id="local-6989586621679068387"><span class="annot"><span class="annottext">a :: Author
+</span><a href="#local-6989586621679068387"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679068386"><span class="annot"><span class="annottext">b :: Branch 'UnMerged
+</span><a href="#local-6989586621679068386"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="annot"><a href="Types.Results.html#Results"><span class="hs-identifier hs-type">Results</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679068385"><span class="annot"><span class="annottext">BranchMap 'Merged
+mergedMap :: BranchMap 'Merged
+mergedMap :: Results -&gt; BranchMap 'Merged
+</span><a href="#local-6989586621679068385"><span class="hs-identifier hs-var hs-var">mergedMap</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068384"><span class="annot"><span class="annottext">BranchMap 'UnMerged
+unMergedMap :: BranchMap 'UnMerged
+unMergedMap :: Results -&gt; BranchMap 'UnMerged
+</span><a href="#local-6989586621679068384"><span class="hs-identifier hs-var hs-var">unMergedMap</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged -&gt; BranchMap 'UnMerged -&gt; Results
 </span><a href="Types.Results.html#Results"><span class="hs-identifier hs-var">Results</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'Merged
-</span><a href="#local-6989586621679070067"><span class="hs-identifier hs-var">mergedMap</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
-</span><a href="#local-6989586621679070065"><span class="hs-identifier hs-var">unMergedMap'</span></a></span><span>
+</span><a href="#local-6989586621679068385"><span class="hs-identifier hs-var">mergedMap</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
+</span><a href="#local-6989586621679068383"><span class="hs-identifier hs-var">unMergedMap'</span></a></span><span>
 </span><span id="line-93"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-94"></span><span>    </span><span id="local-6989586621679070065"><span class="annot"><span class="annottext">unMergedMap' :: BranchMap 'UnMerged
-</span><a href="#local-6989586621679070065"><span class="hs-identifier hs-var hs-var">unMergedMap'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Author -&gt; BranchMap 'UnMerged -&gt; Maybe [Branch 'UnMerged]
+</span><span id="line-94"></span><span>    </span><span id="local-6989586621679068383"><span class="annot"><span class="annottext">unMergedMap' :: BranchMap 'UnMerged
+</span><a href="#local-6989586621679068383"><span class="hs-identifier hs-var hs-var">unMergedMap'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Author -&gt; BranchMap 'UnMerged -&gt; Maybe [Branch 'UnMerged]
 forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">M.lookup</span></span><span> </span><span class="annot"><span class="annottext">Author
-</span><a href="#local-6989586621679070069"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
-</span><a href="#local-6989586621679070066"><span class="hs-identifier hs-var">unMergedMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679068387"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
+</span><a href="#local-6989586621679068384"><span class="hs-identifier hs-var">unMergedMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-95"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Author
 -&gt; [Branch 'UnMerged] -&gt; BranchMap 'UnMerged -&gt; BranchMap 'UnMerged
 forall k a. Ord k =&gt; k -&gt; a -&gt; Map k a -&gt; Map k a
 </span><span class="hs-identifier hs-var">M.insert</span></span><span> </span><span class="annot"><span class="annottext">Author
-</span><a href="#local-6989586621679070069"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Branch 'UnMerged
-</span><a href="#local-6989586621679070068"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
-</span><a href="#local-6989586621679070066"><span class="hs-identifier hs-var">unMergedMap</span></a></span><span>
-</span><span id="line-96"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679070064"><span class="annot"><span class="annottext">bs :: [Branch 'UnMerged]
-</span><a href="#local-6989586621679070064"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Author
+</span><a href="#local-6989586621679068387"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Branch 'UnMerged
+</span><a href="#local-6989586621679068386"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
+</span><a href="#local-6989586621679068384"><span class="hs-identifier hs-var">unMergedMap</span></a></span><span>
+</span><span id="line-96"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679068382"><span class="annot"><span class="annottext">bs :: [Branch 'UnMerged]
+</span><a href="#local-6989586621679068382"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Author
 -&gt; [Branch 'UnMerged] -&gt; BranchMap 'UnMerged -&gt; BranchMap 'UnMerged
 forall k a. Ord k =&gt; k -&gt; a -&gt; Map k a -&gt; Map k a
 </span><span class="hs-identifier hs-var">M.insert</span></span><span> </span><span class="annot"><span class="annottext">Author
-</span><a href="#local-6989586621679070069"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Branch 'UnMerged
-</span><a href="#local-6989586621679070068"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Branch 'UnMerged -&gt; [Branch 'UnMerged] -&gt; [Branch 'UnMerged]
+</span><a href="#local-6989586621679068387"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Branch 'UnMerged
+</span><a href="#local-6989586621679068386"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Branch 'UnMerged -&gt; [Branch 'UnMerged] -&gt; [Branch 'UnMerged]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[Branch 'UnMerged]
-</span><a href="#local-6989586621679070064"><span class="hs-identifier hs-var">bs</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
-</span><a href="#local-6989586621679070066"><span class="hs-identifier hs-var">unMergedMap</span></a></span><span>
+</span><a href="#local-6989586621679068382"><span class="hs-identifier hs-var">bs</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">BranchMap 'UnMerged
+</span><a href="#local-6989586621679068384"><span class="hs-identifier hs-var">unMergedMap</span></a></span><span>
 </span><span id="line-97"></span></pre></body></html>
