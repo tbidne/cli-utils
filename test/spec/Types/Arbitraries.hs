@@ -36,7 +36,7 @@ instance Arbitrary AnyBranch where
     a <- arbitrary
     d <- arbitrary
     b <- arbitrary
-    return $ mkAnyBranch n a d b
+    pure $ mkAnyBranch n a d b
 
 instance Arbitrary BranchType where
   arbitrary :: Gen BranchType
@@ -48,4 +48,4 @@ instance Arbitrary Nat where
     (NonNegative lim) <- arbitrary :: Gen (NonNegative Integer)
     case mkNat lim of
       Nothing -> error "Error creating nat in test"
-      Just n -> return n
+      Just n -> pure n

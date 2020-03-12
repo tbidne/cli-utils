@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
 
 -- |
 -- Module      : Types.ResultsWithErrs
@@ -34,7 +34,8 @@ data ResultsWithErrs
 -- | Displays `ResultsWithErrs`. Differs from `Show` in that it is formatted differently
 -- and strips the `T.Text` /prefix/ from the branch names.
 displayResultsWithErrs :: T.Text -> ResultsWithErrs -> T.Text
-displayResultsWithErrs prefix ResultsWithErrs {..} = T.concat str
+displayResultsWithErrs prefix ResultsWithErrs {errList, results} =
+  T.concat str
   where
     str = ["ERRORS\n------\n", T.pack (show errList), "\n\n", displayResults prefix results]
 

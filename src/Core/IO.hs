@@ -26,16 +26,16 @@ import Types.GitTypes
 -- on `FilePath`. Returns `Left` `Err` if any errors occur,
 -- `Right` `NameAuthDay` otherwise.
 nameToLog :: Maybe FilePath -> ErrOr Name -> IO (ErrOr NameAuthDay)
-nameToLog _ (Left err) = return $ Left err
+nameToLog _ (Left err) = pure $ Left err
 nameToLog path (Right name) = parseLog <$> getNameLog path name
 
 -- | Maps a `NameAuthDay` on `FilePath` to `AnyBranch`. Returns `Left` `Err`
 -- if any errors occur, `Right` `NameAuthDay` otherwise.
 errTupleToBranch :: Maybe FilePath -> T.Text -> ErrOr NameAuthDay -> IO (ErrOr AnyBranch)
-errTupleToBranch _ _ (Left x) = return $ Left x
+errTupleToBranch _ _ (Left x) = pure $ Left x
 errTupleToBranch path master (Right (n, a, d)) = do
   res <- isMerged path master n
-  return $ Right $ mkAnyBranch n a d res
+  pure $ Right $ mkAnyBranch n a d res
 
 getNameLog :: Maybe FilePath -> Name -> IO NameLog
 getNameLog p nm@(Name n) = sequenceA (nm, sh cmd p)
@@ -66,4 +66,4 @@ logIfErr io = do
     Left ex -> do
       putStrLn $ "Died with error: " <> show ex
       io
-    Right r -> return r
+    Right r -> pure r

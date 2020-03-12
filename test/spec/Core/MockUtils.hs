@@ -50,16 +50,16 @@ instance MonadStaleBranches MockUtilsOut where
     let maybeFilter = case grep of
           Nothing -> id
           Just s -> filter (\(Name n) -> s `Txt.isInfixOf` n)
-    lift $ return $ maybeFilter allBranches
+    lift $ pure $ maybeFilter allBranches
 
   getStaleLogs :: [Name] -> MockUtilsOut (Filtered NameAuthDay)
   getStaleLogs ns = do
     let removeStale ((Name n), _, _) = not $ "stale" `Txt.isInfixOf` n
         toLog nm@(Name n) = (nm, Author n, error "MockUtils -> getStaleLogs: day not defined")
-    lift $ return $ (mkFiltered removeStale . fmap toLog) ns
+    lift $ pure $ (mkFiltered removeStale . fmap toLog) ns
 
   toBranches :: Filtered NameAuthDay -> MockUtilsOut [AnyBranch]
-  toBranches = lift . return . fmap toBranch . unFiltered
+  toBranches = lift . pure . fmap toBranch . unFiltered
     where
       toBranch (n, a, d) = mkAnyBranch n a d True
 

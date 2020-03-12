@@ -1,4 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ViewPatterns #-}
 
@@ -28,12 +29,12 @@ verifyDefaults :: Cal.Day -> Either String Env -> Bool
 verifyDefaults day =
   \case
     Left _ -> False
-    Right env ->
-      grepStr env == Nothing
-        && path env == Just "/share"
-        && Just (limit env) == mkNat 30
-        && branchType env == Remote
-        && today env == day
+    Right Env {grepStr, path, limit, branchType, today} ->
+      grepStr == Nothing
+        && path == Just "/share"
+        && Just limit == mkNat 30
+        && branchType == Remote
+        && today == day
 
 parsesArgs :: Cal.Day -> ValidArgs -> Bool
 parsesArgs d (ValidArgs g p l b _ _ args) =
