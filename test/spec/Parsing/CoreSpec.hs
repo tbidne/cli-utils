@@ -12,6 +12,7 @@ import qualified System.IO as IO
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Types.Env
+import Types.Nat
 
 spec :: Spec
 spec = do
@@ -19,6 +20,9 @@ spec = do
     it "Empty args uses defaults" $ do
       parseArgs mkDay [] `shouldSatisfy` verifyDefaults mkDay
     prop "Correctly parses valid args" parsesArgs
+    prop "Invalid limit does not parse" invalidLimitDies
+    prop "Invalid branch type does not parse" invalidBranchTypeDies
+    prop "Invalid args do not parse" invalidArgsDies
 
 verifyDefaults :: Cal.Day -> Either String Env -> Bool
 verifyDefaults day =
@@ -32,7 +36,7 @@ verifyDefaults day =
         && today env == day
 
 parsesArgs :: Cal.Day -> ValidArgs -> Bool
-parsesArgs d (ValidArgs g p l b args) =
+parsesArgs d (ValidArgs g p l b _ _ args) =
   case parseArgs d args of
     Left _ -> False
     Right env ->
@@ -41,6 +45,24 @@ parsesArgs d (ValidArgs g p l b args) =
         && verifyLimit l (limit env)
         && verifyBranchType b (branchType env)
         && d == today env
+
+invalidLimitDies :: InvalidLimit -> Bool
+invalidLimitDies (InvalidLimit s) =
+  case parseArgs mkDay [s] of
+    Left _ -> True
+    Right _ -> False
+
+invalidBranchTypeDies :: InvalidBranchType -> Bool
+invalidBranchTypeDies (InvalidBranchType s) =
+  case parseArgs mkDay [s] of
+    Left _ -> True
+    Right _ -> False
+
+invalidArgsDies :: InvalidArgs -> Bool
+invalidArgsDies (InvalidArgs args) =
+  case parseArgs mkDay args of
+    Left _ -> True
+    Right _ -> False
 
 verifyGrep :: String -> Maybe T.Text -> Bool
 verifyGrep (startsWith "--grep=" -> Just s) =

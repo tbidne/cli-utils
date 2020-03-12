@@ -14,6 +14,7 @@ import Test.QuickCheck
 import Types.Arbitraries ()
 import Types.Error
 import Types.GitTypes
+import Types.Nat
 
 spec :: Spec
 spec = do

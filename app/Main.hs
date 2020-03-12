@@ -13,13 +13,15 @@ import Data.Time.Calendar (Day)
 import Data.Time.Clock (getCurrentTime, utctDay)
 import Parsing.Core
 import System.Environment (getArgs)
+import System.IO
+import System.IO.Silently
 import Types.Env ()
 
 currDay :: IO Day
 currDay = fmap utctDay getCurrentTime
 
 main :: IO ()
-main = do
+main = hSilence [stderr] $ do
   args <- getArgs
   d <- currDay
   case parseArgs d args of

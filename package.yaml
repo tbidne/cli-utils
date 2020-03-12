@@ -25,6 +25,7 @@ dependencies:
 - mtl
 - parallel-io
 - process
+- silently
 - text
 - time
 

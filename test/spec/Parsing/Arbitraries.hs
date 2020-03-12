@@ -1,20 +1,9 @@
-{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Parsing.Arbitraries where
 
-import Parsing.Internal
 import Test.QuickCheck
 import Types.Arbitraries ()
-
-instance Arbitrary ArgHolder where
-  arbitrary :: Gen ArgHolder
-  arbitrary = do
-    grp <- arbitrary
-    p <- arbitrary
-    lim <- arbitrary
-    bt <- arbitrary
-    return $ ArgHolder grp p lim bt
 
 newtype ValidGrep = ValidGrep String deriving (Show)
 
@@ -37,19 +26,42 @@ instance Arbitrary ValidLimit where
     (NonNegative lim) <- arbitrary :: Gen (NonNegative Integer)
     return $ ValidLimit ("--limit=" <> show lim)
 
-newtype ValidBranchType = ValidBranchType String deriving (Show)
+newtype InvalidLimit = InvalidLimit String deriving (Show)
 
-newtype InValidLimit = InValidLimit String deriving (Show)
-
-instance Arbitrary InValidLimit where
+instance Arbitrary InvalidLimit where
   arbitrary = do
     (Negative lim) <- arbitrary :: Gen (Negative Integer)
-    return $ InValidLimit ("--limit=" <> show lim)
+    return $ InvalidLimit ("--limit=" <> show lim)
+
+newtype ValidBranchType = ValidBranchType String deriving (Show)
 
 instance Arbitrary ValidBranchType where
   arbitrary = do
     bt <- elements ["all", "a", "r", "remote", "l", "local"]
     return $ ValidBranchType ("--branchType=" <> bt)
+
+newtype InvalidBranchType = InvalidBranchType String deriving (Show)
+
+instance Arbitrary InvalidBranchType where
+  arbitrary = do
+    (PrintableString s) <- arbitrary `suchThat` nonEmpty
+    return $ InvalidBranchType ("--branchType=" <> s)
+    where
+      nonEmpty (PrintableString t) = not $ t `elem` ["a", "r", "l"]
+
+newtype ValidRemoteName = ValidRemoteName String deriving (Show)
+
+instance Arbitrary ValidRemoteName where
+  arbitrary = do
+    (PrintableString s) <- arbitrary
+    return $ ValidRemoteName $ "--remote=" <> s
+
+newtype ValidMaster = ValidMaster String deriving (Show)
+
+instance Arbitrary ValidMaster where
+  arbitrary = do
+    (PrintableString s) <- arbitrary
+    return $ ValidMaster $ "--master=" <> s
 
 data ValidArgs
   = ValidArgs
@@ -57,16 +69,28 @@ data ValidArgs
         validPath :: String,
         validLimit :: String,
         validBranchType :: String,
+        validRemoteName :: String,
+        validMaster :: String,
         order :: [String]
       }
   deriving (Show)
 
 instance Arbitrary ValidArgs where
-  arbitrary :: Gen ValidArgs
   arbitrary = do
     (ValidGrep g) <- arbitrary
     (ValidPath p) <- arbitrary
     (ValidLimit l) <- arbitrary
     (ValidBranchType b) <- arbitrary
-    order' <- shuffle [g, p, l, b]
-    return $ ValidArgs g p l b order'
+    (ValidRemoteName r) <- arbitrary
+    (ValidMaster m) <- arbitrary
+    order' <- shuffle [g, p, l, b, r, m]
+    return $ ValidArgs g p l b r m order'
+
+newtype InvalidArgs = InvalidArgs [String] deriving (Show)
+
+instance Arbitrary InvalidArgs where
+  arbitrary = do
+    (PrintableString s) <- (arbitrary) `suchThat` nonEmpty
+    InvalidArgs <$> vectorOf 4 (return s)
+    where
+      nonEmpty = not . (/= "") . getPrintableString

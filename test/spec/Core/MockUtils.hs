@@ -12,6 +12,7 @@ import Core.MonadStaleBranches
 import qualified Data.Text as Txt
 import Types.Branch
 import Types.Env
+import Types.Filtered
 import Types.GitTypes
 
 data Output a = Output [Txt.Text] a

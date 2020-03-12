@@ -18,7 +18,11 @@ Scans a `git` directory for branches based on a grep string and then prints all 
 
 To build with stack run `stack build`.
 
-Run with `stack exec git-utils-exe [--grep=<string>] [--path=<path/to/dir>] [--limit=<days> [--branchType=<a[ll]|r[emote]|l[ocal]>`.
+Run with
+
+```shell
+stack exec git-utils-exe -- [--grep=<string>] [--path=<path/to/dir>] [--limit=<days>] [--branchType=<a[ll]|r[emote]|l[ocal]>] [--remote=<string>] [--master=<string>]
+```
 
 All arguments are optional.
 
@@ -35,6 +39,10 @@ All arguments are optional.
 The default is 30, and any provided argument must be a non-negative integer.
 
 `--branchType` is the type of branches to search, must be one of `a`, `all`, `r`, `remote`, `l`, and `local`. Defaults to remote.
+
+`--remote` is the name of the remote, defaults to `origin`. This is used for stripping out the remote prefix  when displaying the final results, if any exists.
+
+`--master` is the name of the branch to consider merges against, defaults to `origin/master`.
 
 ## Docker
 

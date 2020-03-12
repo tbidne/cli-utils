@@ -1,11 +1,14 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies #-}
 
+-- |
+-- Module      : Core.MonadStaleBranches
+-- License     : BSD3
+-- Maintainer  : tbidne@gmail.com
+-- The MonadStaleBranches class.
 module Core.MonadStaleBranches
   ( MonadStaleBranches (..),
     runGitUtils,
@@ -22,24 +25,50 @@ import qualified Data.Text as T
 import Types.Branch
 import Types.Env
 import Types.Error
+import Types.Filtered
 import Types.GitTypes
 import Types.ResultsWithErrs
 
+-- | The 'MonadStaleBranches' class is used to describe interacting with a
+-- git filesystem.
 class Monad m => MonadStaleBranches m where
+  -- | Adds custom handling to returned data (e.g. for error handling).
   type Handler m a :: K.Type
+
+  -- | The type returned by `collectResults`.
   type FinalResults m :: K.Type
 
-  branchNamesByGrep :: m [Name]
-  getStaleLogs :: [Name] -> m (Filtered (Handler m NameAuthDay))
+  -- | Returns a [`Name`] representing git branches.
+  branchNamesByGrep :: m [Handler m Name]
+
+  -- | Maps [`Name`] to [`NameAuthDay`], filtering out non-stale branches.
+  getStaleLogs :: [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
+
+  -- | Maps [`NameAuthDay`] to [`AnyBranch`].
   toBranches :: Filtered (Handler m NameAuthDay) -> m [Handler m AnyBranch]
+
+  -- | Collects [`AnyBranch`] into `FinalResults`.
   collectResults :: [Handler m AnyBranch] -> m (FinalResults m)
+
+  -- | Displays results.
   display :: FinalResults m -> m ()
 
+-- | `MonadStaleBranches` instance for (`AppT` m) over `R.MonadIO`. This means we can
+-- encounter exceptions, but
+--
+--   * We do not want a single exception trying to parse one branch kill
+--     the entire program.
+--   * We do not want to ignore problems entirely.
+--
+-- We opt to define `Handler` as (`ErrOr` a), which is an alias for (`Either` `Err` a).
+-- We collect the results in `ResultsWithErrs`, which contains a list of errors
+-- and two maps, one for merged branches and another for unmerged branches.
 instance R.MonadIO m => MonadStaleBranches (AppT m) where
   type Handler (AppT m) a = ErrOr a
+
   type FinalResults (AppT m) = ResultsWithErrs
 
-  branchNamesByGrep :: (AppT m) [Name]
+  branchNamesByGrep :: (AppT m) [ErrOr Name]
   branchNamesByGrep = do
     p <- R.asks path
     searchStr <- R.asks grepStr
@@ -48,12 +77,12 @@ instance R.MonadIO m => MonadStaleBranches (AppT m) where
           Nothing -> not . badBranch
           Just s ->
             \t -> (not . badBranch) t && T.toCaseFold s `T.isInfixOf` T.toCaseFold t
-        toNames' = fmap (Name . T.strip) . filter branchFn . T.lines
-        cmd = ("git branch " <> T.pack (branchTypeToArg bType))
+        toNames' = fmap textToName . filter branchFn . T.lines
+        cmd = "git branch " <> T.pack (branchTypeToArg bType)
     res <- R.liftIO $ sh cmd p
     R.liftIO $ logIfErr $ return $ toNames' res
 
-  getStaleLogs :: [Name] -> (AppT m) (Filtered (ErrOr NameAuthDay))
+  getStaleLogs :: [ErrOr Name] -> (AppT m) (Filtered (ErrOr NameAuthDay))
   getStaleLogs ns = do
     day <- R.asks today
     lim <- R.asks limit
@@ -61,19 +90,23 @@ instance R.MonadIO m => MonadStaleBranches (AppT m) where
     let staleFilter' = mkFiltered $ staleNonErr lim day
     logs <- R.liftIO $ Par.parallelE (fmap (nameToLog p) ns)
     R.liftIO $ return $ (staleFilter' . fmap exceptToErr) logs
-
   toBranches :: Filtered (ErrOr NameAuthDay) -> (AppT m) [ErrOr AnyBranch]
   toBranches ns = do
     p <- R.asks path
-    branches <- R.liftIO $ Par.parallelE (fmap (errTupleToBranch p) (unFiltered ns))
+    r <- R.asks master
+    branches <- R.liftIO $ Par.parallelE (fmap (errTupleToBranch p r) (unFiltered ns))
     R.liftIO $ return $ fmap exceptToErr branches
 
   collectResults :: [ErrOr AnyBranch] -> (AppT m) ResultsWithErrs
   collectResults = return . toResultsWithErrs
 
   display :: ResultsWithErrs -> (AppT m) ()
-  display = R.liftIO . print
+  display res = do
+    r <- R.asks remoteName
+    R.liftIO $ putStrLn $ T.unpack $ displayResultsWithErrs r res
 
+-- | High level logic of `MonadStaleBranches` usage. This function is the
+-- entrypoint for any `MonadStaleBranches` instance.
 runGitUtils :: MonadStaleBranches m => m ()
 runGitUtils = do
   branchNames <- branchNamesByGrep

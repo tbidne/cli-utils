@@ -21,7 +21,7 @@ sizesMatch bs = numUnique bs == Map.size merged + Map.size unmerged
   where
     results = toResults bs
     merged = mergedMap results
-    unmerged = unmergedMap results
+    unmerged = unMergedMap results
 
 numUnique :: [AnyBranch] -> Int
 numUnique = pairSetLen . foldl' f (Set.empty, Set.empty)

@@ -10,6 +10,7 @@ import Test.QuickCheck
 import Types.Branch
 import Types.Env
 import Types.Error
+import Types.Nat
 
 instance Arbitrary Err where
   arbitrary :: Gen Err

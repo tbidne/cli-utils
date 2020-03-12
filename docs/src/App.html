@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Module      : App</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- Provides the main component used in this application.</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">App</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="App.html#AppT"><span class="hs-identifier">AppT</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Reader</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">R</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Types.Env.html"><span class="hs-identifier">Types.Env</span></a></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">newtype</span><span> </span><span id="AppT"><span class="annot"><a href="App.html#AppT"><span class="hs-identifier hs-var">AppT</span></a></span></span><span> </span><span id="local-6989586621679069663"><span class="annot"><a href="#local-6989586621679069663"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span id="local-6989586621679069662"><span class="annot"><a href="#local-6989586621679069662"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AppT"><span class="annot"><a href="App.html#AppT"><span class="hs-identifier hs-var">AppT</span></a></span></span><span> </span><span class="hs-special">{</span><span id="runAppT"><span class="annot"><span class="annottext">AppT m a -&gt; ReaderT Env m a
+</span><a href="App.html#runAppT"><span class="hs-identifier hs-var hs-var">runAppT</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">R.ReaderT</span></span><span> </span><span class="annot"><a href="Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679069663"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679069662"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679069656"><span id="local-6989586621679069658"><span class="annot"><span class="annottext">a -&gt; AppT m b -&gt; AppT m a
+(a -&gt; b) -&gt; AppT m a -&gt; AppT m b
+(forall a b. (a -&gt; b) -&gt; AppT m a -&gt; AppT m b)
+-&gt; (forall a b. a -&gt; AppT m b -&gt; AppT m a) -&gt; Functor (AppT m)
+forall a b. a -&gt; AppT m b -&gt; AppT m a
+forall a b. (a -&gt; b) -&gt; AppT m a -&gt; AppT m b
+forall (m :: * -&gt; *) a b. Functor m =&gt; a -&gt; AppT m b -&gt; AppT m a
+forall (m :: * -&gt; *) a b.
+Functor m =&gt;
+(a -&gt; b) -&gt; AppT m a -&gt; AppT m b
+forall (f :: * -&gt; *).
+(forall a b. (a -&gt; b) -&gt; f a -&gt; f b)
+-&gt; (forall a b. a -&gt; f b -&gt; f a) -&gt; Functor f
+&lt;$ :: a -&gt; AppT m b -&gt; AppT m a
+$c&lt;$ :: forall (m :: * -&gt; *) a b. Functor m =&gt; a -&gt; AppT m b -&gt; AppT m a
+fmap :: (a -&gt; b) -&gt; AppT m a -&gt; AppT m b
+$cfmap :: forall (m :: * -&gt; *) a b.
+Functor m =&gt;
+(a -&gt; b) -&gt; AppT m a -&gt; AppT m b
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Functor</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679069644"><span id="local-6989586621679069646"><span id="local-6989586621679069648"><span id="local-6989586621679069650"><span id="local-6989586621679069652"><span class="annot"><span class="annottext">Functor (AppT m)
+a -&gt; AppT m a
+Functor (AppT m) =&gt;
+(forall a. a -&gt; AppT m a)
+-&gt; (forall a b. AppT m (a -&gt; b) -&gt; AppT m a -&gt; AppT m b)
+-&gt; (forall a b c.
+    (a -&gt; b -&gt; c) -&gt; AppT m a -&gt; AppT m b -&gt; AppT m c)
+-&gt; (forall a b. AppT m a -&gt; AppT m b -&gt; AppT m b)
+-&gt; (forall a b. AppT m a -&gt; AppT m b -&gt; AppT m a)
+-&gt; Applicative (AppT m)
+AppT m a -&gt; AppT m b -&gt; AppT m b
+AppT m a -&gt; AppT m b -&gt; AppT m a
+AppT m (a -&gt; b) -&gt; AppT m a -&gt; AppT m b
+(a -&gt; b -&gt; c) -&gt; AppT m a -&gt; AppT m b -&gt; AppT m c
+forall a. a -&gt; AppT m a
+forall a b. AppT m a -&gt; AppT m b -&gt; AppT m a
+forall a b. AppT m a -&gt; AppT m b -&gt; AppT m b
+forall a b. AppT m (a -&gt; b) -&gt; AppT m a -&gt; AppT m b
+forall a b c. (a -&gt; b -&gt; c) -&gt; AppT m a -&gt; AppT m b -&gt; AppT m c
+forall (f :: * -&gt; *).
+Functor f =&gt;
+(forall a. a -&gt; f a)
+-&gt; (forall a b. f (a -&gt; b) -&gt; f a -&gt; f b)
+-&gt; (forall a b c. (a -&gt; b -&gt; c) -&gt; f a -&gt; f b -&gt; f c)
+-&gt; (forall a b. f a -&gt; f b -&gt; f b)
+-&gt; (forall a b. f a -&gt; f b -&gt; f a)
+-&gt; Applicative f
+forall (m :: * -&gt; *). Applicative m =&gt; Functor (AppT m)
+forall (m :: * -&gt; *) a. Applicative m =&gt; a -&gt; AppT m a
+forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+AppT m a -&gt; AppT m b -&gt; AppT m a
+forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+AppT m a -&gt; AppT m b -&gt; AppT m b
+forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+AppT m (a -&gt; b) -&gt; AppT m a -&gt; AppT m b
+forall (m :: * -&gt; *) a b c.
+Applicative m =&gt;
+(a -&gt; b -&gt; c) -&gt; AppT m a -&gt; AppT m b -&gt; AppT m c
+&lt;* :: AppT m a -&gt; AppT m b -&gt; AppT m a
+$c&lt;* :: forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+AppT m a -&gt; AppT m b -&gt; AppT m a
+*&gt; :: AppT m a -&gt; AppT m b -&gt; AppT m b
+$c*&gt; :: forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+AppT m a -&gt; AppT m b -&gt; AppT m b
+liftA2 :: (a -&gt; b -&gt; c) -&gt; AppT m a -&gt; AppT m b -&gt; AppT m c
+$cliftA2 :: forall (m :: * -&gt; *) a b c.
+Applicative m =&gt;
+(a -&gt; b -&gt; c) -&gt; AppT m a -&gt; AppT m b -&gt; AppT m c
+&lt;*&gt; :: AppT m (a -&gt; b) -&gt; AppT m a -&gt; AppT m b
+$c&lt;*&gt; :: forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+AppT m (a -&gt; b) -&gt; AppT m a -&gt; AppT m b
+pure :: a -&gt; AppT m a
+$cpure :: forall (m :: * -&gt; *) a. Applicative m =&gt; a -&gt; AppT m a
+$cp1Applicative :: forall (m :: * -&gt; *). Applicative m =&gt; Functor (AppT m)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Applicative</span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679069636"><span id="local-6989586621679069638"><span id="local-6989586621679069640"><span class="annot"><span class="annottext">Applicative (AppT m)
+a -&gt; AppT m a
+Applicative (AppT m) =&gt;
+(forall a b. AppT m a -&gt; (a -&gt; AppT m b) -&gt; AppT m b)
+-&gt; (forall a b. AppT m a -&gt; AppT m b -&gt; AppT m b)
+-&gt; (forall a. a -&gt; AppT m a)
+-&gt; Monad (AppT m)
+AppT m a -&gt; (a -&gt; AppT m b) -&gt; AppT m b
+AppT m a -&gt; AppT m b -&gt; AppT m b
+forall a. a -&gt; AppT m a
+forall a b. AppT m a -&gt; AppT m b -&gt; AppT m b
+forall a b. AppT m a -&gt; (a -&gt; AppT m b) -&gt; AppT m b
+forall (m :: * -&gt; *). Monad m =&gt; Applicative (AppT m)
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; AppT m a
+forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+AppT m a -&gt; AppT m b -&gt; AppT m b
+forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+AppT m a -&gt; (a -&gt; AppT m b) -&gt; AppT m b
+forall (m :: * -&gt; *).
+Applicative m =&gt;
+(forall a b. m a -&gt; (a -&gt; m b) -&gt; m b)
+-&gt; (forall a b. m a -&gt; m b -&gt; m b)
+-&gt; (forall a. a -&gt; m a)
+-&gt; Monad m
+return :: a -&gt; AppT m a
+$creturn :: forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; AppT m a
+&gt;&gt; :: AppT m a -&gt; AppT m b -&gt; AppT m b
+$c&gt;&gt; :: forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+AppT m a -&gt; AppT m b -&gt; AppT m b
+&gt;&gt;= :: AppT m a -&gt; (a -&gt; AppT m b) -&gt; AppT m b
+$c&gt;&gt;= :: forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+AppT m a -&gt; (a -&gt; AppT m b) -&gt; AppT m b
+$cp1Monad :: forall (m :: * -&gt; *). Monad m =&gt; Applicative (AppT m)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Monad</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679069632"><span class="annot"><span class="annottext">Monad (AppT m)
+Monad (AppT m) =&gt; (forall a. IO a -&gt; AppT m a) -&gt; MonadIO (AppT m)
+IO a -&gt; AppT m a
+forall a. IO a -&gt; AppT m a
+forall (m :: * -&gt; *).
+Monad m =&gt;
+(forall a. IO a -&gt; m a) -&gt; MonadIO m
+forall (m :: * -&gt; *). MonadIO m =&gt; Monad (AppT m)
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; AppT m a
+liftIO :: IO a -&gt; AppT m a
+$cliftIO :: forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; AppT m a
+$cp1MonadIO :: forall (m :: * -&gt; *). MonadIO m =&gt; Monad (AppT m)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var">R.MonadIO</span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679069629"><span class="annot"><span class="annottext">m a -&gt; AppT m a
+(forall (m :: * -&gt; *) a. Monad m =&gt; m a -&gt; AppT m a)
+-&gt; MonadTrans AppT
+forall (m :: * -&gt; *) a. Monad m =&gt; m a -&gt; AppT m a
+forall (t :: (* -&gt; *) -&gt; * -&gt; *).
+(forall (m :: * -&gt; *) a. Monad m =&gt; m a -&gt; t m a) -&gt; MonadTrans t
+lift :: m a -&gt; AppT m a
+$clift :: forall (m :: * -&gt; *) a. Monad m =&gt; m a -&gt; AppT m a
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">R.MonadTrans</span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679069621"><span id="local-6989586621679069623"><span id="local-6989586621679069625"><span class="annot"><span class="hs-identifier hs-type">R.MonadReader</span></span><span> </span><span class="annot"><a href="Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span></pre></body></html>
