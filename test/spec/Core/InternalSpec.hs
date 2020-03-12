@@ -63,7 +63,7 @@ instance Arbitrary NameLogSuccess where
   arbitrary = do
     n <- arbitrary
     l <- genValidLog
-    return $ NameLogSuccess (n, l)
+    pure $ NameLogSuccess (n, l)
 
 newtype NameLogErr = NameLogErr NameLog
   deriving (Show)
@@ -73,13 +73,13 @@ instance Arbitrary NameLogErr where
   arbitrary = do
     n <- arbitrary `suchThat` (\(Name n) -> Txt.all (/= '|') n)
     l <- arbitrary `suchThat` Txt.all (/= '|')
-    return $ NameLogErr (n, l)
+    pure $ NameLogErr (n, l)
 
 genValidLog :: Gen Txt.Text
 genValidLog = do
   a <- arbitrary `suchThat` Txt.all (/= '|')
   l <- arbitrary `suchThat` Txt.all (/= '|')
-  return $ a <> "|" <> l
+  pure $ a <> "|" <> l
 
 newtype NameAuthDateSuccess = NameAuthDateSuccess NameAuthDateStr
   deriving (Show)
@@ -90,7 +90,7 @@ instance Arbitrary NameAuthDateSuccess where
     n <- arbitrary
     a <- arbitrary
     d <- genValidDateStr
-    return $ NameAuthDateSuccess (n, a, d)
+    pure $ NameAuthDateSuccess (n, a, d)
 
 newtype NameAuthDateErr = NameAuthDateErr NameAuthDateStr
   deriving (Show)
@@ -101,11 +101,11 @@ instance Arbitrary NameAuthDateErr where
     n <- arbitrary
     a <- arbitrary
     d <- arbitrary
-    return $ NameAuthDateErr (n, a, d)
+    pure $ NameAuthDateErr (n, a, d)
 
 genValidDateStr :: Gen Txt.Text
 genValidDateStr = do
   y <- genYearStr
   m <- genMonthStr
   d <- genDayStr
-  return $ y <> "-" <> m <> "-" <> d
+  pure $ y <> "-" <> m <> "-" <> d

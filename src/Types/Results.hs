@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
 
 -- |
 -- Module      : Types.Results
@@ -36,7 +36,7 @@ data Results
 -- | Displays `Results`. Differs from `Show` in that it is formatted differently
 -- and strips the `T.Text` /prefix/ from the branch names.
 displayResults :: T.Text -> Results -> T.Text
-displayResults prefix Results {..} = T.concat str
+displayResults prefix Results {mergedMap, unMergedMap} = T.concat str
   where
     (m, s) = displayMap prefix mergedMap
     (u, t) = displayMap prefix unMergedMap
@@ -82,14 +82,14 @@ mkResults :: Results
 mkResults = Results M.empty M.empty
 
 insertMerged :: Author -> Branch 'Merged -> Results -> Results
-insertMerged a b Results {..} = Results mergedMap' unMergedMap
+insertMerged a b Results {mergedMap, unMergedMap} = Results mergedMap' unMergedMap
   where
     mergedMap' = case M.lookup a mergedMap of
       Nothing -> M.insert a [b] mergedMap
       Just bs -> M.insert a (b : bs) mergedMap
 
 insertUnMerged :: Author -> Branch 'UnMerged -> Results -> Results
-insertUnMerged a b Results {..} = Results mergedMap unMergedMap'
+insertUnMerged a b Results {mergedMap, unMergedMap} = Results mergedMap unMergedMap'
   where
     unMergedMap' = case M.lookup a unMergedMap of
       Nothing -> M.insert a [b] unMergedMap

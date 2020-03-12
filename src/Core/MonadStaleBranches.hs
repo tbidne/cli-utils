@@ -1,7 +1,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE TypeFamilies #-}
 
 -- |
@@ -70,40 +72,36 @@ instance R.MonadIO m => MonadStaleBranches (AppT m) where
 
   branchNamesByGrep :: (AppT m) [ErrOr Name]
   branchNamesByGrep = do
-    p <- R.asks path
-    searchStr <- R.asks grepStr
-    bType <- R.asks branchType
-    let branchFn = case searchStr of
+    Env {branchType, grepStr, path} <- R.ask
+    let branchFn = case grepStr of
           Nothing -> not . badBranch
           Just s ->
             \t -> (not . badBranch) t && T.toCaseFold s `T.isInfixOf` T.toCaseFold t
         toNames' = fmap textToName . filter branchFn . T.lines
-        cmd = "git branch " <> T.pack (branchTypeToArg bType)
-    res <- R.liftIO $ sh cmd p
-    R.liftIO $ logIfErr $ return $ toNames' res
+        cmd = "git branch " <> T.pack (branchTypeToArg branchType)
+    res <- R.liftIO $ sh cmd path
+    R.liftIO $ logIfErr $ pure $ toNames' res
 
   getStaleLogs :: [ErrOr Name] -> (AppT m) (Filtered (ErrOr NameAuthDay))
   getStaleLogs ns = do
-    day <- R.asks today
-    lim <- R.asks limit
-    p <- R.asks path
-    let staleFilter' = mkFiltered $ staleNonErr lim day
-    logs <- R.liftIO $ Par.parallelE (fmap (nameToLog p) ns)
-    R.liftIO $ return $ (staleFilter' . fmap exceptToErr) logs
+    Env {limit, path, today} <- R.ask
+    let staleFilter' = mkFiltered $ staleNonErr limit today
+    logs <- R.liftIO $ Par.parallelE (fmap (nameToLog path) ns)
+    R.liftIO $ pure $ (staleFilter' . fmap exceptToErr) logs
+
   toBranches :: Filtered (ErrOr NameAuthDay) -> (AppT m) [ErrOr AnyBranch]
   toBranches ns = do
-    p <- R.asks path
-    r <- R.asks master
-    branches <- R.liftIO $ Par.parallelE (fmap (errTupleToBranch p r) (unFiltered ns))
-    R.liftIO $ return $ fmap exceptToErr branches
+    Env {path, master} <- R.ask
+    branches <- R.liftIO $ Par.parallelE (fmap (errTupleToBranch path master) (unFiltered ns))
+    R.liftIO $ pure $ fmap exceptToErr branches
 
   collectResults :: [ErrOr AnyBranch] -> (AppT m) ResultsWithErrs
-  collectResults = return . toResultsWithErrs
+  collectResults = pure . toResultsWithErrs
 
   display :: ResultsWithErrs -> (AppT m) ()
   display res = do
-    r <- R.asks remoteName
-    R.liftIO $ putStrLn $ T.unpack $ displayResultsWithErrs r res
+    Env {remoteName} <- R.ask
+    R.liftIO $ putStrLn $ T.unpack $ displayResultsWithErrs remoteName res
 
 -- | High level logic of `MonadStaleBranches` usage. This function is the
 -- entrypoint for any `MonadStaleBranches` instance.
