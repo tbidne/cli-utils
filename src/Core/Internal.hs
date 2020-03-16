@@ -53,9 +53,9 @@ parseDay (n, a, t) = fmap (n,a,) eitherDay
 
 -- | Determines if `NameAuthDay` is stale given by
 --
--- > stale lim day (_, _, d) <=> day - d > lim
+-- > stale lim day (_, _, d) <=> day - d >= lim
 stale :: Nat -> C.Day -> NameAuthDay -> Bool
-stale lim day (_, _, d) = C.diffDays day d > unNat lim
+stale lim day (_, _, d) = C.diffDays day d >= unNat lim
 
 -- | For `Right` `NameAuthDay`, behaves the same as `stale`.
 -- But for `Left` `Err` it is always true, since we do not want

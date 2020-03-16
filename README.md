@@ -33,7 +33,7 @@ All arguments are optional.
  `--limit` is the number of days used for determining if a branch is stale, i.e.,
 
  ```
- branch is stale iff age(branch) > limit
+ branch is stale iff age(branch) >= limit
  ```
 
 The default is 30, and any provided argument must be a non-negative integer.

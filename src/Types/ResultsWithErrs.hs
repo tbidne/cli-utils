@@ -37,7 +37,14 @@ displayResultsWithErrs :: T.Text -> ResultsWithErrs -> T.Text
 displayResultsWithErrs prefix ResultsWithErrs {errList, results} =
   T.concat str
   where
-    str = ["ERRORS\n------\n", T.pack (show errList), "\n\n", displayResults prefix results]
+    str =
+      [ "ERRORS: ",
+        showText (length errList),
+        "\n------\n",
+        showText errList,
+        "\n\n",
+        displayResults prefix results
+      ]
 
 -- | Maps [`ErrOr` `AnyBranch`] to `ResultsWithErrs`.
 toResultsWithErrs :: [ErrOr AnyBranch] -> ResultsWithErrs
@@ -50,3 +57,6 @@ splitErrs = F.foldl' f ([], [])
   where
     f (es, bs) (Left e) = (e : es, bs)
     f (es, bs) (Right b) = (es, b : bs)
+
+showText :: Show a => a -> T.Text
+showText = T.pack . show

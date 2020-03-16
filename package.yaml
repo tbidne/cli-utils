@@ -1,5 +1,5 @@
 name:                git-utils
-version:             1.0.0
+version:             1.0.1
 github:              "tbidne/git-utils"
 license:             BSD3
 author:              "Thomas Bidne"
@@ -70,3 +70,17 @@ tests:
     - hspec
     - hspec-core
     - QuickCheck
+  inttest:
+    main: Spec.hs
+    source-dirs: test/inttest
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Wno-orphans
+    - -Wno-missing-export-lists
+    dependencies:
+    - git-utils
+    - hspec
+    - hspec-core
+    - silently
