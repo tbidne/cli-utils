@@ -3,7 +3,7 @@ FROM fpco/stack-build:lts-15.0 AS builder
 LABEL stage=builder
 RUN mkdir -p /opt/build
 COPY . /opt/build
-RUN cd /opt/build && stack build --ghc-options="-Werror" --test --system-ghc
+RUN cd /opt/build && stack build --ghc-options="-Werror"  --system-ghc --test :spec
 
 # make exe
 FROM ubuntu:18.04
