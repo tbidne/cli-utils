@@ -20,4 +20,6 @@ jobs:
 
       - name: Build and test
         run: stack test --ghc-options="-Werror"
+        env:
+          CI: "Github Actions"
 

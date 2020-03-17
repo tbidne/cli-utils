@@ -24,7 +24,7 @@ spec = do
     prop "Correctly formatted date string succeeds" goodDateStrSucceeds
     prop "Badly formatted date string fails" badDateStrFails
   describe "Stale tests" $ do
-    prop "Log is stale iff diffDays day log > limit " vStale
+    prop "Log is stale iff diffDays day log >= limit " vStale
 
 goodLogSucceeds :: NameLogSuccess -> Bool
 goodLogSucceeds (NameLogSuccess nl@(n, l)) = case parseAuthDateStr nl of

@@ -14,7 +14,7 @@ import Types.Nat
 
 spec :: Spec
 spec = do
-  describe "MockUtils tests" $ do
+  describe "MockUtils Integration tests" $ do
     it "Mock run with grep `branch` should return 5 results" $ do
       let (Output res _) = runMock "branch"
       length res `shouldBe` 5
