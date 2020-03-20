@@ -65,12 +65,12 @@ class Monad m => FindBranches m where
 -- We opt to define `Handler` as (`ErrOr` a), which is an alias for (`Either` `Err` a).
 -- We collect the results in `ResultsWithErrs`, which contains a list of errors
 -- and two maps, one for merged branches and another for unmerged branches.
-instance R.MonadIO m => FindBranches (AppT m) where
-  type Handler (AppT m) a = ErrOr a
+instance R.MonadIO m => FindBranches (AppT Env m) where
+  type Handler (AppT Env m) a = ErrOr a
 
-  type FinalResults (AppT m) = ResultsWithErrs
+  type FinalResults (AppT Env m) = ResultsWithErrs
 
-  branchNamesByGrep :: (AppT m) [ErrOr Name]
+  branchNamesByGrep :: (AppT Env m) [ErrOr Name]
   branchNamesByGrep = do
     Env {branchType, grepStr, path} <- R.ask
     let branchFn = case grepStr of
@@ -82,23 +82,23 @@ instance R.MonadIO m => FindBranches (AppT m) where
     res <- R.liftIO $ sh cmd path
     R.liftIO $ logIfErr $ pure $ toNames' res
 
-  getStaleLogs :: [ErrOr Name] -> (AppT m) (Filtered (ErrOr NameAuthDay))
+  getStaleLogs :: [ErrOr Name] -> (AppT Env m) (Filtered (ErrOr NameAuthDay))
   getStaleLogs ns = do
     Env {limit, path, today} <- R.ask
     let staleFilter' = mkFiltered $ staleNonErr limit today
     logs <- R.liftIO $ Par.parallelE (fmap (nameToLog path) ns)
     R.liftIO $ pure $ (staleFilter' . fmap exceptToErr) logs
 
-  toBranches :: Filtered (ErrOr NameAuthDay) -> (AppT m) [ErrOr AnyBranch]
+  toBranches :: Filtered (ErrOr NameAuthDay) -> (AppT Env m) [ErrOr AnyBranch]
   toBranches ns = do
     Env {path, master} <- R.ask
     branches <- R.liftIO $ Par.parallelE (fmap (errTupleToBranch path master) (unFiltered ns))
     R.liftIO $ pure $ fmap exceptToErr branches
 
-  collectResults :: [ErrOr AnyBranch] -> (AppT m) ResultsWithErrs
+  collectResults :: [ErrOr AnyBranch] -> (AppT Env m) ResultsWithErrs
   collectResults = pure . toResultsWithErrs
 
-  display :: ResultsWithErrs -> (AppT m) ()
+  display :: ResultsWithErrs -> (AppT Env m) ()
   display res = do
     Env {remoteName} <- R.ask
     R.liftIO $ putStrLn $ T.unpack $ displayResultsWithErrs remoteName res
