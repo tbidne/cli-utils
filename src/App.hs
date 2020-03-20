@@ -11,7 +11,7 @@ module App
 where
 
 import qualified Control.Monad.Reader as R
-import Types.Env
+import Git.Stale.Types.Env
 
 newtype AppT m a = AppT {runAppT :: R.ReaderT Env m a}
 

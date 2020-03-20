@@ -8,14 +8,14 @@ where
 import App
 import Control.Concurrent.ParallelIO.Global
 import Control.Monad.Reader (runReaderT)
-import Core.MonadStaleBranches
+import Git.Stale.Core.FindBranches
 import Data.Time.Calendar (Day)
 import Data.Time.Clock (getCurrentTime, utctDay)
-import Parsing.Core
+import Git.Stale.Parsing.Core
 import System.Environment (getArgs)
 import System.IO
 import System.IO.Silently
-import Types.Env ()
+import Git.Stale.Types.Env ()
 
 currDay :: IO Day
 currDay = fmap utctDay getCurrentTime
