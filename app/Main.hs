@@ -21,7 +21,7 @@ currDay :: IO Day
 currDay = fmap utctDay getCurrentTime
 
 main :: IO ()
-main = hSilence [stderr] $ do
+main = do
   args <- getArgs
   parseCmdAndRun args
 
