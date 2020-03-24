@@ -8,7 +8,7 @@ module Git.Stale.Parsing.CoreSpec where
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as Cal
 import Git.Stale.Parsing.Arbitraries
-import Git.Stale.Parsing.Core
+import Git.Stale.Parsing
 import qualified System.IO as IO
 import Test.Hspec
 import Test.Hspec.QuickCheck

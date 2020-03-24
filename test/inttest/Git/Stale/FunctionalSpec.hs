@@ -8,7 +8,7 @@ import qualified Control.Monad.Reader as R
 import Git.Stale.Core.FindBranches
 import qualified Data.Time.Calendar as Cal
 import qualified Data.Time.Clock as Clock
-import Git.Stale.Parsing.Core
+import Git.Stale.Parsing
 import qualified System.IO as IO
 import qualified System.IO.Silently as Shh
 import qualified System.Process as P
@@ -24,7 +24,7 @@ spec = afterAll_ tearDown $ beforeAll_ setup $ do
       lines output `shouldSatisfy` verifyOutput
 
 runTest :: Env -> IO ()
-runTest env = R.runReaderT (runAppT runGitUtils) env
+runTest env = R.runReaderT (runAppT runFindBranches) env
 
 mkEnv :: IO Env
 mkEnv = do

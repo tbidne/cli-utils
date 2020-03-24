@@ -10,7 +10,7 @@ import Data.Time.Calendar (Day)
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Git.Stale.Types.Branch
-import Git.Stale.Types.GitTypes
+import Git.Types.GitTypes
 
 spec :: Spec
 spec = do

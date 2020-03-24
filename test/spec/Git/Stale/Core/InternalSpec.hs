@@ -13,7 +13,7 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 import Git.Stale.Types.Arbitraries ()
 import Git.Stale.Types.Error
-import Git.Stale.Types.GitTypes
+import Git.Types.GitTypes
 import Git.Stale.Types.Nat
 
 spec :: Spec

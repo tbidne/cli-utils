@@ -8,12 +8,13 @@
 module Git.Stale.Core.MockUtils where
 
 import Control.Monad.Reader
-import Git.Stale.Core.FindBranches
 import qualified Data.Text as Txt
+import Git.Stale.Core.FindBranches
 import Git.Stale.Types.Branch
 import Git.Stale.Types.Env
 import Git.Stale.Types.Filtered
-import Git.Stale.Types.GitTypes
+import Git.Types.GitTypes
+import Git.Types.Handler
 
 data Output a = Output [Txt.Text] a
   deriving (Eq, Ord, Show, Functor)
@@ -40,8 +41,9 @@ newtype MockUtilsT m a = MockUtilsT {runMockUtilsT :: ReaderT Env m a}
 
 type MockUtilsOut = MockUtilsT Output
 
+type instance Handler MockUtilsOut a = a
+
 instance FindBranches MockUtilsOut where
-  type Handler MockUtilsOut a = a
   type FinalResults MockUtilsOut = [AnyBranch]
 
   branchNamesByGrep :: MockUtilsOut [Name]

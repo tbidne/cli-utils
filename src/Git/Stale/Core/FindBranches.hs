@@ -13,7 +13,7 @@
 -- The FindBranches class.
 module Git.Stale.Core.FindBranches
   ( FindBranches (..),
-    runGitUtils,
+    runFindBranches,
   )
 where
 
@@ -28,14 +28,15 @@ import Git.Stale.Types.Branch
 import Git.Stale.Types.Env
 import Git.Stale.Types.Error
 import Git.Stale.Types.Filtered
-import Git.Stale.Types.GitTypes
+import Git.Types.GitTypes
 import Git.Stale.Types.ResultsWithErrs
+import Git.Types.Handler
 
 -- | The 'FindBranches' class is used to describe interacting with a
 -- git filesystem.
 class Monad m => FindBranches m where
   -- | Adds custom handling to returned data (e.g. for error handling).
-  type Handler m a :: K.Type
+  --type Handler m a :: K.Type
 
   -- | The type returned by `collectResults`.
   type FinalResults m :: K.Type
@@ -55,6 +56,9 @@ class Monad m => FindBranches m where
   -- | Displays results.
   display :: FinalResults m -> m ()
 
+
+type instance Handler (AppT Env m) a = ErrOr a
+
 -- | `FindBranches` instance for (`AppT` m) over `R.MonadIO`. This means we can
 -- encounter exceptions, but
 --
@@ -66,8 +70,6 @@ class Monad m => FindBranches m where
 -- We collect the results in `ResultsWithErrs`, which contains a list of errors
 -- and two maps, one for merged branches and another for unmerged branches.
 instance R.MonadIO m => FindBranches (AppT Env m) where
-  type Handler (AppT Env m) a = ErrOr a
-
   type FinalResults (AppT Env m) = ResultsWithErrs
 
   branchNamesByGrep :: (AppT Env m) [ErrOr Name]
@@ -105,8 +107,8 @@ instance R.MonadIO m => FindBranches (AppT Env m) where
 
 -- | High level logic of `FindBranches` usage. This function is the
 -- entrypoint for any `FindBranches` instance.
-runGitUtils :: FindBranches m => m ()
-runGitUtils = do
+runFindBranches :: FindBranches m => m ()
+runFindBranches = do
   branchNames <- branchNamesByGrep
   staleLogs <- getStaleLogs branchNames
   staleBranches <- toBranches staleLogs

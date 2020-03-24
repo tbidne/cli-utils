@@ -2,21 +2,21 @@
 {-# LANGUAGE ViewPatterns #-}
 
 -- |
--- Module      : Git.Stale.Parsing.Core
+-- Module      : Git.Stale.Parsing
 -- License     : BSD3
 -- Maintainer  : tbidne@gmail.com
 -- Handles parsing of String args into Env.
-module Git.Stale.Parsing.Core
+module Git.Stale.Parsing
   ( parseArgs,
   )
 where
 
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as Cal
-import qualified System.IO as IO
-import qualified Text.Read as R
 import Git.Stale.Types.Env
 import Git.Stale.Types.Nat
+import qualified System.IO as IO
+import qualified Text.Read as R
 
 -- | Maps `Cal.Day` and parsed [`String`] args into `Right` `Env`, returning
 -- any errors as `Left` `String`. All arguments are optional

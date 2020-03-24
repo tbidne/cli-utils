@@ -17,10 +17,10 @@ where
 import qualified Control.Exception as Ex
 import Git.Stale.Core.Internal
 import qualified Data.Text as T
-import qualified System.Process as P
 import Git.Stale.Types.Branch
 import Git.Stale.Types.Error
-import Git.Stale.Types.GitTypes
+import Git.Types.GitTypes
+import Git.CommonIO
 
 -- | Retrieves the log information for a given branch `Name`
 -- on `FilePath`. Returns `Left` `Err` if any errors occur,
@@ -51,12 +51,6 @@ isMerged path master (Name n) = do
       (T.concat ["git rev-list --count " <> master <> "..", "\"", n, "\""])
       path
   (return . (== 0) . unsafeToInt) res
-
--- | Runs a shell command given by `T.Text` on `FilePath`.
-sh :: T.Text -> Maybe FilePath -> IO T.Text
-sh cmd fp = T.pack <$> P.readCreateProcess proc ""
-  where
-    proc = (P.shell (T.unpack cmd)) {P.cwd = fp}
 
 -- | Runs an `IO` action and logs the error if any occur.
 logIfErr :: forall a. IO a -> IO a

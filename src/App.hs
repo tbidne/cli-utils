@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 -- |
@@ -8,6 +9,7 @@
 -- Provides the main component used in this application.
 module App
   ( AppT (..),
+    mapAppT,
   )
 where
 
@@ -35,3 +37,9 @@ instance Monad m => R.MonadReader e (AppT e m) where
   ask = AppT R.ask
   local = R.local
   reader = R.reader
+
+mapAppT ::
+  (R.ReaderT e m a -> R.ReaderT e n b) ->
+  AppT e m a ->
+  AppT e n b
+mapAppT f = AppT . f . runAppT

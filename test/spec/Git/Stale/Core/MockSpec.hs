@@ -30,7 +30,7 @@ spec = do
 
 runMock :: Txt.Text -> Output ()
 runMock t = do
-  runReaderT (runMockUtilsT runGitUtils) (envWithGrep t)
+  runReaderT (runMockUtilsT runFindBranches) (envWithGrep t)
 
 envWithGrep :: Txt.Text -> Env
 envWithGrep "" = Env Nothing (Just "/share") unsafeNat Remote "origin/" "origin/master" mkDay

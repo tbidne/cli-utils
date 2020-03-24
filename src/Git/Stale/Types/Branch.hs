@@ -19,7 +19,7 @@ where
 
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as C
-import Git.Stale.Types.GitTypes
+import Git.Types.GitTypes
 
 -- | Promoted data type used for adding type-safe merge status
 -- to branches.

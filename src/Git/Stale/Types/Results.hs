@@ -19,7 +19,7 @@ import qualified Data.Foldable as F
 import qualified Data.Map.Strict as M
 import qualified Data.Text as T
 import Git.Stale.Types.Branch
-import Git.Stale.Types.GitTypes
+import Git.Types.GitTypes
 
 type BranchMap a = M.Map Author [Branch a]
 

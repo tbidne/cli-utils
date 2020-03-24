@@ -26,7 +26,7 @@ import qualified Data.Text as T
 import qualified Data.Time.Calendar as C
 import qualified Text.Read as R
 import Git.Stale.Types.Error
-import Git.Stale.Types.GitTypes
+import Git.Types.GitTypes
 import Git.Stale.Types.Nat
 
 -- | Parses `NameLog` into `NameAuthDay`, recording errors

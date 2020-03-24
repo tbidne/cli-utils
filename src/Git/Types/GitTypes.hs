@@ -1,10 +1,10 @@
 -- |
--- Module      : Git.Stale.Types.GitTypes
+-- Module      : Git.Types.GitTypes
 -- License     : BSD3
 -- Maintainer  : tbidne@gmail.com
 -- Provides types to describe data returned by the
 -- underlying `Core.FindBranches.FindBranches` monad.
-module Git.Stale.Types.GitTypes
+module Git.Types.GitTypes
   ( Name (..),
     Author (..),
     NameLog,
