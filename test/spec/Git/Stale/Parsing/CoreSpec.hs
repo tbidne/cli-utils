@@ -31,7 +31,7 @@ verifyDefaults day =
     Left _ -> False
     Right Env {grepStr, path, limit, branchType, today} ->
       grepStr == Nothing
-        && path == Just "/share"
+        && path == Just "./"
         && Just limit == mkNat 30
         && branchType == Remote
         && today == day
@@ -84,7 +84,7 @@ verifyLimit (startsWith "--limit=" -> Just s) = ((s ==) . show . unNat)
 verifyLimit _ = error "Bad limit passed to test"
 
 verifyBranchType :: String -> BranchType -> Bool
-verifyBranchType (startsWith "--branchType=" -> Just s) =
+verifyBranchType (startsWith "--branch-type=" -> Just s) =
   \case
     All -> s `elem` ["a", "all"]
     Remote -> s `elem` ["r", "remote"]

@@ -45,7 +45,7 @@ library:
   source-dirs: src
 
 executables:
-  git-utils-exe:
+  git-utils:
     main:                Main.hs
     source-dirs:         app
     ghc-options:

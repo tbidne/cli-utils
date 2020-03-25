@@ -45,7 +45,7 @@ updateMergeType mt' (ArgHolder p _) = ArgHolder p mt'
 defaultHolder :: ArgHolder
 defaultHolder =
   ArgHolder
-    (Just (Just "/share"))
+    (Just (Just "./"))
     (Just Upstream)
 
 addArgToHolder :: String -> Maybe ArgHolder -> Maybe ArgHolder

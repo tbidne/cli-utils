@@ -32,7 +32,7 @@ mkEnv = do
   let args =
         [ "--grep=1",
           "--path=./scripts/testing/test-git",
-          "--branchType=local",
+          "--branch-type=local",
           "--master=master",
           "--limit=0"
         ]

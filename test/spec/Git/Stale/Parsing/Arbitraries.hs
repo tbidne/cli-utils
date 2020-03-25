@@ -38,14 +38,14 @@ newtype ValidBranchType = ValidBranchType String deriving (Show)
 instance Arbitrary ValidBranchType where
   arbitrary = do
     bt <- elements ["all", "a", "r", "remote", "l", "local"]
-    pure $ ValidBranchType ("--branchType=" <> bt)
+    pure $ ValidBranchType ("--branch-type=" <> bt)
 
 newtype InvalidBranchType = InvalidBranchType String deriving (Show)
 
 instance Arbitrary InvalidBranchType where
   arbitrary = do
     (PrintableString s) <- arbitrary `suchThat` nonEmpty
-    pure $ InvalidBranchType ("--branchType=" <> s)
+    pure $ InvalidBranchType ("--branch-type=" <> s)
     where
       nonEmpty (PrintableString t) = not $ t `elem` ["a", "r", "l"]
 

@@ -36,16 +36,16 @@ import qualified Text.Read as R
 --       Determines if a branch should be considered stale. Must be a
 --       non-negative integer. Defaults to 30.
 --
---   --branchType=\<a[ll]|r[emote]|l[ocal]\>
+--   --branch-type=\<a[ll]|r[emote]|l[ocal]\>
 --       Determines which branches we should search. Must be one of
 --       [a, all, r, remote, l, local]. Defaults to remote.
 --
---   --remote=\<string>
+--   --remote=\<string\>
 --       Name of the remote, used for stripping out the the remote name for
 --       display purposes. Any `String` is fine, including the empty string
 --       (i.e. --remote=). Defaults to origin.
 --
---   --master=\<string>
+--   --master=\<string\>
 --       Name of the branch to consider merges against. Any `String` is fine,
 --       including the empty string (i.e. --master=). Defaults to origin/master.
 -- @
@@ -79,7 +79,7 @@ holderToEnv _ (Just (ArgHolder _ Nothing _ _ _ _)) =
 holderToEnv _ (Just (ArgHolder _ _ Nothing _ _ _)) =
   Left "Bad format for [--limit=<days>] where <days> is an integer"
 holderToEnv _ (Just (ArgHolder _ _ _ Nothing _ _)) =
-  Left "Bad format for [--branches=<a[ll]|r[emote]|l[ocal]>]"
+  Left "Bad format for [--branch-type=<a[ll]|r[emote]|l[ocal]>]"
 holderToEnv _ (Just (ArgHolder _ _ _ _ Nothing _)) =
   Left "Bad format for [--remote=<string>]"
 holderToEnv _ (Just (ArgHolder _ _ _ _ _ Nothing)) =
@@ -90,7 +90,7 @@ holderToEnv _ Nothing =
       <> "[--grep=<string>], "
       <> "[--path=<path>], "
       <> "[--limit=<days>], "
-      <> "[--branchType=<a[ll]|r[emote]|l[ocal]>], "
+      <> "[--branch-type=<a[ll]|r[emote]|l[ocal]>], "
       <> "[--remote=<string>], "
       <> "[--master=<string>]"
 
@@ -116,7 +116,7 @@ defaultHolder :: ArgHolder
 defaultHolder =
   ArgHolder
     (Just Nothing)
-    (Just (Just "/share"))
+    (Just (Just "./"))
     (mkNat 30)
     (Just Remote)
     (Just "origin/")
@@ -126,7 +126,7 @@ addArgToHolder :: String -> Maybe ArgHolder -> Maybe ArgHolder
 addArgToHolder (startsWith "--grep=" -> Just rest) h = fmap (updateGrep (parseGrep rest)) h
 addArgToHolder (startsWith "--path=" -> Just rest) h = fmap (updatePath (parsePath rest)) h
 addArgToHolder (startsWith "--limit=" -> Just rest) h = fmap (updateLimit (parseLimit rest)) h
-addArgToHolder (startsWith "--branchType=" -> Just rest) h = fmap (updateBranchType (parseBranchType rest)) h
+addArgToHolder (startsWith "--branch-type=" -> Just rest) h = fmap (updateBranchType (parseBranchType rest)) h
 addArgToHolder (startsWith "--remote=" -> Just rest) h = fmap (updateRemote (parseRemote rest)) h
 addArgToHolder (startsWith "--master=" -> Just rest) h = fmap (updateMaster (parseMaster rest)) h
 addArgToHolder _ _ = Nothing
