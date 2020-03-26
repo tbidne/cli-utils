@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Git.Stale.Parsing.Arbitraries where
+module Git.Stale.Arbitraries where
 
 import Test.QuickCheck
 import Git.Stale.Types.Arbitraries ()
@@ -37,17 +37,21 @@ newtype ValidBranchType = ValidBranchType String deriving (Show)
 
 instance Arbitrary ValidBranchType where
   arbitrary = do
-    bt <- elements ["all", "a", "r", "remote", "l", "local"]
-    pure $ ValidBranchType ("--branch-type=" <> bt)
+    bt <- elements [
+      "--branch-type=all",
+      "-a",
+      "--branch-type=remote",
+      "-r",
+      "--branch-type=local",
+      "-l"]
+    pure $ ValidBranchType bt
 
 newtype InvalidBranchType = InvalidBranchType String deriving (Show)
 
 instance Arbitrary InvalidBranchType where
   arbitrary = do
-    (PrintableString s) <- arbitrary `suchThat` nonEmpty
+    (PrintableString s) <- arbitrary
     pure $ InvalidBranchType ("--branch-type=" <> s)
-    where
-      nonEmpty (PrintableString t) = not $ t `elem` ["a", "r", "l"]
 
 newtype ValidRemoteName = ValidRemoteName String deriving (Show)
 

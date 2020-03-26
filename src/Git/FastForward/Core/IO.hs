@@ -9,8 +9,8 @@ module Git.FastForward.Core.IO
   )
 where
 
+import Common.IO
 import qualified Data.Text as T
-import Git.CommonIO
 import Git.FastForward.Core.Internal
 import Git.FastForward.Types.LocalBranches
 import Git.FastForward.Types.MergeType

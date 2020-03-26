@@ -14,13 +14,13 @@ module Git.Stale.Core.IO
   )
 where
 
+import Common.IO
 import qualified Control.Exception as Ex
-import Git.Stale.Core.Internal
 import qualified Data.Text as T
+import Git.Stale.Core.Internal
 import Git.Stale.Types.Branch
 import Git.Stale.Types.Error
 import Git.Types.GitTypes
-import Git.CommonIO
 
 -- | Retrieves the log information for a given branch `Name`
 -- on `FilePath`. Returns `Left` `Err` if any errors occur,

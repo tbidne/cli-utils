@@ -1,4 +1,4 @@
-module Git.CommonIO
+module Common.IO
   ( sh,
     sh_,
     trySh,

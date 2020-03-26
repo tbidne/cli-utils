@@ -3,11 +3,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Git.Stale.Parsing.CoreSpec where
+module Git.Stale.ParsingSpec where
 
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as Cal
-import Git.Stale.Parsing.Arbitraries
+import Git.Stale.Arbitraries
 import Git.Stale.Parsing
 import qualified System.IO as IO
 import Test.Hspec
@@ -84,12 +84,13 @@ verifyLimit (startsWith "--limit=" -> Just s) = ((s ==) . show . unNat)
 verifyLimit _ = error "Bad limit passed to test"
 
 verifyBranchType :: String -> BranchType -> Bool
-verifyBranchType (startsWith "--branch-type=" -> Just s) =
-  \case
-    All -> s `elem` ["a", "all"]
-    Remote -> s `elem` ["r", "remote"]
-    Local -> s `elem` ["l", "local"]
-verifyBranchType _ = error "Bad branch type passed to test"
+verifyBranchType "--branch-type=all" All = True
+verifyBranchType "-a" All = True
+verifyBranchType "--branch-type=remote" Remote = True
+verifyBranchType "-r" Remote = True
+verifyBranchType "--branch-type=local" Local = True
+verifyBranchType "-l" Local = True
+verifyBranchType _ _ = False
 
 startsWith :: Eq a => [a] -> [a] -> Maybe [a]
 startsWith [] ys = Just ys

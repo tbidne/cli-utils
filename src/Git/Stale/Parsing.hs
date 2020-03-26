@@ -36,9 +36,9 @@ import qualified Text.Read as R
 --       Determines if a branch should be considered stale. Must be a
 --       non-negative integer. Defaults to 30.
 --
---   --branch-type=\<a[ll]|r[emote]|l[ocal]\>
+--   --branch-type=\<all|remote|local\>
 --       Determines which branches we should search. Must be one of
---       [a, all, r, remote, l, local]. Defaults to remote.
+--       [all, remote, local]. Defaults to remote.
 --
 --   --remote=\<string\>
 --       Name of the remote, used for stripping out the the remote name for
@@ -52,7 +52,7 @@ import qualified Text.Read as R
 parseArgs :: Cal.Day -> [String] -> Either String Env
 parseArgs d args = holderToEnv d holder
   where
-    holder = foldr addArgToHolder (Just defaultHolder) args
+    holder = foldr addArgToHolder (Right defaultHolder) args
 
 data ArgHolder
   = ArgHolder
@@ -65,34 +65,26 @@ data ArgHolder
       }
   deriving (Eq, Show)
 
-holderToEnv :: Cal.Day -> Maybe ArgHolder -> Either String Env
+holderToEnv :: Cal.Day -> Either String ArgHolder -> Either String Env
 holderToEnv
   d
-  ( Just
+  ( Right
       (ArgHolder (Just g) (Just p) (Just l) (Just b) (Just r) (Just m))
     ) =
     Right $ Env g p l b r m d
-holderToEnv _ (Just (ArgHolder Nothing _ _ _ _ _)) =
+holderToEnv _ (Right (ArgHolder Nothing _ _ _ _ _)) =
   Left "Bad format for [--grep=<string>]"
-holderToEnv _ (Just (ArgHolder _ Nothing _ _ _ _)) =
+holderToEnv _ (Right (ArgHolder _ Nothing _ _ _ _)) =
   Left "Bad format for [--path=<path>]"
-holderToEnv _ (Just (ArgHolder _ _ Nothing _ _ _)) =
+holderToEnv _ (Right (ArgHolder _ _ Nothing _ _ _)) =
   Left "Bad format for [--limit=<days>] where <days> is an integer"
-holderToEnv _ (Just (ArgHolder _ _ _ Nothing _ _)) =
-  Left "Bad format for [--branch-type=<a[ll]|r[emote]|l[ocal]>]"
-holderToEnv _ (Just (ArgHolder _ _ _ _ Nothing _)) =
+holderToEnv _ (Right (ArgHolder _ _ _ Nothing _ _)) =
+  Left "Bad format for [--branch-type=<all|remote|local>]"
+holderToEnv _ (Right (ArgHolder _ _ _ _ Nothing _)) =
   Left "Bad format for [--remote=<string>]"
-holderToEnv _ (Just (ArgHolder _ _ _ _ _ Nothing)) =
+holderToEnv _ (Right (ArgHolder _ _ _ _ _ Nothing)) =
   Left "Bad format for [--master=<string>]"
-holderToEnv _ Nothing =
-  Left $
-    "Bad argument. Valid args are "
-      <> "[--grep=<string>], "
-      <> "[--path=<path>], "
-      <> "[--limit=<days>], "
-      <> "[--branch-type=<a[ll]|r[emote]|l[ocal]>], "
-      <> "[--remote=<string>], "
-      <> "[--master=<string>]"
+holderToEnv _ (Left x) = Left x
 
 updateGrep :: Maybe (Maybe T.Text) -> ArgHolder -> ArgHolder
 updateGrep g' (ArgHolder _ p l b r m) = ArgHolder g' p l b r m
@@ -122,14 +114,18 @@ defaultHolder =
     (Just "origin/")
     (Just "origin/master")
 
-addArgToHolder :: String -> Maybe ArgHolder -> Maybe ArgHolder
+addArgToHolder :: String -> Either String ArgHolder -> Either String ArgHolder
 addArgToHolder (startsWith "--grep=" -> Just rest) h = fmap (updateGrep (parseGrep rest)) h
 addArgToHolder (startsWith "--path=" -> Just rest) h = fmap (updatePath (parsePath rest)) h
 addArgToHolder (startsWith "--limit=" -> Just rest) h = fmap (updateLimit (parseLimit rest)) h
 addArgToHolder (startsWith "--branch-type=" -> Just rest) h = fmap (updateBranchType (parseBranchType rest)) h
+addArgToHolder "-a" h = fmap (updateBranchType (Just All)) h
+addArgToHolder "-r" h = fmap (updateBranchType (Just Remote)) h
+addArgToHolder "-l" h = fmap (updateBranchType (Just Local)) h
 addArgToHolder (startsWith "--remote=" -> Just rest) h = fmap (updateRemote (parseRemote rest)) h
 addArgToHolder (startsWith "--master=" -> Just rest) h = fmap (updateMaster (parseMaster rest)) h
-addArgToHolder _ _ = Nothing
+addArgToHolder "--help" _ = Left help
+addArgToHolder s h = h >>= const (Left ("Unknown argument: `" <> s <> "`. Try --help "))
 
 startsWith :: Eq a => [a] -> [a] -> Maybe [a]
 startsWith [] ys = Just ys
@@ -151,11 +147,8 @@ parseLimit "" = Nothing
 parseLimit s = R.readMaybe s >>= mkNat
 
 parseBranchType :: String -> Maybe BranchType
-parseBranchType "a" = Just All
 parseBranchType "all" = Just All
-parseBranchType "r" = Just Remote
 parseBranchType "remote" = Just Remote
-parseBranchType "l" = Just Local
 parseBranchType "local" = Just Local
 parseBranchType _ = Nothing
 
@@ -166,3 +159,16 @@ parseRemote s = Just $ T.pack (s <> "/")
 parseMaster :: String -> Maybe T.Text
 parseMaster "" = Just ""
 parseMaster s = Just $ T.pack s
+
+help :: String
+help =
+  "\nUsage: git-utils find-stale [OPTIONS]\n\n"
+    <> "Displays stale branches.\n\nOptions:\n"
+    <> "  --grep=<string>\t\tFilters branch names based on <string>.\n\n"
+    <> "  --path=<string>\t\tDirectory path, defaults to current directory.\n\n"
+    <> "  --limit=<days>\t\tNon-negative integer s.t. branch is stale iff last_commit(branch) >= <days>\n\n"
+    <> "  -a, --branch-type=all\t\tSearches all branches.\n\n"
+    <> "  -r, --branch-type=remote\tSearches remote branches only. This is the default.\n\n"
+    <> "  -l, --branch-type=local\tSearches local branches only.\n\n"
+    <> "  --remote=<string>\t\tName of the remote, used for stripping when displaying. Defaults to origin.\n\n"
+    <> "  --master=<string>\t\tName of the branch to consider merges against. Defaults to origin/master.\n\n"
