@@ -6,11 +6,11 @@ module Git.Stale.Types.Arbitraries
 where
 
 import Git.Stale.Core.Arbitraries ()
-import Test.QuickCheck
 import Git.Stale.Types.Branch
 import Git.Stale.Types.Env
 import Git.Stale.Types.Error
 import Git.Stale.Types.Nat
+import Test.QuickCheck
 
 instance Arbitrary Err where
   arbitrary :: Gen Err

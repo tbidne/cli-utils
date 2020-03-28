@@ -2,16 +2,16 @@
 
 module Git.Stale.MockSpec where
 
-import Output
 import Control.Monad.Reader (runReaderT)
-import Git.Stale.Core.MockFindBranches
-import Git.Stale.Core.FindBranches
 import qualified Data.Maybe as M
 import qualified Data.Text as Txt
 import qualified Data.Time.Calendar as Cal
-import Test.Hspec
+import Git.Stale.Core.FindBranches
+import Git.Stale.Core.MockFindBranches
 import Git.Stale.Types.Env
 import Git.Stale.Types.Nat
+import Output
+import Test.Hspec
 
 spec :: Spec
 spec = do

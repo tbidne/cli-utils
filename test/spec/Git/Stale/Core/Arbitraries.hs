@@ -15,8 +15,8 @@ where
 import qualified Data.Text as Txt
 import Data.Time.Calendar (Day)
 import Data.Time.Calendar.Julian (fromJulianYearAndDay)
-import Test.QuickCheck
 import Git.Types.GitTypes
+import Test.QuickCheck
 
 instance Arbitrary Txt.Text where
   arbitrary :: Gen Txt.Text

@@ -1,9 +1,9 @@
 module Git.FastForward.Core.InternalSpec where
 
+import Git.FastForward.Core.Arbitraries
+import Git.FastForward.Core.Internal
 import Test.Hspec
 import Test.Hspec.QuickCheck
-import Git.FastForward.Core.Internal
-import Git.FastForward.Core.Arbitraries
 
 spec :: Spec
 spec = do

@@ -24,10 +24,10 @@ where
 import Control.Monad ((>=>))
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as C
-import qualified Text.Read as R
 import Git.Stale.Types.Error
-import Git.Types.GitTypes
 import Git.Stale.Types.Nat
+import Git.Types.GitTypes
+import qualified Text.Read as R
 
 -- | Parses `NameLog` into `NameAuthDay`, recording errors
 -- as `ErrOr`.

@@ -85,7 +85,7 @@ grepParser = AnyParser $ PrefixParser ("--grep=", parser, updater)
   where
     parser "" = Just Nothing
     parser s = Just $ Just $ T.pack s
-    updater Env{path, limit, branchType, remoteName, master, today} grepStr =
+    updater Env {path, limit, branchType, remoteName, master, today} grepStr =
       Env grepStr path limit branchType remoteName master today
 
 pathParser :: AnyParser Env
@@ -93,7 +93,7 @@ pathParser = AnyParser $ PrefixParser ("--path=", parser, updater)
   where
     parser "" = Just Nothing
     parser s = Just $ Just s
-    updater Env{grepStr, limit, branchType, remoteName, master, today} path =
+    updater Env {grepStr, limit, branchType, remoteName, master, today} path =
       Env grepStr path limit branchType remoteName master today
 
 limitParser :: AnyParser Env
@@ -101,7 +101,7 @@ limitParser = AnyParser $ PrefixParser ("--limit=", parser, updater)
   where
     parser "" = Nothing
     parser s = R.readMaybe s >>= mkNat
-    updater Env{grepStr, path, branchType, remoteName, master, today} limit =
+    updater Env {grepStr, path, branchType, remoteName, master, today} limit =
       Env grepStr path limit branchType remoteName master today
 
 branchTypeParser :: AnyParser Env
@@ -111,7 +111,7 @@ branchTypeParser = AnyParser $ PrefixParser ("--branch-type=", parser, updater)
     parser "remote" = Just Remote
     parser "local" = Just Local
     parser _ = Nothing
-    updater Env{grepStr, path, limit, remoteName, master, today} branchType =
+    updater Env {grepStr, path, limit, remoteName, master, today} branchType =
       Env grepStr path limit branchType remoteName master today
 
 branchAllFlagParser :: AnyParser Env
@@ -119,7 +119,7 @@ branchAllFlagParser = AnyParser $ ExactParser (parser, updater)
   where
     parser "-a" = Just All
     parser _ = Nothing
-    updater Env{grepStr, path, limit, remoteName, master, today} branchType =
+    updater Env {grepStr, path, limit, remoteName, master, today} branchType =
       Env grepStr path limit branchType remoteName master today
 
 branchRemoteFlagParser :: AnyParser Env
@@ -127,7 +127,7 @@ branchRemoteFlagParser = AnyParser $ ExactParser (parser, updater)
   where
     parser "-r" = Just Remote
     parser _ = Nothing
-    updater Env{grepStr, path, limit, remoteName, master, today} branchType =
+    updater Env {grepStr, path, limit, remoteName, master, today} branchType =
       Env grepStr path limit branchType remoteName master today
 
 branchLocalFlagParser :: AnyParser Env
@@ -135,7 +135,7 @@ branchLocalFlagParser = AnyParser $ ExactParser (parser, updater)
   where
     parser "-l" = Just Local
     parser _ = Nothing
-    updater Env{grepStr, path, limit, remoteName, master, today} branchType =
+    updater Env {grepStr, path, limit, remoteName, master, today} branchType =
       Env grepStr path limit branchType remoteName master today
 
 remoteNameParser :: AnyParser Env
@@ -143,7 +143,7 @@ remoteNameParser = AnyParser $ PrefixParser ("--remote=", parser, updater)
   where
     parser "" = Just ""
     parser s = Just $ T.pack (s <> "/")
-    updater Env{grepStr, path, limit, branchType, master, today} remoteName =
+    updater Env {grepStr, path, limit, branchType, master, today} remoteName =
       Env grepStr path limit branchType remoteName master today
 
 masterParser :: AnyParser Env
@@ -151,7 +151,7 @@ masterParser = AnyParser $ PrefixParser ("--master=", parser, updater)
   where
     parser "" = Just ""
     parser s = Just $ T.pack s
-    updater Env{grepStr, path, limit, branchType, remoteName, today} master =
+    updater Env {grepStr, path, limit, branchType, remoteName, today} master =
       Env grepStr path limit branchType remoteName master today
 
 help :: String

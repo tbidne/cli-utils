@@ -20,23 +20,23 @@ where
 import App
 import qualified Control.Concurrent.ParallelIO.Global as Par
 import qualified Control.Monad.Reader as R
-import Git.Stale.Core.IO
-import Git.Stale.Core.Internal
 import qualified Data.Kind as K
 import qualified Data.Text as T
+import Git.Stale.Core.IO
+import Git.Stale.Core.Internal
 import Git.Stale.Types.Branch
 import Git.Stale.Types.Env
 import Git.Stale.Types.Error
 import Git.Stale.Types.Filtered
-import Git.Types.GitTypes
 import Git.Stale.Types.ResultsWithErrs
+import Git.Types.GitTypes
 import Git.Types.Handler
 
 -- | The 'FindBranches' class is used to describe interacting with a
 -- git filesystem.
 class Monad m => FindBranches m where
   -- | Adds custom handling to returned data (e.g. for error handling).
-  --type Handler m a :: K.Type
+  -- type Handler m a :: K.Type
 
   -- | The type returned by `collectResults`.
   type FinalResults m :: K.Type
@@ -55,7 +55,6 @@ class Monad m => FindBranches m where
 
   -- | Displays results.
   display :: FinalResults m -> m ()
-
 
 type instance Handler (AppT Env m) a = ErrOr a
 

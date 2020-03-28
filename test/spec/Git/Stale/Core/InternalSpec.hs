@@ -3,18 +3,18 @@
 
 module Git.Stale.Core.InternalSpec where
 
-import Git.Stale.Core.Arbitraries
-import Git.Stale.Core.Internal
 import Data.Either (isRight)
 import qualified Data.Text as Txt
 import qualified Data.Time.Calendar as C
+import Git.Stale.Core.Arbitraries
+import Git.Stale.Core.Internal
+import Git.Stale.Types.Arbitraries ()
+import Git.Stale.Types.Error
+import Git.Stale.Types.Nat
+import Git.Types.GitTypes
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
-import Git.Stale.Types.Arbitraries ()
-import Git.Stale.Types.Error
-import Git.Types.GitTypes
-import Git.Stale.Types.Nat
 
 spec :: Spec
 spec = do

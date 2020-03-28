@@ -5,12 +5,12 @@ module Git.Stale.Types.BranchSpec
   )
 where
 
-import Git.Stale.Core.Arbitraries ()
 import Data.Time.Calendar (Day)
-import Test.Hspec
-import Test.Hspec.QuickCheck
+import Git.Stale.Core.Arbitraries ()
 import Git.Stale.Types.Branch
 import Git.Types.GitTypes
+import Test.Hspec
+import Test.Hspec.QuickCheck
 
 spec :: Spec
 spec = do

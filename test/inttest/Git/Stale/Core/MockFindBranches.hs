@@ -7,7 +7,6 @@
 
 module Git.Stale.Core.MockFindBranches where
 
-import Output
 import Control.Monad.Reader
 import qualified Data.Text as Txt
 import Git.Stale.Core.FindBranches
@@ -16,6 +15,7 @@ import Git.Stale.Types.Env
 import Git.Stale.Types.Filtered
 import Git.Types.GitTypes
 import Git.Types.Handler
+import Output
 
 newtype MockFindBranchesT m a = MockFindBranchesT {runMockFindBranchesT :: ReaderT Env m a}
   deriving (Functor, Applicative, Monad, MonadTrans, MonadReader Env)

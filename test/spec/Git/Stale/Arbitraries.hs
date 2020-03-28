@@ -2,8 +2,8 @@
 
 module Git.Stale.Arbitraries where
 
-import Test.QuickCheck
 import Git.Stale.Types.Arbitraries ()
+import Test.QuickCheck
 
 newtype ValidGrep = ValidGrep String deriving (Show)
 
@@ -37,13 +37,15 @@ newtype ValidBranchType = ValidBranchType String deriving (Show)
 
 instance Arbitrary ValidBranchType where
   arbitrary = do
-    bt <- elements [
-      "--branch-type=all",
-      "-a",
-      "--branch-type=remote",
-      "-r",
-      "--branch-type=local",
-      "-l"]
+    bt <-
+      elements
+        [ "--branch-type=all",
+          "-a",
+          "--branch-type=remote",
+          "-r",
+          "--branch-type=local",
+          "-l"
+        ]
     pure $ ValidBranchType bt
 
 newtype InvalidBranchType = InvalidBranchType String deriving (Show)

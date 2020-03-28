@@ -3,13 +3,13 @@ module Git.Stale.Types.ResultsWithErrsSpec where
 import Data.Foldable (foldl')
 import qualified Data.Map.Strict as M
 import qualified Data.Set as S
-import Test.Hspec
-import Test.Hspec.QuickCheck
 import Git.Stale.Types.Arbitraries ()
 import Git.Stale.Types.Branch
 import Git.Stale.Types.Error
 import Git.Stale.Types.Results
 import Git.Stale.Types.ResultsWithErrs
+import Test.Hspec
+import Test.Hspec.QuickCheck
 
 spec :: Spec
 spec = do

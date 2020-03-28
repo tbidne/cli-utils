@@ -1,8 +1,8 @@
 module Git.Types.Arbitraries where
 
+import qualified Data.Text as T
 import Git.Types.GitTypes
 import Test.QuickCheck
-import qualified Data.Text as T
 
 instance Arbitrary Name where
   arbitrary = do

@@ -1,6 +1,6 @@
 module Common.Utils
   ( matchAndStrip,
-    startsWith
+    startsWith,
   )
 where
 
