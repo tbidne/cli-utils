@@ -28,14 +28,15 @@ displayResults :: [UpdateResult] -> String
 displayResults = f . splitResults
   where
     f SplitResults {failures, noChanges, successes} =
-      "***** SUMMARY *****"
-        <> "\nFailures: "
-        <> show failures
-        <> "\nNo Changes: "
-        <> show noChanges
+      "\nSUMMARY"
+        <> "\n-------"
         <> "\nSuccesses: "
         <> show successes
-        <> "\n*******************"
+        <> "\nNo Changes: "
+        <> show noChanges
+        <> "\nFailures: "
+        <> show failures
+        <> "\n"
 
 splitResults :: [UpdateResult] -> SplitResults
 splitResults = F.foldl' f (SplitResults [] [] [])
