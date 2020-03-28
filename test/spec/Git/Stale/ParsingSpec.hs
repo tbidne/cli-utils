@@ -5,15 +5,16 @@
 
 module Git.Stale.ParsingSpec where
 
+import Common.Utils
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as Cal
 import Git.Stale.Arbitraries
 import Git.Stale.Parsing
+import Git.Stale.Types.Env
+import Git.Stale.Types.Nat
 import qualified System.IO as IO
 import Test.Hspec
 import Test.Hspec.QuickCheck
-import Git.Stale.Types.Env
-import Git.Stale.Types.Nat
 
 spec :: Spec
 spec = do
@@ -66,21 +67,21 @@ invalidArgsDies (InvalidArgs args) =
     Right _ -> False
 
 verifyGrep :: String -> Maybe T.Text -> Bool
-verifyGrep (startsWith "--grep=" -> Just s) =
+verifyGrep (matchAndStrip "--grep=" -> Just s) =
   \case
     Nothing -> s == ""
     Just t -> s == T.unpack t
 verifyGrep _ = error "Bad grep passed to test"
 
 verifyPath :: String -> Maybe IO.FilePath -> Bool
-verifyPath (startsWith "--path=" -> Just s) =
+verifyPath (matchAndStrip "--path=" -> Just s) =
   \case
     Nothing -> s == ""
     Just t -> s == t
 verifyPath _ = error "Bad path passed to test"
 
 verifyLimit :: String -> Nat -> Bool
-verifyLimit (startsWith "--limit=" -> Just s) = ((s ==) . show . unNat)
+verifyLimit (matchAndStrip "--limit=" -> Just s) = ((s ==) . show . unNat)
 verifyLimit _ = error "Bad limit passed to test"
 
 verifyBranchType :: String -> BranchType -> Bool
@@ -91,13 +92,6 @@ verifyBranchType "-r" Remote = True
 verifyBranchType "--branch-type=local" Local = True
 verifyBranchType "-l" Local = True
 verifyBranchType _ _ = False
-
-startsWith :: Eq a => [a] -> [a] -> Maybe [a]
-startsWith [] ys = Just ys
-startsWith _ [] = Nothing
-startsWith (x : xs) (y : ys)
-  | x == y = startsWith xs ys
-  | otherwise = Nothing
 
 mkDay :: Cal.Day
 mkDay = Cal.fromGregorian 2017 7 27

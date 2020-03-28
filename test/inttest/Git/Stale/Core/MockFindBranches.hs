@@ -5,8 +5,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Git.Stale.Core.MockUtils where
+module Git.Stale.Core.MockFindBranches where
 
+import Output
 import Control.Monad.Reader
 import qualified Data.Text as Txt
 import Git.Stale.Core.FindBranches
@@ -16,30 +17,10 @@ import Git.Stale.Types.Filtered
 import Git.Types.GitTypes
 import Git.Types.Handler
 
-data Output a = Output [Txt.Text] a
-  deriving (Eq, Ord, Show, Functor)
-
-instance Applicative Output where
-  pure :: a -> Output a
-  pure = Output []
-
-  (<*>) :: Output (a -> b) -> Output a -> Output b
-  (Output rs f) <*> (Output ts x) = Output (rs <> ts) (f x)
-
-instance Monad Output where
-  (>>=) :: Output a -> (a -> Output b) -> Output b
-  (Output rs x) >>= f = Output (rs <> ts) y where (Output ts y) = f x
-
-putOutput :: Show a => [a] -> Output ()
-putOutput xs = Output (fmap (Txt.pack . show) xs) ()
-
-prependOut :: [Txt.Text] -> Output a -> Output a
-prependOut ts (Output rs x) = Output (ts <> rs) x
-
-newtype MockUtilsT m a = MockUtilsT {runMockUtilsT :: ReaderT Env m a}
+newtype MockFindBranchesT m a = MockFindBranchesT {runMockFindBranchesT :: ReaderT Env m a}
   deriving (Functor, Applicative, Monad, MonadTrans, MonadReader Env)
 
-type MockUtilsOut = MockUtilsT Output
+type MockUtilsOut = MockFindBranchesT Output
 
 type instance Handler MockUtilsOut a = a
 
@@ -57,7 +38,7 @@ instance FindBranches MockUtilsOut where
   getStaleLogs :: [Name] -> MockUtilsOut (Filtered NameAuthDay)
   getStaleLogs ns = do
     let removeStale ((Name n), _, _) = not $ "stale" `Txt.isInfixOf` n
-        toLog nm@(Name n) = (nm, Author n, error "MockUtils -> getStaleLogs: day not defined")
+        toLog nm@(Name n) = (nm, Author n, error "MockFindBranches -> getStaleLogs: day not defined")
     lift $ pure $ (mkFiltered removeStale . fmap toLog) ns
 
   toBranches :: Filtered NameAuthDay -> MockUtilsOut [AnyBranch]
@@ -69,10 +50,10 @@ instance FindBranches MockUtilsOut where
   collectResults = lift . return
 
   display :: [AnyBranch] -> MockUtilsOut ()
-  display = MockUtilsT . lift . putOutput
+  display = MockFindBranchesT . lift . putOutput
 
-addMockOut :: [Txt.Text] -> MockUtilsT Output a -> MockUtilsT Output a
-addMockOut ts = MockUtilsT . mapReaderT (prependOut ts) . runMockUtilsT
+addMockOut :: [Txt.Text] -> MockUtilsOut a -> MockUtilsOut a
+addMockOut ts = MockFindBranchesT . mapReaderT (prependOut ts) . runMockFindBranchesT
 
 allBranches :: [Name]
 allBranches =

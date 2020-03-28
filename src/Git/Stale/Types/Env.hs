@@ -1,3 +1,5 @@
+{-# LANGUAGE NamedFieldPuns #-}
+
 -- |
 -- Module      : Git.Stale.Types.Env
 -- License     : BSD3
@@ -12,8 +14,8 @@ where
 
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as C
-import qualified System.IO as IO
 import Git.Stale.Types.Nat
+import qualified System.IO as IO
 
 -- | Describes the branch type.
 data BranchType

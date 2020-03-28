@@ -1,5 +1,6 @@
 module Common.Utils
-  ( startsWith,
+  ( matchAndStrip,
+    startsWith
   )
 where
 
@@ -9,3 +10,6 @@ startsWith [] _ = Nothing
 startsWith (x : xs) (y : ys)
   | x == y = startsWith xs ys
   | otherwise = Nothing
+
+matchAndStrip :: Eq a => [a] -> [a] -> Maybe [a]
+matchAndStrip = flip startsWith

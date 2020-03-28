@@ -1,9 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Git.Stale.Core.MockSpec where
+module Git.Stale.MockSpec where
 
+import Output
 import Control.Monad.Reader (runReaderT)
-import Git.Stale.Core.MockUtils
+import Git.Stale.Core.MockFindBranches
 import Git.Stale.Core.FindBranches
 import qualified Data.Maybe as M
 import qualified Data.Text as Txt
@@ -14,7 +15,7 @@ import Git.Stale.Types.Nat
 
 spec :: Spec
 spec = do
-  describe "MockUtils Integration tests" $ do
+  describe "MockFindBranches Integration tests" $ do
     it "Mock run with grep `branch` should return 5 results" $ do
       let (Output res _) = runMock "branch"
       length res `shouldBe` 5
@@ -30,7 +31,7 @@ spec = do
 
 runMock :: Txt.Text -> Output ()
 runMock t = do
-  runReaderT (runMockUtilsT runFindBranches) (envWithGrep t)
+  runReaderT (runMockFindBranchesT runFindBranches) (envWithGrep t)
 
 envWithGrep :: Txt.Text -> Env
 envWithGrep "" = Env Nothing (Just "/share") unsafeNat Remote "origin/" "origin/master" mkDay

@@ -1,5 +1,3 @@
-{-# LANGUAGE PatternSynonyms #-}
-
 module Git.FastForward.Types.LocalBranches
   ( CurrentBranch,
     LocalBranches (..),

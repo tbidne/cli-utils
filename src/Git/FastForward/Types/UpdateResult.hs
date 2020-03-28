@@ -1,8 +1,10 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Git.FastForward.Types.UpdateResult
-  ( UpdateResult (..),
+  ( SplitResults (..),
+    UpdateResult (..),
     displayResults,
+    splitResults,
   )
 where
 

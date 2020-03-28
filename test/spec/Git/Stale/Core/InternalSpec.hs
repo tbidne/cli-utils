@@ -18,7 +18,7 @@ import Git.Stale.Types.Nat
 
 spec :: Spec
 spec = do
-  describe "Parsing Tests" $ do
+  describe "Stale Internal Tests" $ do
     prop "Correctly formatted name log succeeds" goodLogSucceeds
     prop "Badly formatted name log fails" badLogFails
     prop "Correctly formatted date string succeeds" goodDateStrSucceeds

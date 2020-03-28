@@ -4,16 +4,17 @@
 module Git.Stale.FunctionalSpec where
 
 import App
+import Common.Utils
 import qualified Control.Monad.Reader as R
-import Git.Stale.Core.FindBranches
 import qualified Data.Time.Calendar as Cal
 import qualified Data.Time.Clock as Clock
+import Git.Stale.Core.FindBranches
 import Git.Stale.Parsing
+import Git.Stale.Types.Env
 import qualified System.IO as IO
 import qualified System.IO.Silently as Shh
 import qualified System.Process as P
 import Test.Hspec
-import Git.Stale.Types.Env
 
 spec :: Spec
 spec = afterAll_ tearDown $ beforeAll_ setup $ do
@@ -53,13 +54,6 @@ tearDown =
 currDay :: IO Cal.Day
 currDay = fmap Clock.utctDay Clock.getCurrentTime
 
-startsWith :: Eq a => [a] -> [a] -> Maybe [a]
-startsWith [] ys = Just ys
-startsWith _ [] = Nothing
-startsWith (x : xs) (y : ys)
-  | x == y = startsWith xs ys
-  | otherwise = Nothing
-
 verifyOutput :: [String] -> Bool
 verifyOutput = allTrue . toVerifier
 
@@ -78,7 +72,7 @@ allTrue _ = False
 toVerifier :: [String] -> Verifier
 toVerifier = foldr ((<>) . f) mempty
   where
-    f (startsWith "ERRORS: " -> Just res) = Verifier ((res == "0"), False, False)
-    f (startsWith "MERGED: " -> Just res) = Verifier (False, (res == "20"), False)
-    f (startsWith "UNMERGED: " -> Just res) = Verifier (False, False, (res == "14"))
+    f (matchAndStrip "ERRORS: " -> Just res) = Verifier ((res == "0"), False, False)
+    f (matchAndStrip "MERGED: " -> Just res) = Verifier (False, (res == "20"), False)
+    f (matchAndStrip "UNMERGED: " -> Just res) = Verifier (False, False, (res == "14"))
     f _ = mempty
