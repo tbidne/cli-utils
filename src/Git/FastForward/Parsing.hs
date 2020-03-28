@@ -1,73 +1,66 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ViewPatterns #-}
 
 module Git.FastForward.Parsing
   ( parseArgs,
   )
 where
 
+import Common.Parsing
 import qualified Data.Text as T
 import Git.FastForward.Types.Env
 import Git.FastForward.Types.MergeType
 import Git.Types.GitTypes
 
 parseArgs :: [String] -> Either String Env
-parseArgs args = holderToEnv holder
+parseArgs args =
+  case parseAll allParsers args defaultEnv of
+    Left Help -> Left help
+    Left (Err arg) -> Left $ "Could not parse `" <> arg <> "`. Try --help."
+    Right env -> Right env
+
+defaultEnv :: Env
+defaultEnv =
+  Env
+    Nothing
+    Upstream
+
+allParsers :: [AnyParser Env]
+allParsers =
+  [ pathParser,
+    mergeTypeParser,
+    mergeUpstreamFlagParser,
+    mergeMasterFlagParser
+  ]
+
+pathParser :: AnyParser Env
+pathParser = AnyParser $ PrefixParser ("--path=", parser, updater)
   where
-    holder = foldr addArgToHolder (Right defaultHolder) args
+    parser "" = Just Nothing
+    parser s = Just $ Just s
+    updater (Env _ m) p' = Env p' m
 
-holderToEnv :: Either String ArgHolder -> Either String Env
-holderToEnv (Right (ArgHolder (Just p) (Just mt))) =
-  Right $ Env p mt
-holderToEnv (Right (ArgHolder Nothing _)) =
-  Left "Bad format for [--path=<string>]. See --help."
-holderToEnv (Right (ArgHolder _ Nothing)) =
-  Left "Bad format for [--merge-type=<upstream|master|<any>]. See --help."
-holderToEnv (Left x) = Left x
+mergeTypeParser :: AnyParser Env
+mergeTypeParser = AnyParser $ PrefixParser ("--merge-type=", parser, updater)
+  where
+    parser "" = Nothing
+    parser "upstream" = Just Upstream
+    parser "master" = Just Master
+    parser o = Just $ Other $ Name $ T.pack o
+    updater (Env p _) = Env p
 
-data ArgHolder
-  = ArgHolder
-      { pathArg :: Maybe (Maybe FilePath),
-        mergeTypeArg :: Maybe MergeType
-      }
-  deriving (Eq, Show)
+mergeUpstreamFlagParser :: AnyParser Env
+mergeUpstreamFlagParser = AnyParser $ ExactParser (parser, updater)
+  where
+    parser "-u" = Just Upstream
+    parser _ = Nothing
+    updater (Env p _) = Env p
 
-updatePath :: Maybe (Maybe FilePath) -> ArgHolder -> ArgHolder
-updatePath p' (ArgHolder _ mt) = ArgHolder p' mt
-
-updateMergeType :: Maybe MergeType -> ArgHolder -> ArgHolder
-updateMergeType mt' (ArgHolder p _) = ArgHolder p mt'
-
-defaultHolder :: ArgHolder
-defaultHolder =
-  ArgHolder
-    (Just (Just "./"))
-    (Just Upstream)
-
-addArgToHolder :: String -> Either String ArgHolder -> Either String ArgHolder
-addArgToHolder (startsWith "--path=" -> Just rest) h = fmap (updatePath (parsePath rest)) h
-addArgToHolder (startsWith "--merge-type=" -> Just rest) h = fmap (updateMergeType (parseMergeType rest)) h
-addArgToHolder "-m" h = fmap (updateMergeType (Just Master)) h
-addArgToHolder "-u" h = fmap (updateMergeType (Just Upstream)) h
-addArgToHolder "--help" _ = Left help
-addArgToHolder s h = h >>= const (Left ("Unknown argument: `" <> s <> "`. Try --help "))
-
-parsePath :: String -> Maybe (Maybe FilePath)
-parsePath "" = Just Nothing
-parsePath s = Just $ Just s
-
-parseMergeType :: String -> Maybe MergeType
-parseMergeType "" = Nothing
-parseMergeType "upstream" = Just Upstream
-parseMergeType "master" = Just Master
-parseMergeType o = Just $ Other $ Name $ T.pack o
-
-startsWith :: Eq a => [a] -> [a] -> Maybe [a]
-startsWith [] ys = Just ys
-startsWith _ [] = Nothing
-startsWith (x : xs) (y : ys)
-  | x == y = startsWith xs ys
-  | otherwise = Nothing
+mergeMasterFlagParser :: AnyParser Env
+mergeMasterFlagParser = AnyParser $ ExactParser (parser, updater)
+  where
+    parser "-m" = Just Master
+    parser _ = Nothing
+    updater (Env p _) = Env p
 
 help :: String
 help =

@@ -94,7 +94,7 @@ newtype InvalidArgs = InvalidArgs [String] deriving (Show)
 
 instance Arbitrary InvalidArgs where
   arbitrary = do
-    (PrintableString s) <- (arbitrary) `suchThat` nonEmpty
+    (PrintableString s) <- arbitrary `suchThat` nonEmpty
     InvalidArgs <$> vectorOf 4 (return s)
     where
-      nonEmpty = not . (/= "") . getPrintableString
+      nonEmpty = (/= "") . getPrintableString

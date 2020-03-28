@@ -11,11 +11,12 @@ module Git.Stale.Parsing
   )
 where
 
+import Common.Parsing
+import Data.Maybe
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as Cal
 import Git.Stale.Types.Env
 import Git.Stale.Types.Nat
-import qualified System.IO as IO
 import qualified Text.Read as R
 
 -- | Maps `Cal.Day` and parsed [`String`] args into `Right` `Env`, returning
@@ -50,115 +51,99 @@ import qualified Text.Read as R
 --       including the empty string (i.e. --master=). Defaults to origin/master.
 -- @
 parseArgs :: Cal.Day -> [String] -> Either String Env
-parseArgs d args = holderToEnv d holder
+parseArgs d args =
+  case parseAll allParsers args (defaultEnv d) of
+    Left Help -> Left help
+    Left (Err arg) -> Left $ "Could not parse `" <> arg <> "`. Try --help."
+    Right env -> Right env
+
+defaultEnv :: Cal.Day -> Env
+defaultEnv =
+  Env
+    Nothing
+    Nothing
+    (fromJust (mkNat 30))
+    Remote
+    "origin/"
+    "origin/master"
+
+allParsers :: [AnyParser Env]
+allParsers =
+  [ grepParser,
+    pathParser,
+    limitParser,
+    branchTypeParser,
+    branchAllFlagParser,
+    branchRemoteFlagParser,
+    branchLocalFlagParser,
+    remoteNameParser,
+    masterParser
+  ]
+
+grepParser :: AnyParser Env
+grepParser = AnyParser $ PrefixParser ("--grep=", parser, updater)
   where
-    holder = foldr addArgToHolder (Right defaultHolder) args
+    parser "" = Just Nothing
+    parser s = Just $ Just $ T.pack s
+    updater (Env _ p l b r m d) g' = Env g' p l b r m d
 
-data ArgHolder
-  = ArgHolder
-      { grepArg :: Maybe (Maybe T.Text),
-        pathArg :: Maybe (Maybe IO.FilePath),
-        limitArg :: Maybe Nat,
-        branchTypeArg :: Maybe BranchType,
-        remoteArg :: Maybe T.Text,
-        master :: Maybe T.Text
-      }
-  deriving (Eq, Show)
+pathParser :: AnyParser Env
+pathParser = AnyParser $ PrefixParser ("--path=", parser, updater)
+  where
+    parser "" = Just Nothing
+    parser s = Just $ Just s
+    updater (Env g _ l b r m d) p' = Env g p' l b r m d
 
-holderToEnv :: Cal.Day -> Either String ArgHolder -> Either String Env
-holderToEnv
-  d
-  ( Right
-      (ArgHolder (Just g) (Just p) (Just l) (Just b) (Just r) (Just m))
-    ) =
-    Right $ Env g p l b r m d
-holderToEnv _ (Right (ArgHolder Nothing _ _ _ _ _)) =
-  Left "Bad format for [--grep=<string>]"
-holderToEnv _ (Right (ArgHolder _ Nothing _ _ _ _)) =
-  Left "Bad format for [--path=<path>]"
-holderToEnv _ (Right (ArgHolder _ _ Nothing _ _ _)) =
-  Left "Bad format for [--limit=<days>] where <days> is an integer"
-holderToEnv _ (Right (ArgHolder _ _ _ Nothing _ _)) =
-  Left "Bad format for [--branch-type=<all|remote|local>]"
-holderToEnv _ (Right (ArgHolder _ _ _ _ Nothing _)) =
-  Left "Bad format for [--remote=<string>]"
-holderToEnv _ (Right (ArgHolder _ _ _ _ _ Nothing)) =
-  Left "Bad format for [--master=<string>]"
-holderToEnv _ (Left x) = Left x
+limitParser :: AnyParser Env
+limitParser = AnyParser $ PrefixParser ("--limit=", parser, updater)
+  where
+    parser "" = Nothing
+    parser s = R.readMaybe s >>= mkNat
+    updater (Env g p _ b r m d) l' = Env g p l' b r m d
 
-updateGrep :: Maybe (Maybe T.Text) -> ArgHolder -> ArgHolder
-updateGrep g' (ArgHolder _ p l b r m) = ArgHolder g' p l b r m
+branchTypeParser :: AnyParser Env
+branchTypeParser = AnyParser $ PrefixParser ("--branch-type=", parser, updater)
+  where
+    parser "all" = Just All
+    parser "remote" = Just Remote
+    parser "local" = Just Local
+    parser _ = Nothing
+    updater (Env g p l _ r m d) b' = Env g p l b' r m d
 
-updatePath :: Maybe (Maybe IO.FilePath) -> ArgHolder -> ArgHolder
-updatePath p' (ArgHolder g _ l b r m) = ArgHolder g p' l b r m
+branchAllFlagParser :: AnyParser Env
+branchAllFlagParser = AnyParser $ ExactParser (parser, updater)
+  where
+    parser "-a" = Just All
+    parser _ = Nothing
+    updater (Env g p l _ r m d) b' = Env g p l b' r m d
 
-updateLimit :: Maybe Nat -> ArgHolder -> ArgHolder
-updateLimit l' (ArgHolder g p _ b r m) = ArgHolder g p l' b r m
+branchRemoteFlagParser :: AnyParser Env
+branchRemoteFlagParser = AnyParser $ ExactParser (parser, updater)
+  where
+    parser "-r" = Just Remote
+    parser _ = Nothing
+    updater (Env g p l _ r m d) b' = Env g p l b' r m d
 
-updateBranchType :: Maybe BranchType -> ArgHolder -> ArgHolder
-updateBranchType b' (ArgHolder g p l _ r m) = ArgHolder g p l b' r m
+branchLocalFlagParser :: AnyParser Env
+branchLocalFlagParser = AnyParser $ ExactParser (parser, updater)
+  where
+    parser "-l" = Just Local
+    parser _ = Nothing
+    updater (Env g p l _ r m d) b' = Env g p l b' r m d
 
-updateRemote :: Maybe T.Text -> ArgHolder -> ArgHolder
-updateRemote r' (ArgHolder g p l b _ m) = ArgHolder g p l b r' m
+remoteNameParser :: AnyParser Env
+remoteNameParser = AnyParser $ PrefixParser ("--remote=", parser, updater)
+  where
+    parser "" = Just ""
+    parser s = Just $ T.pack (s <> "/")
+    updater (Env g p l b _ m d) r' = Env g p l b r' m d
 
-updateMaster :: Maybe T.Text -> ArgHolder -> ArgHolder
-updateMaster m' (ArgHolder g p l b r _) = ArgHolder g p l b r m'
-
-defaultHolder :: ArgHolder
-defaultHolder =
-  ArgHolder
-    (Just Nothing)
-    (Just (Just "./"))
-    (mkNat 30)
-    (Just Remote)
-    (Just "origin/")
-    (Just "origin/master")
-
-addArgToHolder :: String -> Either String ArgHolder -> Either String ArgHolder
-addArgToHolder (startsWith "--grep=" -> Just rest) h = fmap (updateGrep (parseGrep rest)) h
-addArgToHolder (startsWith "--path=" -> Just rest) h = fmap (updatePath (parsePath rest)) h
-addArgToHolder (startsWith "--limit=" -> Just rest) h = fmap (updateLimit (parseLimit rest)) h
-addArgToHolder (startsWith "--branch-type=" -> Just rest) h = fmap (updateBranchType (parseBranchType rest)) h
-addArgToHolder "-a" h = fmap (updateBranchType (Just All)) h
-addArgToHolder "-r" h = fmap (updateBranchType (Just Remote)) h
-addArgToHolder "-l" h = fmap (updateBranchType (Just Local)) h
-addArgToHolder (startsWith "--remote=" -> Just rest) h = fmap (updateRemote (parseRemote rest)) h
-addArgToHolder (startsWith "--master=" -> Just rest) h = fmap (updateMaster (parseMaster rest)) h
-addArgToHolder "--help" _ = Left help
-addArgToHolder s h = h >>= const (Left ("Unknown argument: `" <> s <> "`. Try --help "))
-
-startsWith :: Eq a => [a] -> [a] -> Maybe [a]
-startsWith [] ys = Just ys
-startsWith _ [] = Nothing
-startsWith (x : xs) (y : ys)
-  | x == y = startsWith xs ys
-  | otherwise = Nothing
-
-parseGrep :: String -> Maybe (Maybe T.Text)
-parseGrep "" = Just Nothing
-parseGrep s = Just $ Just $ T.pack s
-
-parsePath :: String -> Maybe (Maybe IO.FilePath)
-parsePath "" = Just Nothing
-parsePath s = Just $ Just s
-
-parseLimit :: String -> Maybe Nat
-parseLimit "" = Nothing
-parseLimit s = R.readMaybe s >>= mkNat
-
-parseBranchType :: String -> Maybe BranchType
-parseBranchType "all" = Just All
-parseBranchType "remote" = Just Remote
-parseBranchType "local" = Just Local
-parseBranchType _ = Nothing
-
-parseRemote :: String -> Maybe T.Text
-parseRemote "" = Just ""
-parseRemote s = Just $ T.pack (s <> "/")
-
-parseMaster :: String -> Maybe T.Text
-parseMaster "" = Just ""
-parseMaster s = Just $ T.pack s
+masterParser :: AnyParser Env
+masterParser = AnyParser $ PrefixParser ("--master=", parser, updater)
+  where
+    parser "" = Just ""
+    parser s = Just $ T.pack s
+    updater (Env g p l b r _ d) m' = Env g p l b r m' d
 
 help :: String
 help =

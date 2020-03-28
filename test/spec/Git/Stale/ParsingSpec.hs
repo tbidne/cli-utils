@@ -31,7 +31,7 @@ verifyDefaults day =
     Left _ -> False
     Right Env {grepStr, path, limit, branchType, today} ->
       grepStr == Nothing
-        && path == Just "./"
+        && path == Nothing
         && Just limit == mkNat 30
         && branchType == Remote
         && today == day
@@ -40,12 +40,12 @@ parsesArgs :: Cal.Day -> ValidArgs -> Bool
 parsesArgs d (ValidArgs g p l b _ _ args) =
   case parseArgs d args of
     Left _ -> False
-    Right env ->
-      verifyGrep g (grepStr env)
-        && verifyPath p (path env)
-        && verifyLimit l (limit env)
-        && verifyBranchType b (branchType env)
-        && d == today env
+    Right Env {grepStr, path, limit, branchType, today} ->
+      verifyGrep g grepStr
+        && verifyPath p path
+        && verifyLimit l limit
+        && verifyBranchType b branchType
+        && d == today
 
 invalidLimitDies :: InvalidLimit -> Bool
 invalidLimitDies (InvalidLimit s) =
