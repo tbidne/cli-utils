@@ -1,5 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
-
 -- |
 -- Module      : Git.Stale.Types.Env
 -- License     : BSD3

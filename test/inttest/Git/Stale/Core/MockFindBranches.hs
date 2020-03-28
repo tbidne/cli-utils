@@ -20,14 +20,14 @@ import Git.Types.Handler
 newtype MockFindBranchesT m a = MockFindBranchesT {runMockFindBranchesT :: ReaderT Env m a}
   deriving (Functor, Applicative, Monad, MonadTrans, MonadReader Env)
 
-type MockUtilsOut = MockFindBranchesT Output
+type MockFindBranchesOut = MockFindBranchesT Output
 
-type instance Handler MockUtilsOut a = a
+type instance Handler MockFindBranchesOut a = a
 
-instance FindBranches MockUtilsOut where
-  type FinalResults MockUtilsOut = [AnyBranch]
+instance FindBranches MockFindBranchesOut where
+  type FinalResults MockFindBranchesOut = [AnyBranch]
 
-  branchNamesByGrep :: MockUtilsOut [Name]
+  branchNamesByGrep :: MockFindBranchesOut [Name]
   branchNamesByGrep = do
     grep <- asks grepStr
     let maybeFilter = case grep of
@@ -35,24 +35,24 @@ instance FindBranches MockUtilsOut where
           Just s -> filter (\(Name n) -> s `Txt.isInfixOf` n)
     lift $ pure $ maybeFilter allBranches
 
-  getStaleLogs :: [Name] -> MockUtilsOut (Filtered NameAuthDay)
+  getStaleLogs :: [Name] -> MockFindBranchesOut (Filtered NameAuthDay)
   getStaleLogs ns = do
     let removeStale ((Name n), _, _) = not $ "stale" `Txt.isInfixOf` n
         toLog nm@(Name n) = (nm, Author n, error "MockFindBranches -> getStaleLogs: day not defined")
     lift $ pure $ (mkFiltered removeStale . fmap toLog) ns
 
-  toBranches :: Filtered NameAuthDay -> MockUtilsOut [AnyBranch]
+  toBranches :: Filtered NameAuthDay -> MockFindBranchesOut [AnyBranch]
   toBranches = lift . pure . fmap toBranch . unFiltered
     where
       toBranch (n, a, d) = mkAnyBranch n a d True
 
-  collectResults :: [AnyBranch] -> MockUtilsOut [AnyBranch]
+  collectResults :: [AnyBranch] -> MockFindBranchesOut [AnyBranch]
   collectResults = lift . return
 
-  display :: [AnyBranch] -> MockUtilsOut ()
+  display :: [AnyBranch] -> MockFindBranchesOut ()
   display = MockFindBranchesT . lift . putOutput
 
-addMockOut :: [Txt.Text] -> MockUtilsOut a -> MockUtilsOut a
+addMockOut :: [Txt.Text] -> MockFindBranchesOut a -> MockFindBranchesOut a
 addMockOut ts = MockFindBranchesT . mapReaderT (prependOut ts) . runMockFindBranchesT
 
 allBranches :: [Name]
