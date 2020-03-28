@@ -1,4 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Git.FastForward.Parsing
@@ -38,7 +37,7 @@ pathParser = AnyParser $ PrefixParser ("--path=", parser, updater)
   where
     parser "" = Just Nothing
     parser s = Just $ Just s
-    updater Env {mergeType} path = Env path mergeType
+    updater env p = env {path = p}
 
 mergeTypeParser :: AnyParser Env
 mergeTypeParser = AnyParser $ PrefixParser ("--merge-type=", parser, updater)
@@ -47,21 +46,21 @@ mergeTypeParser = AnyParser $ PrefixParser ("--merge-type=", parser, updater)
     parser "upstream" = Just Upstream
     parser "master" = Just Master
     parser o = Just $ Other $ Name $ T.pack o
-    updater Env {path} = Env path
+    updater env m = env {mergeType = m}
 
 mergeUpstreamFlagParser :: AnyParser Env
 mergeUpstreamFlagParser = AnyParser $ ExactParser (parser, updater)
   where
     parser "-u" = Just Upstream
     parser _ = Nothing
-    updater Env {path} = Env path
+    updater env m = env {mergeType = m}
 
 mergeMasterFlagParser :: AnyParser Env
 mergeMasterFlagParser = AnyParser $ ExactParser (parser, updater)
   where
     parser "-m" = Just Master
     parser _ = Nothing
-    updater Env {path} = Env path
+    updater env m = env {mergeType = m}
 
 help :: String
 help =
