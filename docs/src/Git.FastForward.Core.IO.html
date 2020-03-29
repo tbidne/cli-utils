@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Module      : Git.FastForward.Core.IO</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- Exports functions to be used by &quot;Git.FastForward.Core.UpdateBranches&quot; for `IO`.</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Git.FastForward.Core.IO</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Git.FastForward.Core.IO.html#checkoutCurrentIO"><span class="hs-identifier">checkoutCurrentIO</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><a href="Git.FastForward.Core.IO.html#fetchIO"><span class="hs-identifier">fetchIO</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><a href="Git.FastForward.Core.IO.html#getBranchesIO"><span class="hs-identifier">getBranchesIO</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Git.FastForward.Core.IO.html#summarizeIO"><span class="hs-identifier">summarizeIO</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="annot"><a href="Git.FastForward.Core.IO.html#updateBranchIO"><span class="hs-identifier">updateBranchIO</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.IO.html"><span class="hs-identifier">Common.IO</span></a></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.FastForward.Core.Internal.html"><span class="hs-identifier">Git.FastForward.Core.Internal</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html"><span class="hs-identifier">Git.FastForward.Types.LocalBranches</span></a></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html"><span class="hs-identifier">Git.FastForward.Types.MergeType</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html"><span class="hs-identifier">Git.FastForward.Types.UpdateResult</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html"><span class="hs-identifier">Git.Types.GitTypes</span></a></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">System.Exit</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Ex</span></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-comment">-- | Performs a 'git' 'fetch'.</span><span>
+</span><span id="line-27"></span><span class="annot"><a href="Git.FastForward.Core.IO.html#fetchIO"><span class="hs-identifier hs-type">fetchIO</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span id="fetchIO"><span class="annot"><span class="annottext">fetchIO :: Maybe FilePath -&gt; IO ()
+</span><a href="Git.FastForward.Core.IO.html#fetchIO"><span class="hs-identifier hs-var hs-var">fetchIO</span></a></span></span><span> </span><span id="local-6989586621679071957"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679071957"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-29"></span><span>  </span><span class="annot"><span class="annottext">FilePath -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Fetching...&quot;</span></span><span>
+</span><span id="line-30"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO ()
+</span><a href="Common.IO.html#sh_"><span class="hs-identifier hs-var">sh_</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;git fetch --prune&quot;</span></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679071957"><span class="hs-identifier hs-var">path</span></a></span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- | Gets all local branches.</span><span>
+</span><span id="line-33"></span><span class="annot"><a href="Git.FastForward.Core.IO.html#getBranchesIO"><span class="hs-identifier hs-type">getBranchesIO</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#LocalBranches"><span class="hs-identifier hs-type">LocalBranches</span></a></span><span>
+</span><span id="line-34"></span><span id="getBranchesIO"><span class="annot"><span class="annottext">getBranchesIO :: Maybe FilePath -&gt; IO LocalBranches
+</span><a href="Git.FastForward.Core.IO.html#getBranchesIO"><span class="hs-identifier hs-var hs-var">getBranchesIO</span></a></span></span><span> </span><span id="local-6989586621679071954"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679071954"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-35"></span><span>  </span><span class="annot"><span class="annottext">FilePath -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Parsing branches...&quot;</span></span><span>
+</span><span id="line-36"></span><span>  </span><span id="local-6989586621679071953"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071953"><span class="hs-identifier hs-var">branchesText</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO Text
+</span><a href="Common.IO.html#sh"><span class="hs-identifier hs-var">sh</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;git branch&quot;</span></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679071954"><span class="hs-identifier hs-var">path</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe LocalBranches
+</span><a href="Git.FastForward.Core.Internal.html#textToLocalBranches"><span class="hs-identifier hs-var">textToLocalBranches</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071953"><span class="hs-identifier hs-var">branchesText</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679071950"><span class="annot"><span class="annottext">x :: LocalBranches
+</span><a href="#local-6989586621679071950"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LocalBranches -&gt; IO LocalBranches
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">LocalBranches
+</span><a href="#local-6989586621679071950"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; IO LocalBranches
+forall a. FilePath -&gt; IO a
+</span><span class="hs-identifier hs-var">Ex.die</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Error getting local branches&quot;</span></span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span class="hs-comment">-- | Updates branch 'Name' according to the 'MergeType'.</span><span>
+</span><span id="line-42"></span><span class="annot"><a href="Git.FastForward.Core.IO.html#updateBranchIO"><span class="hs-identifier hs-type">updateBranchIO</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#MergeType"><span class="hs-identifier hs-type">MergeType</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#UpdateResult"><span class="hs-identifier hs-type">UpdateResult</span></a></span><span>
+</span><span id="line-43"></span><span id="updateBranchIO"><span class="annot"><span class="annottext">updateBranchIO :: MergeType -&gt; Name -&gt; Maybe FilePath -&gt; IO UpdateResult
+</span><a href="Git.FastForward.Core.IO.html#updateBranchIO"><span class="hs-identifier hs-var hs-var">updateBranchIO</span></a></span></span><span> </span><span id="local-6989586621679071948"><span class="annot"><span class="annottext">merge :: MergeType
+</span><a href="#local-6989586621679071948"><span class="hs-identifier hs-var">merge</span></a></span></span><span> </span><span id="local-6989586621679071947"><span class="annot"><span class="annottext">nm :: Name
+</span><a href="#local-6989586621679071947"><span class="hs-identifier hs-var">nm</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679071945"><span class="annot"><span class="annottext">name :: Text
+</span><a href="#local-6989586621679071945"><span class="hs-identifier hs-var">name</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679071944"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679071944"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-44"></span><span>  </span><span class="annot"><span class="annottext">FilePath -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="annottext">(FilePath -&gt; IO ()) -&gt; FilePath -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Checking out &quot;</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; FilePath -&gt; FilePath
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; FilePath
+</span><span class="hs-identifier hs-var">T.unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071945"><span class="hs-identifier hs-var">name</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO ()
+</span><a href="Common.IO.html#sh_"><span class="hs-identifier hs-var">sh_</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;git checkout &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071945"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679071944"><span class="hs-identifier hs-var">path</span></a></span><span>
+</span><span id="line-46"></span><span>  </span><span class="annot"><span class="annottext">FilePath -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="annottext">(FilePath -&gt; IO ()) -&gt; FilePath -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Updating &quot;</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; FilePath -&gt; FilePath
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; FilePath
+</span><span class="hs-identifier hs-var">T.unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071945"><span class="hs-identifier hs-var">name</span></a></span><span>
+</span><span id="line-47"></span><span>  </span><span id="local-6989586621679071942"><span class="annot"><span class="annottext">Either SomeException Text
+</span><a href="#local-6989586621679071942"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO (Either SomeException Text)
+</span><a href="Common.IO.html#trySh"><span class="hs-identifier hs-var">trySh</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MergeType -&gt; Text
+</span><a href="Git.FastForward.Core.IO.html#mergeTypeToCmd"><span class="hs-identifier hs-var">mergeTypeToCmd</span></a></span><span> </span><span class="annot"><span class="annottext">MergeType
+</span><a href="#local-6989586621679071948"><span class="hs-identifier hs-var">merge</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679071944"><span class="hs-identifier hs-var">path</span></a></span><span>
+</span><span id="line-48"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either SomeException Text
+</span><a href="#local-6989586621679071942"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-49"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679071939"><span class="annot"><span class="annottext">o :: Text
+</span><a href="#local-6989586621679071939"><span class="hs-identifier hs-var">o</span></a></span></span><span>
+</span><span id="line-50"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Bool
+</span><a href="Git.FastForward.Core.Internal.html#alreadyUpdated"><span class="hs-identifier hs-var">alreadyUpdated</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071939"><span class="hs-identifier hs-var">o</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">UpdateResult -&gt; IO UpdateResult
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(UpdateResult -&gt; IO UpdateResult)
+-&gt; UpdateResult -&gt; IO UpdateResult
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; UpdateResult
+</span><a href="Git.FastForward.Types.UpdateResult.html#NoChange"><span class="hs-identifier hs-var">NoChange</span></a></span><span> </span><span class="annot"><span class="annottext">Name
+</span><a href="#local-6989586621679071947"><span class="hs-identifier hs-var">nm</span></a></span><span>
+</span><span id="line-51"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">UpdateResult -&gt; IO UpdateResult
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(UpdateResult -&gt; IO UpdateResult)
+-&gt; UpdateResult -&gt; IO UpdateResult
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; UpdateResult
+</span><a href="Git.FastForward.Types.UpdateResult.html#Success"><span class="hs-identifier hs-var">Success</span></a></span><span> </span><span class="annot"><span class="annottext">Name
+</span><a href="#local-6989586621679071947"><span class="hs-identifier hs-var">nm</span></a></span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679071935"><span class="annot"><span class="annottext">ex :: SomeException
+</span><a href="#local-6989586621679071935"><span class="hs-identifier hs-var">ex</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-53"></span><span>      </span><span class="annot"><span class="annottext">FilePath -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="annottext">(FilePath -&gt; IO ()) -&gt; FilePath -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Error updating &quot;</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; FilePath -&gt; FilePath
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; FilePath
+</span><span class="hs-identifier hs-var">T.unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071945"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; FilePath -&gt; FilePath
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;: &quot;</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; FilePath -&gt; FilePath
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">SomeException -&gt; FilePath
+forall a. Show a =&gt; a -&gt; FilePath
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">SomeException
+</span><a href="#local-6989586621679071935"><span class="hs-identifier hs-var">ex</span></a></span><span>
+</span><span id="line-54"></span><span>      </span><span class="annot"><span class="annottext">UpdateResult -&gt; IO UpdateResult
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(UpdateResult -&gt; IO UpdateResult)
+-&gt; UpdateResult -&gt; IO UpdateResult
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; UpdateResult
+</span><a href="Git.FastForward.Types.UpdateResult.html#Failure"><span class="hs-identifier hs-var">Failure</span></a></span><span> </span><span class="annot"><span class="annottext">Name
+</span><a href="#local-6989586621679071947"><span class="hs-identifier hs-var">nm</span></a></span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span class="hs-comment">-- | Prints a summary of all update results.</span><span>
+</span><span id="line-57"></span><span class="annot"><a href="Git.FastForward.Core.IO.html#summarizeIO"><span class="hs-identifier hs-type">summarizeIO</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#UpdateResult"><span class="hs-identifier hs-type">UpdateResult</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-58"></span><span id="summarizeIO"><span class="annot"><span class="annottext">summarizeIO :: [UpdateResult] -&gt; IO ()
+</span><a href="Git.FastForward.Core.IO.html#summarizeIO"><span class="hs-identifier hs-var hs-var">summarizeIO</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="annottext">(FilePath -&gt; IO ())
+-&gt; ([UpdateResult] -&gt; FilePath) -&gt; [UpdateResult] -&gt; IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">[UpdateResult] -&gt; FilePath
+</span><a href="Git.FastForward.Types.UpdateResult.html#displayResults"><span class="hs-identifier hs-var">displayResults</span></a></span><span>
+</span><span id="line-59"></span><span>
+</span><span id="line-60"></span><span class="hs-comment">-- | Checks out the 'CurrentBranch' on 'Maybe' 'FilePath'.</span><span>
+</span><span id="line-61"></span><span class="annot"><a href="Git.FastForward.Core.IO.html#checkoutCurrentIO"><span class="hs-identifier hs-type">checkoutCurrentIO</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#CurrentBranch"><span class="hs-identifier hs-type">CurrentBranch</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span id="checkoutCurrentIO"><span class="annot"><span class="annottext">checkoutCurrentIO :: Name -&gt; Maybe FilePath -&gt; IO ()
+</span><a href="Git.FastForward.Core.IO.html#checkoutCurrentIO"><span class="hs-identifier hs-var hs-var">checkoutCurrentIO</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679071929"><span class="annot"><span class="annottext">name :: Text
+</span><a href="#local-6989586621679071929"><span class="hs-identifier hs-var">name</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO ()
+</span><a href="Common.IO.html#sh_"><span class="hs-identifier hs-var">sh_</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;git checkout &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071929"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-63"></span><span>
+</span><span id="line-64"></span><span class="annot"><a href="Git.FastForward.Core.IO.html#mergeTypeToCmd"><span class="hs-identifier hs-type">mergeTypeToCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#MergeType"><span class="hs-identifier hs-type">MergeType</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span>
+</span><span id="line-65"></span><span id="mergeTypeToCmd"><span class="annot"><span class="annottext">mergeTypeToCmd :: MergeType -&gt; Text
+</span><a href="Git.FastForward.Core.IO.html#mergeTypeToCmd"><span class="hs-identifier hs-var hs-var">mergeTypeToCmd</span></a></span></span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#Upstream"><span class="hs-identifier hs-type">Upstream</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;git merge @{u} --ff-only&quot;</span></span><span>
+</span><span id="line-66"></span><span class="annot"><a href="Git.FastForward.Core.IO.html#mergeTypeToCmd"><span class="hs-identifier hs-var">mergeTypeToCmd</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#Master"><span class="hs-identifier hs-type">Master</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;git merge origin/master --ff-only&quot;</span></span><span>
+</span><span id="line-67"></span><span class="annot"><a href="Git.FastForward.Core.IO.html#mergeTypeToCmd"><span class="hs-identifier hs-var">mergeTypeToCmd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#Other"><span class="hs-identifier hs-type">Other</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679071925"><span class="annot"><span class="annottext">up :: Text
+</span><a href="#local-6989586621679071925"><span class="hs-identifier hs-var">up</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;git merge &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071925"><span class="hs-identifier hs-var">up</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot; --ff-only&quot;</span></span><span>
+</span><span id="line-68"></span></pre></body></html>

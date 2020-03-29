@@ -12,39 +12,34 @@
     </a>
 </p>
 
-Scans a `git` directory for branches based on a grep string and then prints all stale branches, organized by author and merge status.
+This application provides a wrapper for `git` CLI actions. Two commands are currently supported:
 
-## Stack
+- Fast Forward: Fast forwards all local branches (`--ff-only`) on `upstream`, `origin/master`, or a provided branch name.
 
-To build with stack run `stack build`.
+- Find Stale: Displays branches that are considered "stale", based on the date of the last commit (default threshold is 30 days).
 
-Run with
+For more explicit usage see the various help pages:
+
+- `git-utils --help`
+- `git-utils fast-forward --help`
+- `git-utils find-stale --help`
+
+## Building with Stack
+
+To build in the current directory run `stack build`. Then run with:
 
 ```shell
-stack exec git-utils-exe -- [--grep=<string>] [--path=<path/to/dir>] [--limit=<days>] [--branchType=<a[ll]|r[emote]|l[ocal]>] [--remote=<string>] [--master=<string>]
+stack exec git-utils -- [CMD] [OPTIONS]
 ```
 
-All arguments are optional.
+If you instead wish to build to a global location (e.g. `~/.local/bin`) run `stack install`. Then:
 
-`--grep` is for filtering branches by name, defaults to the empty string, equivalent to passing `--grep=`.
-
-`--path` is the path to the git directory. Defaults to `/share` (mainly used for docker convenience).
-
- `--limit` is the number of days used for determining if a branch is stale, i.e.,
-
- ```
- branch is stale iff age(branch) >= limit
- ```
-
-The default is 30, and any provided argument must be a non-negative integer.
-
-`--branchType` is the type of branches to search, must be one of `a`, `all`, `r`, `remote`, `l`, and `local`. Defaults to remote.
-
-`--remote` is the name of the remote, defaults to `origin`. This is used for stripping out the remote prefix  when displaying the final results, if any exists.
-
-`--master` is the name of the branch to consider merges against, defaults to `origin/master`.
+```shell
+git-utils [CMD] [OPTIONS]
+```
 
 ## Docker
+
 
 A docker image can be downloaded with `docker pull tbidne/git-utils:latest`.
 
@@ -54,18 +49,20 @@ It can also be built manually, e.g.
 Docker build .
 ```
 
-To run you must mount your local filesystem with `-v`. The most convenient method is to use the default path of `/share`, i.e.
+To run you must mount your local filesystem with `-v` and provide the mapped directory as a path argument, e.g.,
 
 ```docker
-docker run -v /path/to/dir:/share --rm <image> <args...>
+docker run -v /path/to/dir:/share --rm <image> [CMD] --path=/share [OPTIONS]
 ```
+
+Note: `fast-forward` is not supported with docker because it fetches from a remote. Not only would this require mounting real `git` credentials to the image, it would require the remote being in the image's `known_hosts`.
 
 **IMPORTANT**: if you are on a mac then you will want to use the `cached` flag, e.g.
 
 ```docker
-docker run -v /path/to/dir:/share:cached --rm <image> --grep= --limit=30
+docker run -v /path/to/dir:/share:cached --rm <image> find-stale --limit=30 --path=share
 ```
 
-The default docker volume mounting for mac has terrible performance, so docker has mitigated this by providing volume options. The options most likely to help are `cached` and `delegated`. Theoretically `cached` makes more sense given that docker is solely reading data, not writing it, but local benchmarks show minimal difference between the two. No argument is equivalent to `consistent` (usually aliased by `default`), which you definitely do not want.
+The default docker volume mounting for mac has terrible performance, so docker has mitigated this by providing volume options. The options most likely to help are `cached` and `delegated`.
 
 See [here](https://docs.docker.com/docker-for-mac/osxfs-caching/) for more info.

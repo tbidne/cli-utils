@@ -1,5 +1,5 @@
 name:                git-utils
-version:             1.0.2
+version:             2.0.0
 github:              "tbidne/git-utils"
 license:             BSD3
 author:              "Thomas Bidne"
@@ -8,7 +8,6 @@ copyright:           "2020 Thomas Bidne"
 
 extra-source-files:
 - README.md
-- ChangeLog.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -45,7 +44,7 @@ library:
   source-dirs: src
 
 executables:
-  git-utils-exe:
+  git-utils:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -73,6 +72,20 @@ tests:
   inttest:
     main: Spec.hs
     source-dirs: test/inttest
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Wno-orphans
+    - -Wno-missing-export-lists
+    dependencies:
+    - git-utils
+    - hspec
+    - hspec-core
+    - QuickCheck
+  functional:
+    main: Spec.hs
+    source-dirs: test/functional
     ghc-options:
     - -threaded
     - -rtsopts

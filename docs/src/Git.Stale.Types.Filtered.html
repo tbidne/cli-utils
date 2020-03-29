@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- |</span><span>
+</span><span id="line-2"></span><span class="hs-comment">-- Module      : Git.Stale.Types.Filtered</span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Git.Stale.Types.Filtered</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier">Filtered</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>    </span><span class="annot"><a href="Git.Stale.Types.Filtered.html#mkFiltered"><span class="hs-identifier">mkFiltered</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Git.Stale.Types.Filtered.html#unFiltered"><span class="hs-identifier">unFiltered</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-comment">-- | Intermediate type to ensure `Core.FindBranches.getStaleLogs`</span><span>
+</span><span id="line-13"></span><span class="hs-comment">-- filters stale logs.</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">newtype</span><span> </span><span id="Filtered"><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-var">Filtered</span></a></span></span><span> </span><span id="local-6989586621679070926"><span class="annot"><a href="#local-6989586621679070926"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Filtered"><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-var">Filtered</span></a></span></span><span> </span><span class="hs-special">{</span><span id="unFiltered"><span class="annot"><span class="annottext">Filtered a -&gt; [a]
+</span><a href="Git.Stale.Types.Filtered.html#unFiltered"><span class="hs-identifier hs-var hs-var">unFiltered</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679070926"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span class="hs-special">}</span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span id="local-6989586621679070879"><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679070874"><span id="local-6989586621679070877"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="#local-6989586621679070879"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679070879"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-17"></span><span>  </span><span id="local-6989586621679070872"><span class="annot"><span class="annottext">show :: Filtered a -&gt; String
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">show</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">([a] -&gt; String) -&gt; (Filtered a -&gt; [a]) -&gt; Filtered a -&gt; String
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Filtered a -&gt; [a]
+forall a. Filtered a -&gt; [a]
+</span><a href="Git.Stale.Types.Filtered.html#unFiltered"><span class="hs-identifier hs-var hs-var">unFiltered</span></a></span></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679070867"><span class="annot"><span class="hs-identifier hs-type">Functor</span></span><span> </span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-20"></span><span>  </span><span id="local-6989586621679070865"><span class="annot"><span class="annottext">fmap :: (a -&gt; b) -&gt; Filtered a -&gt; Filtered b
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fmap</span></span></span><span> </span><span id="local-6989586621679070864"><span class="annot"><span class="annottext">f :: a -&gt; b
+</span><a href="#local-6989586621679070864"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span id="local-6989586621679070863"><span class="annot"><span class="annottext">xs :: [a]
+</span><a href="#local-6989586621679070863"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[b] -&gt; Filtered b
+forall a. [a] -&gt; Filtered a
+</span><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-var">Filtered</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; b) -&gt; [a] -&gt; [b]
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; b
+</span><a href="#local-6989586621679070864"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679070863"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679070854"><span id="local-6989586621679070856"><span id="local-6989586621679070858"><span class="annot"><span class="hs-identifier hs-type">Applicative</span></span><span> </span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-23"></span><span>  </span><span id="local-6989586621679070852"><span class="annot"><span class="annottext">pure :: a -&gt; Filtered a
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">pure</span></span></span><span> </span><span id="local-6989586621679070851"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679070851"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Filtered a
+forall a. [a] -&gt; Filtered a
+</span><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-var">Filtered</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; [a]
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679070851"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span id="local-6989586621679070850"><span class="annot"><span class="annottext">fs :: [a -&gt; b]
+</span><a href="#local-6989586621679070850"><span class="hs-identifier hs-var">fs</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679070849"><span class="annot"><span class="annottext">&lt;*&gt; :: Filtered (a -&gt; b) -&gt; Filtered a -&gt; Filtered b
+</span><span class="hs-operator hs-var hs-var hs-var hs-var">&lt;*&gt;</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span id="local-6989586621679070848"><span class="annot"><span class="annottext">xs :: [a]
+</span><a href="#local-6989586621679070848"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[b] -&gt; Filtered b
+forall a. [a] -&gt; Filtered a
+</span><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-var">Filtered</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[a -&gt; b]
+</span><a href="#local-6989586621679070850"><span class="hs-identifier hs-var">fs</span></a></span><span> </span><span class="annot"><span class="annottext">[a -&gt; b] -&gt; [a] -&gt; [b]
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679070848"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679070842"><span id="local-6989586621679070844"><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span id="local-6989586621679070840"><span class="annot"><span class="annottext">xs :: [a]
+</span><a href="#local-6989586621679070840"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679070839"><span class="annot"><span class="annottext">&gt;&gt;= :: Filtered a -&gt; (a -&gt; Filtered b) -&gt; Filtered b
+</span><span class="hs-operator hs-var hs-var hs-var hs-var">&gt;&gt;=</span></span></span><span> </span><span id="local-6989586621679070838"><span class="annot"><span class="annottext">f :: a -&gt; Filtered b
+</span><a href="#local-6989586621679070838"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[b] -&gt; Filtered b
+forall a. [a] -&gt; Filtered a
+</span><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-var">Filtered</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679070840"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; (a -&gt; [b]) -&gt; [b]
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Filtered b -&gt; [b]
+forall a. Filtered a -&gt; [a]
+</span><a href="Git.Stale.Types.Filtered.html#unFiltered"><span class="hs-identifier hs-var hs-var">unFiltered</span></a></span><span> </span><span class="annot"><span class="annottext">(Filtered b -&gt; [b]) -&gt; (a -&gt; Filtered b) -&gt; a -&gt; [b]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Filtered b
+</span><a href="#local-6989586621679070838"><span class="hs-identifier hs-var">f</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-comment">-- | Constructs `Filtered` 'a' based on filter function.</span><span>
+</span><span id="line-30"></span><span id="local-6989586621679070837"><span class="annot"><a href="Git.Stale.Types.Filtered.html#mkFiltered"><span class="hs-identifier hs-type">mkFiltered</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679070837"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679070837"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679070837"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-31"></span><span id="mkFiltered"><span class="annot"><span class="annottext">mkFiltered :: (a -&gt; Bool) -&gt; [a] -&gt; Filtered a
+</span><a href="Git.Stale.Types.Filtered.html#mkFiltered"><span class="hs-identifier hs-var hs-var">mkFiltered</span></a></span></span><span> </span><span id="local-6989586621679070836"><span class="annot"><span class="annottext">f :: a -&gt; Bool
+</span><a href="#local-6989586621679070836"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Filtered a
+forall a. [a] -&gt; Filtered a
+</span><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-var">Filtered</span></a></span><span> </span><span class="annot"><span class="annottext">([a] -&gt; Filtered a) -&gt; ([a] -&gt; [a]) -&gt; [a] -&gt; Filtered a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(a -&gt; Bool) -&gt; [a] -&gt; [a]
+forall a. (a -&gt; Bool) -&gt; [a] -&gt; [a]
+</span><span class="hs-identifier hs-var">filter</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+</span><a href="#local-6989586621679070836"><span class="hs-identifier hs-var">f</span></a></span><span>
+</span><span id="line-32"></span></pre></body></html>

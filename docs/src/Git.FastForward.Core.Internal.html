@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Module      : Git.FastForward.Core.Internal</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- Exports utility functions.</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Git.FastForward.Core.Internal</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Git.FastForward.Core.Internal.html#alreadyUpdated"><span class="hs-identifier">alreadyUpdated</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><a href="Git.FastForward.Core.Internal.html#textToLocalBranches"><span class="hs-identifier">textToLocalBranches</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Foldable</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">F</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html"><span class="hs-identifier">Git.FastForward.Types.LocalBranches</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html"><span class="hs-identifier">Git.Types.GitTypes</span></a></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">data</span><span> </span><span id="LocalBranchesParser"><span class="annot"><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-var">LocalBranchesParser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LocalBranchesParser"><span class="annot"><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-var">LocalBranchesParser</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#CurrentBranch"><span class="hs-identifier hs-type">CurrentBranch</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- | Maps 'T.Text' to 'Just' 'LocalBranches' if we find a current branch</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- and all branch names are otherwise parsed successfully. Returns 'Nothing'</span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- otherwise.</span><span>
+</span><span id="line-24"></span><span class="annot"><a href="Git.FastForward.Core.Internal.html#textToLocalBranches"><span class="hs-identifier hs-type">textToLocalBranches</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#LocalBranches"><span class="hs-identifier hs-type">LocalBranches</span></a></span><span>
+</span><span id="line-25"></span><span id="textToLocalBranches"><span class="annot"><span class="annottext">textToLocalBranches :: Text -&gt; Maybe LocalBranches
+</span><a href="Git.FastForward.Core.Internal.html#textToLocalBranches"><span class="hs-identifier hs-var hs-var">textToLocalBranches</span></a></span></span><span> </span><span id="local-6989586621679071907"><span class="annot"><span class="annottext">s :: Text
+</span><a href="#local-6989586621679071907"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679071906"><span class="annot"><span class="annottext">ls :: [Text]
+</span><a href="#local-6989586621679071906"><span class="hs-identifier hs-var hs-var">ls</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; [Text]
+</span><span class="hs-identifier hs-var">T.lines</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071907"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-27"></span><span>      </span><span id="local-6989586621679071904"><span class="annot"><span class="annottext">res :: LocalBranchesParser
+</span><a href="#local-6989586621679071904"><span class="hs-identifier hs-var hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; LocalBranchesParser
+</span><a href="Git.FastForward.Core.Internal.html#linesToParser"><span class="hs-identifier hs-var">linesToParser</span></a></span><span> </span><span class="annot"><span class="annottext">[Text]
+</span><a href="#local-6989586621679071906"><span class="hs-identifier hs-var">ls</span></a></span><span>
+</span><span id="line-28"></span><span>   </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">LocalBranchesParser
+</span><a href="#local-6989586621679071904"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-29"></span><span>        </span><span class="annot"><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-type">LocalBranchesParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679071902"><span class="annot"><span class="annottext">curr :: CurrentBranch
+</span><a href="#local-6989586621679071902"><span class="hs-identifier hs-var">curr</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679071901"><span class="annot"><span class="annottext">ns :: [CurrentBranch]
+</span><a href="#local-6989586621679071901"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LocalBranches -&gt; Maybe LocalBranches
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(LocalBranches -&gt; Maybe LocalBranches)
+-&gt; LocalBranches -&gt; Maybe LocalBranches
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; [CurrentBranch] -&gt; LocalBranches
+</span><a href="Git.FastForward.Types.LocalBranches.html#LocalBranches"><span class="hs-identifier hs-var">LocalBranches</span></a></span><span> </span><span class="annot"><span class="annottext">CurrentBranch
+</span><a href="#local-6989586621679071902"><span class="hs-identifier hs-var">curr</span></a></span><span> </span><span class="annot"><span class="annottext">[CurrentBranch]
+</span><a href="#local-6989586621679071901"><span class="hs-identifier hs-var">ns</span></a></span><span>
+</span><span id="line-30"></span><span>        </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe LocalBranches
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="annot"><a href="Git.FastForward.Core.Internal.html#linesToParser"><span class="hs-identifier hs-type">linesToParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-type">LocalBranchesParser</span></a></span><span>
+</span><span id="line-33"></span><span id="linesToParser"><span class="annot"><span class="annottext">linesToParser :: [Text] -&gt; LocalBranchesParser
+</span><a href="Git.FastForward.Core.Internal.html#linesToParser"><span class="hs-identifier hs-var hs-var">linesToParser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(LocalBranchesParser -&gt; Text -&gt; LocalBranchesParser)
+-&gt; LocalBranchesParser -&gt; [Text] -&gt; LocalBranchesParser
+forall (t :: * -&gt; *) b a.
+Foldable t =&gt;
+(b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span><span class="hs-identifier hs-var">F.foldl'</span></span><span> </span><span class="annot"><span class="annottext">LocalBranchesParser -&gt; Text -&gt; LocalBranchesParser
+</span><a href="#local-6989586621679071898"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe CurrentBranch -&gt; [CurrentBranch] -&gt; LocalBranchesParser
+</span><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-var">LocalBranchesParser</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe CurrentBranch
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-35"></span><span>    </span><span id="local-6989586621679071898"><span class="annot"><span class="annottext">f :: LocalBranchesParser -&gt; Text -&gt; LocalBranchesParser
+</span><a href="#local-6989586621679071898"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-type">LocalBranchesParser</span></a></span><span> </span><span id="local-6989586621679071897"><span class="annot"><span class="annottext">curr :: Maybe CurrentBranch
+</span><a href="#local-6989586621679071897"><span class="hs-identifier hs-var">curr</span></a></span></span><span> </span><span id="local-6989586621679071896"><span class="annot"><span class="annottext">ns :: [CurrentBranch]
+</span><a href="#local-6989586621679071896"><span class="hs-identifier hs-var">ns</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679071895"><span class="annot"><span class="annottext">txt :: Text
+</span><a href="#local-6989586621679071895"><span class="hs-identifier hs-var">txt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-36"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Either CurrentBranch CurrentBranch
+</span><a href="Git.FastForward.Core.Internal.html#starredBranch"><span class="hs-identifier hs-var">starredBranch</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071895"><span class="hs-identifier hs-var">txt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-37"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679071893"><span class="annot"><span class="annottext">curr' :: CurrentBranch
+</span><a href="#local-6989586621679071893"><span class="hs-identifier hs-var">curr'</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe CurrentBranch -&gt; [CurrentBranch] -&gt; LocalBranchesParser
+</span><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-var">LocalBranchesParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CurrentBranch -&gt; Maybe CurrentBranch
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">CurrentBranch
+</span><a href="#local-6989586621679071893"><span class="hs-identifier hs-var">curr'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CurrentBranch
+</span><a href="#local-6989586621679071893"><span class="hs-identifier hs-var">curr'</span></a></span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; [CurrentBranch] -&gt; [CurrentBranch]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[CurrentBranch]
+</span><a href="#local-6989586621679071896"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679071892"><span class="annot"><span class="annottext">other :: CurrentBranch
+</span><a href="#local-6989586621679071892"><span class="hs-identifier hs-var">other</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe CurrentBranch -&gt; [CurrentBranch] -&gt; LocalBranchesParser
+</span><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-var">LocalBranchesParser</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe CurrentBranch
+</span><a href="#local-6989586621679071897"><span class="hs-identifier hs-var">curr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CurrentBranch
+</span><a href="#local-6989586621679071892"><span class="hs-identifier hs-var">other</span></a></span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; [CurrentBranch] -&gt; [CurrentBranch]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[CurrentBranch]
+</span><a href="#local-6989586621679071896"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span>
+</span><span id="line-40"></span><span class="annot"><a href="Git.FastForward.Core.Internal.html#starredBranch"><span class="hs-identifier hs-type">starredBranch</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#CurrentBranch"><span class="hs-identifier hs-type">CurrentBranch</span></a></span><span>
+</span><span id="line-41"></span><span id="starredBranch"><span class="annot"><span class="annottext">starredBranch :: Text -&gt; Either CurrentBranch CurrentBranch
+</span><a href="Git.FastForward.Core.Internal.html#starredBranch"><span class="hs-identifier hs-var hs-var">starredBranch</span></a></span></span><span> </span><span id="local-6989586621679071891"><span class="annot"><span class="annottext">b :: Text
+</span><a href="#local-6989586621679071891"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; [Text]
+</span><span class="hs-identifier hs-var">T.splitOn</span></span><span> </span><span class="annot"><span class="hs-string">&quot;* &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071891"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-43"></span><span>    </span><span class="hs-special">[</span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071889"><span class="annot"><span class="annottext">curr :: Text
+</span><a href="#local-6989586621679071889"><span class="hs-identifier hs-var">curr</span></a></span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; Either CurrentBranch CurrentBranch
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(CurrentBranch -&gt; Either CurrentBranch CurrentBranch)
+-&gt; CurrentBranch -&gt; Either CurrentBranch CurrentBranch
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; CurrentBranch
+</span><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-var">Name</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; CurrentBranch) -&gt; Text -&gt; CurrentBranch
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text
+</span><span class="hs-identifier hs-var">T.strip</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071889"><span class="hs-identifier hs-var">curr</span></a></span><span>
+</span><span id="line-44"></span><span>    </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; Either CurrentBranch CurrentBranch
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">(CurrentBranch -&gt; Either CurrentBranch CurrentBranch)
+-&gt; CurrentBranch -&gt; Either CurrentBranch CurrentBranch
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; CurrentBranch
+</span><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-var">Name</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; CurrentBranch) -&gt; Text -&gt; CurrentBranch
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text
+</span><span class="hs-identifier hs-var">T.strip</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071891"><span class="hs-identifier hs-var">b</span></a></span><span>
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span class="hs-comment">-- | Determines if a branch has already been updated.</span><span>
+</span><span id="line-47"></span><span class="annot"><a href="Git.FastForward.Core.Internal.html#alreadyUpdated"><span class="hs-identifier hs-type">alreadyUpdated</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
+</span><span id="line-48"></span><span id="alreadyUpdated"><span class="annot"><span class="annottext">alreadyUpdated :: Text -&gt; Bool
+</span><a href="Git.FastForward.Core.Internal.html#alreadyUpdated"><span class="hs-identifier hs-var hs-var">alreadyUpdated</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Bool
+</span><span class="hs-identifier hs-var">T.isInfixOf</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Already up-to-date&quot;</span></span><span>
+</span><span id="line-49"></span></pre></body></html>
