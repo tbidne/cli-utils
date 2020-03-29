@@ -41,7 +41,7 @@ instance Arbitrary AlreadyUpdated where
   arbitrary = do
     (PrintableString prefix) <- arbitrary
     (PrintableString suffix) <- arbitrary
-    pure $ AlreadyUpdated $ T.pack $ prefix <> "Already up to date" <> suffix
+    pure $ AlreadyUpdated $ T.pack $ prefix <> "Already up-to-date" <> suffix
 
 newtype NotAlreadyUpdated = NotAlreadyUpdated T.Text
   deriving (Show)

@@ -36,4 +36,4 @@ starredBranch b =
     _ -> Left $ Name $ T.strip b
 
 alreadyUpdated :: T.Text -> Bool
-alreadyUpdated = T.isInfixOf "Already up to date"
+alreadyUpdated = T.isInfixOf "Already up-to-date"
