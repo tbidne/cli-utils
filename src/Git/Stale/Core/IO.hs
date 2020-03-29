@@ -5,7 +5,7 @@
 -- Module      : Git.Stale.Core.FindBranches
 -- License     : BSD3
 -- Maintainer  : tbidne@gmail.com
--- Exports functions to be used by "Core.FindBranches" for `IO`.
+-- Exports functions to be used by "Git.Stale.Core.FindBranches" for `IO`.
 module Git.Stale.Core.IO
   ( errTupleToBranch,
     logIfErr,

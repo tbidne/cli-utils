@@ -30,13 +30,12 @@ import Git.Stale.Types.Error
 import Git.Stale.Types.Filtered
 import Git.Stale.Types.ResultsWithErrs
 import Git.Types.GitTypes
-import Git.Types.Handler
 
--- | The 'FindBranches' class is used to describe interacting with a
--- git filesystem.
+-- | The 'FindBranches' class is used to describe various git
+-- actions for finding stale branches.
 class Monad m => FindBranches m where
   -- | Adds custom handling to returned data (e.g. for error handling).
-  -- type Handler m a :: K.Type
+  type Handler (m :: K.Type -> K.Type) (a :: K.Type)
 
   -- | The type returned by `collectResults`.
   type FinalResults m :: K.Type
@@ -56,8 +55,6 @@ class Monad m => FindBranches m where
   -- | Displays results.
   display :: FinalResults m -> m ()
 
-type instance Handler (AppT Env m) a = ErrOr a
-
 -- | `FindBranches` instance for (`AppT` m) over `R.MonadIO`. This means we can
 -- encounter exceptions, but
 --
@@ -65,10 +62,13 @@ type instance Handler (AppT Env m) a = ErrOr a
 --     the entire program.
 --   * We do not want to ignore problems entirely.
 --
--- We opt to define `Handler` as (`ErrOr` a), which is an alias for (`Either` `Err` a).
 -- We collect the results in `ResultsWithErrs`, which contains a list of errors
--- and two maps, one for merged branches and another for unmerged branches.
+-- and two maps, one for merged branches and another for unmerged branches. 
+-- We opt to define `Handler` as (`ErrOr` a) -- an alias for
+-- (`Either` `Err` a) -- as we do not want a single error to crash the app.
 instance R.MonadIO m => FindBranches (AppT Env m) where
+  type Handler (AppT Env m) a = ErrOr a
+
   type FinalResults (AppT Env m) = ResultsWithErrs
 
   branchNamesByGrep :: (AppT Env m) [ErrOr Name]

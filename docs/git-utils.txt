@@ -5,14 +5,129 @@
 -- | Please see the README on GitHub at
 --   <a>https://github.com/tbidne/git-utils#readme</a>
 @package git-utils
-@version 1.0.0
+@version 2.0.0
+
+
+-- | Provides the main component used in this application.
+module App
+newtype AppT e m a
+AppT :: ReaderT e m a -> AppT e m a
+[runAppT] :: AppT e m a -> ReaderT e m a
+mapAppT :: (ReaderT e m a -> ReaderT e n b) -> AppT e m a -> AppT e n b
+instance GHC.Base.Functor m => GHC.Base.Functor (App.AppT e m)
+instance GHC.Base.Applicative f => GHC.Base.Applicative (App.AppT e f)
+instance GHC.Base.Monad m => GHC.Base.Monad (App.AppT e m)
+instance Control.Monad.Trans.Class.MonadTrans (App.AppT e)
+instance Control.Monad.IO.Class.MonadIO m => Control.Monad.IO.Class.MonadIO (App.AppT e m)
+instance GHC.Base.Monad m => Control.Monad.Reader.Class.MonadReader e (App.AppT e m)
+
+
+-- | Exports common <a>IO</a> functions.
+module Common.IO
+
+-- | Returns the result of running a shell command given by <a>Text</a> on
+--   <a>FilePath</a>.
+sh :: Text -> Maybe FilePath -> IO Text
+
+-- | Version of <a>sh</a> that ignores the return value.
+sh_ :: Text -> Maybe FilePath -> IO ()
+
+-- | Attempts to return the result of running a shell command given by
+--   <a>Text</a> on <a>FilePath</a>.
+trySh :: Text -> Maybe FilePath -> IO (Either SomeException Text)
+
+-- | Version of <a>trySh</a> that ignores the return value.
+trySh_ :: String -> Text -> Maybe FilePath -> IO ()
+
+
+-- | Exports utility functions
+module Common.Utils
+
+-- | Flipped version of <a>startsWith</a>. Useful with
+--   <tt>ViewPatterns</tt>, e.g.
+--   
+--   <pre>
+--   :set -XViewPatterns
+--   
+--   parseArg :: <a>String</a> -&gt; <a>Either</a> <a>String</a> SomeType
+--   parseArg (matchAndStrip "--val=" -&gt; <a>Just</a> rest) = parseVal rest
+--   parseArg (matchAndStrip "--other=" -&gt; <a>Just</a> rest) = parseOther rest
+--   parseArg _ = <a>Left</a> "did not match!"
+--   </pre>
+matchAndStrip :: Eq a => [a] -> [a] -> Maybe [a]
+
+-- | Determines if the second parameter is a prefix of the first, returns
+--   the rest if so. That is,
+--   
+--   &lt;math&gt;
+--   
+--   Can be called infix, e.g.
+--   
+--   <pre>
+--   "hello world" `<a>startsWith</a>` "hello" --&gt; <a>Just</a> " world"
+--   </pre>
+startsWith :: Eq a => [a] -> [a] -> Maybe [a]
+
+
+-- | Provides functions for parsing <a>String</a> arguments.
+module Common.Parsing
+
+-- | GADT that hides the <tt>a</tt> on <a>Parser</a> <tt>a</tt>
+--   <tt>acc</tt>. This way we can accept a heterogenous [<a>AnyParser</a>
+--   <tt>acc</tt>] so we can try different parsers at once.
+data AnyParser acc
+[AnyParser] :: Parser a acc -> AnyParser acc
+
+-- | Wraps functions that:
+--   
+--   <ol>
+--   <li>Attempts to parse a String into an <tt>a</tt>.</li>
+--   <li>Updates <tt>acc</tt> with <tt>a</tt>.</li>
+--   </ol>
+--   
+--   That is,
+--   
+--   <pre>
+--   parseFn :: <a>String</a> -&gt; <a>Maybe</a> a
+--   updateFn :: acc -&gt; a -&gt; acc
+--   </pre>
+data Parser a acc
+
+-- | Parses an exact argument e.g. "-flag".
+ExactParser :: (String -> Maybe a, acc -> a -> acc) -> Parser a acc
+
+-- | Includes a prefix for parsing e.g. "--arg=val".
+PrefixParser :: (String, String -> Maybe a, acc -> a -> acc) -> Parser a acc
+
+-- | Describes anything other than a successful parse.
+data ParseErr
+
+-- | Indicates that there was an error when trying to parse <a>String</a>.
+Err :: String -> ParseErr
+
+-- | Indicates the argument "--help" was passed.
+Help :: ParseErr
+
+-- | Entrypoint for parsing arguments [<a>String</a>] into <tt>acc</tt>.
+--   Returns
+--   
+--   <pre>
+--   - <a>Left</a> (<a>Err</a> <a>String</a>): <i>some</i> <a>String</a> could not be parsed by <i>any</i> parser.
+--   - <a>Left</a> <a>Help</a>: "--help" was found
+--   - <a>Right</a> <tt>acc</tt>: <i>every</i> <a>String</a> was parsed successfully by <i>some</i> parser.
+--   </pre>
+--   
+--   In symbols, let <i>P</i> = [<a>AnyParser</a> <tt>acc</tt>], <i>S</i> =
+--   [<a>String</a>] and define &lt;math&gt; Then, &lt;math&gt;
+parseAll :: [AnyParser acc] -> [String] -> acc -> Either ParseErr acc
+instance GHC.Base.Semigroup (Common.Parsing.ParseAttempt acc)
 
 
 -- | Provides <a>Err</a> type for describing any errors encountered.
-module Types.Error
+module Git.Stale.Types.Error
 
--- | Wraps <a>Text</a> to describe an error. Git* errors describe errors
---   encountered by the underlying <a>MonadStaleBranches</a> monad. Others
+-- | Wraps <a>Text</a> to describe an error. <tt>Git</tt>* errors describe
+--   errors encountered by the underlying <a>FindBranches</a> monad. Others
 --   describe pure errors encountered during parsing data returned by the
 --   monad.
 data Err
@@ -26,81 +141,24 @@ GitLog :: Text -> Err
 
 -- | Alias for convenience.
 type ErrOr a = Either Err a
-instance GHC.Show.Show Types.Error.Err
+instance GHC.Show.Show Git.Stale.Types.Error.Err
 
 
-module Types.Filtered
+module Git.Stale.Types.Filtered
 
 -- | Intermediate type to ensure <a>getStaleLogs</a> filters stale logs.
 data Filtered a
 
--- | Constructs <a>Filtered</a> <i>a</i> based on filter function.
+-- | Constructs <a>Filtered</a> <tt>a</tt> based on filter function.
 mkFiltered :: (a -> Bool) -> [a] -> Filtered a
 unFiltered :: Filtered a -> [a]
-instance GHC.Show.Show a => GHC.Show.Show (Types.Filtered.Filtered a)
-instance GHC.Base.Functor Types.Filtered.Filtered
-instance GHC.Base.Applicative Types.Filtered.Filtered
-instance GHC.Base.Monad Types.Filtered.Filtered
+instance GHC.Show.Show a => GHC.Show.Show (Git.Stale.Types.Filtered.Filtered a)
+instance GHC.Base.Functor Git.Stale.Types.Filtered.Filtered
+instance GHC.Base.Applicative Git.Stale.Types.Filtered.Filtered
+instance GHC.Base.Monad Git.Stale.Types.Filtered.Filtered
 
 
--- | Provides types to describe data returned by the underlying
---   <a>MonadStaleBranches</a> monad.
-module Types.GitTypes
-
--- | Branch Name.
-newtype Name
-Name :: Text -> Name
-
--- | Branch Author.
-newtype Author
-Author :: Text -> Author
-
--- | Intermediate tuple for (<a>Name</a>, log info).
-type NameLog = (Name, Text)
-
--- | Intermediate tuple for (<a>Name</a>, <a>Author</a>, date string)
-type NameAuthDateStr = (Name, Author, Text)
-
--- | Intermediate tuple for (<a>Name</a>, <a>Author</a>, <a>Day</a>)
-type NameAuthDay = (Name, Author, Day)
-instance GHC.Show.Show Types.GitTypes.Author
-instance GHC.Classes.Ord Types.GitTypes.Author
-instance GHC.Classes.Eq Types.GitTypes.Author
-instance GHC.Show.Show Types.GitTypes.Name
-instance GHC.Classes.Ord Types.GitTypes.Name
-instance GHC.Classes.Eq Types.GitTypes.Name
-
-
--- | Provides types for holding branch information.
-module Types.Branch
-
--- | Hides <a>BranchStatus</a> type parameter, used for processing
---   <a>Branch</a> a in heterogeneous collections.
-data AnyBranch
-[MergedBranch] :: Branch 'Merged -> AnyBranch
-[UnMergedBranch] :: Branch 'UnMerged -> AnyBranch
-
--- | Promoted data type used for adding type-safe merge status to branches.
-data BranchStatus
-[Merged] :: BranchStatus
-[UnMerged] :: BranchStatus
-
--- | Holds branch information with phantom <a>BranchStatus</a>.
-data Branch (a :: BranchStatus)
-[MkBranch] :: Name -> Author -> Day -> Branch a
-
--- | Maps each [<a>Branch</a>] to its <a>Text</a> <a>Name</a> and
---   concatenates results. Attempts to strip out an irrelevant prefix it
---   may have (i.e. <a>remoteName</a>).
-branchesToName :: Text -> [Branch a] -> Text
-
--- | Constructs an <a>AnyBranch</a> wrapper around a <a>Branch</a> a where
---   a is <a>Merged</a> if passed <a>True</a>, <a>UnMerged</a> otherwise.
-mkAnyBranch :: Name -> Author -> Day -> Bool -> AnyBranch
-instance GHC.Show.Show Types.Branch.AnyBranch
-instance GHC.Show.Show (Types.Branch.Branch a)
-
-module Types.Nat
+module Git.Stale.Types.Nat
 
 -- | Represents a non-negative <a>Integer</a>.
 data Nat
@@ -108,12 +166,12 @@ data Nat
 -- | Constructs <a>Maybe</a> <a>Nat</a> as &lt;math&gt;
 mkNat :: Integer -> Maybe Nat
 unNat :: Nat -> Integer
-instance GHC.Show.Show Types.Nat.Nat
-instance GHC.Classes.Eq Types.Nat.Nat
+instance GHC.Show.Show Git.Stale.Types.Nat.Nat
+instance GHC.Classes.Eq Git.Stale.Types.Nat.Nat
 
 
 -- | Provides <a>Env</a> type.
-module Types.Env
+module Git.Stale.Types.Env
 
 -- | Describes the branch type.
 data BranchType
@@ -149,28 +207,15 @@ Env :: Maybe Text -> Maybe FilePath -> Nat -> BranchType -> Text -> Text -> Day 
 [today] :: Env -> Day
 
 -- | Maps a <a>BranchType</a> to a <a>String</a> flag to be used in
---   <a>Core.MonadStaleBranches</a>' <a>branchNamesByGrep</a> command.
+--   <a>Core.FindBranches</a>' <a>branchNamesByGrep</a> command.
 branchTypeToArg :: BranchType -> String
-instance GHC.Show.Show Types.Env.Env
-instance GHC.Show.Show Types.Env.BranchType
-instance GHC.Classes.Eq Types.Env.BranchType
+instance GHC.Show.Show Git.Stale.Types.Env.Env
+instance GHC.Show.Show Git.Stale.Types.Env.BranchType
+instance GHC.Classes.Eq Git.Stale.Types.Env.BranchType
 
 
--- | Provides the main component used in this application.
-module App
-newtype AppT m a
-AppT :: ReaderT Env m a -> AppT m a
-[runAppT] :: AppT m a -> ReaderT Env m a
-instance GHC.Base.Functor m => GHC.Base.Functor (App.AppT m)
-instance GHC.Base.Applicative f => GHC.Base.Applicative (App.AppT f)
-instance GHC.Base.Monad m => GHC.Base.Monad (App.AppT m)
-instance Control.Monad.Trans.Class.MonadTrans App.AppT
-instance Control.Monad.IO.Class.MonadIO m => Control.Monad.IO.Class.MonadIO (App.AppT m)
-instance GHC.Base.Monad m => Control.Monad.Reader.Class.MonadReader Types.Env.Env (App.AppT m)
-
-
--- | Handles parsing of String args into Env.
-module Parsing.Core
+-- | Handles parsing of String args into <a>Env</a>.
+module Git.Stale.Parsing
 
 -- | Maps <a>Day</a> and parsed [<a>String</a>] args into <a>Right</a>
 --   <a>Env</a>, returning any errors as <a>Left</a> <a>String</a>. All
@@ -179,39 +224,153 @@ module Parsing.Core
 --   arguments are:
 --   
 --   <pre>
---   --grep=&lt;string&gt;
---       Used for filtering on branch names. Any <a>String</a> is fine, including
---       the empty string (i.e. --grep=). Defaults to the empty string.
+--    --grep=&lt;string&gt;
+--        Used for filtering on branch names. Any <a>String</a> is fine,
+--        defaults to the empty string.
 --   
---   --path=&lt;string&gt;
---       Path to the git directory. Any <a>String</a> is fine, including the empty
---       string (i.e. --path=). Defaults to /share.
+--    --path=&lt;string&gt;
+--        Path to the git directory. Any <a>String</a> is fine, defaults
+--        to the empty string (current directory).
 --   
---   --limit=&lt;days&gt;
---       Determines if a branch should be considered stale. Must be a
---       non-negative integer. Defaults to 30.
+--    --limit=&lt;days&gt;
+--        Determines if a branch should be considered stale. Must be a
+--        non-negative integer. Defaults to 30.
 --   
---   --branchType=&lt;a[ll]|r[emote]|l[ocal]&gt;
---       Determines which branches we should search. Must be one of
---       [a, all, r, remote, l, local]. Defaults to remote.
+--    -a, --branch-type=all
+--        Searches local and remote branches.
 --   
---   --remote=&lt;string&gt;
---       Name of the remote, used for stripping out the the remote name for
---       display purposes. Any <a>String</a> is fine, including the empty string
---       (i.e. --remote=). Defaults to origin.
+--    -r, --branch-type=remote
+--        Searches remote branches only. This is the default.
 --   
---   --master=&lt;string&gt;
---       Name of the branch to consider merges against. Any <a>String</a> is fine,
---       including the empty string (i.e. --master=). Defaults to origin/master.
+--    -l, --branch-type=local
+--        Searches local branches only.
+--   
+--    --remote=&lt;string&gt;
+--        Name of the remote, used for stripping out the the remote name for
+--        display purposes. Any <a>String</a> is fine, including the empty string.
+--        Defaults to origin/.
+--   
+--    --master=&lt;string&gt;
+--        Name of the branch to consider merges against. Any <a>String</a> is fine,
+--        including the empty string. Defaults to origin/master.
+--   
+--   -h, --help
+--        Returns instructions as <a>Left</a> <a>String</a>.
 --   </pre>
 parseArgs :: Day -> [String] -> Either String Env
-instance GHC.Show.Show Parsing.Core.ArgHolder
-instance GHC.Classes.Eq Parsing.Core.ArgHolder
+
+
+-- | Provides types to describe data returned by the Git actions
+module Git.Types.GitTypes
+
+-- | Branch Name.
+newtype Name
+Name :: Text -> Name
+
+-- | Branch Author.
+newtype Author
+Author :: Text -> Author
+
+-- | Intermediate tuple for (<a>Name</a>, log info).
+type NameLog = (Name, Text)
+
+-- | Intermediate tuple for (<a>Name</a>, <a>Author</a>, date string)
+type NameAuthDateStr = (Name, Author, Text)
+
+-- | Intermediate tuple for (<a>Name</a>, <a>Author</a>, <a>Day</a>)
+type NameAuthDay = (Name, Author, Day)
+instance GHC.Show.Show Git.Types.GitTypes.Author
+instance GHC.Classes.Ord Git.Types.GitTypes.Author
+instance GHC.Classes.Eq Git.Types.GitTypes.Author
+instance GHC.Show.Show Git.Types.GitTypes.Name
+instance GHC.Classes.Ord Git.Types.GitTypes.Name
+instance GHC.Classes.Eq Git.Types.GitTypes.Name
+
+
+-- | Provides types for holding branch information.
+module Git.Stale.Types.Branch
+
+-- | Hides <a>BranchStatus</a> type parameter, used for processing
+--   <a>Branch</a> <tt>a</tt> in heterogeneous collections.
+data AnyBranch
+[MergedBranch] :: Branch 'Merged -> AnyBranch
+[UnMergedBranch] :: Branch 'UnMerged -> AnyBranch
+
+-- | Promoted data type used for adding type-safe merge status to branches.
+data BranchStatus
+[Merged] :: BranchStatus
+[UnMerged] :: BranchStatus
+
+-- | Holds branch information with phantom <a>BranchStatus</a>.
+data Branch (a :: BranchStatus)
+[MkBranch] :: Name -> Author -> Day -> Branch a
+
+-- | Maps each [<a>Branch</a> <tt>a</tt>] to its <a>Text</a> <a>Name</a>
+--   and concatenates results. Attempts to strip out an irrelevant prefix
+--   it may have (i.e. <a>remoteName</a>).
+branchesToName :: Text -> [Branch a] -> Text
+
+-- | Constructs an <a>AnyBranch</a> wrapper around a <a>Branch</a>
+--   <tt>a</tt> where a is <a>Merged</a> if passed <a>True</a>,
+--   <a>UnMerged</a> otherwise.
+mkAnyBranch :: Name -> Author -> Day -> Bool -> AnyBranch
+instance GHC.Show.Show Git.Stale.Types.Branch.AnyBranch
+instance GHC.Show.Show (Git.Stale.Types.Branch.Branch a)
+
+
+-- | Provides a <a>Results</a> type that wraps two maps, one for merged
+--   branches and one for unmerged.
+module Git.Stale.Types.Results
+
+-- | Wrapper for holding <a>Map</a> <a>Author</a> [<a>Branch</a> a] data.
+data Results
+Results :: BranchMap 'Merged -> BranchMap 'UnMerged -> Results
+
+-- | <a>Map</a> <a>Author</a> [<a>Branch</a> <a>Merged</a>]
+[mergedMap] :: Results -> BranchMap 'Merged
+
+-- | <a>Map</a> <a>Author</a> [<a>Branch</a> <a>UnMerged</a>]
+[unMergedMap] :: Results -> BranchMap 'UnMerged
+
+-- | Displays <a>Results</a>. Differs from <a>Show</a> in that it is
+--   formatted differently and strips the <a>Text</a> <i>prefix</i> from
+--   the branch names.
+displayResults :: Text -> Results -> Text
+
+-- | Maps [<a>AnyBranch</a>] to <a>Results</a>. Pattern matches on
+--   <a>AnyBranch</a> to reveal the underlying <a>BranchStatus</a>,
+--   ensuring merged and unmerged branches are organized separately.
+toResults :: [AnyBranch] -> Results
+instance GHC.Show.Show Git.Stale.Types.Results.Results
+
+
+-- | Provides a <a>ResultsWithErrs</a> type that wraps <a>Results</a> along
+--   with a list of errors.
+module Git.Stale.Types.ResultsWithErrs
+
+-- | Wraps <a>Results</a> and includes [<a>Err</a>].
+data ResultsWithErrs
+ResultsWithErrs :: [Err] -> Results -> ResultsWithErrs
+
+-- | All errors encountered.
+[errList] :: ResultsWithErrs -> [Err]
+
+-- | The <a>Results</a>.
+[results] :: ResultsWithErrs -> Results
+
+-- | Displays <a>ResultsWithErrs</a>. Differs from <a>Show</a> in that it
+--   is formatted differently and strips the <a>Text</a> <i>prefix</i> from
+--   the branch names.
+displayResultsWithErrs :: Text -> ResultsWithErrs -> Text
+
+-- | Maps [<a>ErrOr</a> <a>AnyBranch</a>] to <a>ResultsWithErrs</a>.
+toResultsWithErrs :: [ErrOr AnyBranch] -> ResultsWithErrs
+instance GHC.Show.Show Git.Stale.Types.ResultsWithErrs.ResultsWithErrs
 
 
 -- | Exports utility functions mainly for parsing/transforming between
 --   types/errors.
-module Core.Internal
+module Git.Stale.Core.Internal
 
 -- | Tests for bad branches based on presence of <i>*</i> and <i>&gt;</i>.
 badBranch :: Text -> Bool
@@ -237,7 +396,7 @@ safeRead :: Text -> ErrOr Int
 -- | Determines if <a>NameAuthDay</a> is stale given by
 --   
 --   <pre>
---   stale lim day (_, _, d) &lt;=&gt; day - d &gt; lim
+--   stale lim day (_, _, d) &lt;=&gt; day - d &gt;= lim
 --   </pre>
 stale :: Nat -> Day -> NameAuthDay -> Bool
 
@@ -264,9 +423,9 @@ textToName :: Text -> ErrOr Name
 unsafeToInt :: Text -> Int
 
 
--- | Exports functions to be used by <a>Core.MonadStaleBranches</a> for
+-- | Exports functions to be used by <a>Git.Stale.Core.FindBranches</a> for
 --   <a>IO</a>.
-module Core.IO
+module Git.Stale.Core.IO
 
 -- | Maps a <a>NameAuthDay</a> on <a>FilePath</a> to <a>AnyBranch</a>.
 --   Returns <a>Left</a> <a>Err</a> if any errors occur, <a>Right</a>
@@ -281,91 +440,216 @@ logIfErr :: forall a. IO a -> IO a
 --   <a>Right</a> <a>NameAuthDay</a> otherwise.
 nameToLog :: Maybe FilePath -> ErrOr Name -> IO (ErrOr NameAuthDay)
 
--- | Runs a shell command given by <a>Text</a> on <a>FilePath</a>.
+-- | Returns the result of running a shell command given by <a>Text</a> on
+--   <a>FilePath</a>.
 sh :: Text -> Maybe FilePath -> IO Text
 
 
--- | Provides a <a>Results</a> type that wraps two maps, one for merged
---   branches and one for unmerged.
-module Types.Results
+-- | The FindBranches class.
+module Git.Stale.Core.FindBranches
 
--- | Wrapper for holding <a>Map</a> <a>Author</a> [<a>Branch</a> a] data.
-data Results
-Results :: BranchMap 'Merged -> BranchMap 'UnMerged -> Results
-
--- | <a>Map</a> <a>Author</a> [<a>Branch</a> <a>Merged</a>]
-[mergedMap] :: Results -> BranchMap 'Merged
-
--- | <a>Map</a> <a>Author</a> [<a>Branch</a> <a>UnMerged</a>]
-[unMergedMap] :: Results -> BranchMap 'UnMerged
-
--- | Displays <a>Results</a>. Differs from <a>Show</a> in that it is
---   formatted differently and strips the <a>Text</a> <i>prefix</i> from
---   the branch names.
-displayResults :: Text -> Results -> Text
-
--- | Maps [<a>AnyBranch</a>] to <a>Results</a>. Pattern matches on
---   <a>AnyBranch</a> to reveal the underlying <a>BranchStatus</a>,
---   ensuring merged and unmerged branches are organized separately.
-toResults :: [AnyBranch] -> Results
-instance GHC.Show.Show Types.Results.Results
-
-
--- | Provides a <a>ResultsWithErrs</a> type that wraps <a>Results</a> along
---   with a list of errors.
-module Types.ResultsWithErrs
-
--- | Wraps <a>Results</a> and includes [<a>Err</a>].
-data ResultsWithErrs
-ResultsWithErrs :: [Err] -> Results -> ResultsWithErrs
-
--- | All errors encountered.
-[errList] :: ResultsWithErrs -> [Err]
-
--- | The <a>Results</a>.
-[results] :: ResultsWithErrs -> Results
-
--- | Displays <a>ResultsWithErrs</a>. Differs from <a>Show</a> in that it
---   is formatted differently and strips the <a>Text</a> <i>prefix</i> from
---   the branch names.
-displayResultsWithErrs :: Text -> ResultsWithErrs -> Text
-
--- | Maps [<a>ErrOr</a> <a>AnyBranch</a>] to <a>ResultsWithErrs</a>.
-toResultsWithErrs :: [ErrOr AnyBranch] -> ResultsWithErrs
-instance GHC.Show.Show Types.ResultsWithErrs.ResultsWithErrs
-
-
--- | The MonadStaleBranches class.
-module Core.MonadStaleBranches
-
--- | The <a>MonadStaleBranches</a> class is used to describe interacting
---   with a git filesystem.
-class Monad m => MonadStaleBranches m where {
+-- | The <a>FindBranches</a> class is used to describe various git actions
+--   for finding stale branches.
+class Monad m => FindBranches m where {
     
     -- | Adds custom handling to returned data (e.g. for error handling).
-    type family Handler m a :: Type;
+    type family Handler (m :: Type -> Type) (a :: Type);
     
     -- | The type returned by <a>collectResults</a>.
     type family FinalResults m :: Type;
 }
 
 -- | Returns a [<a>Name</a>] representing git branches.
-branchNamesByGrep :: MonadStaleBranches m => m [Handler m Name]
+branchNamesByGrep :: FindBranches m => m [Handler m Name]
 
 -- | Maps [<a>Name</a>] to [<a>NameAuthDay</a>], filtering out non-stale
 --   branches.
-getStaleLogs :: MonadStaleBranches m => [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
+getStaleLogs :: FindBranches m => [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
 
 -- | Maps [<a>NameAuthDay</a>] to [<a>AnyBranch</a>].
-toBranches :: MonadStaleBranches m => Filtered (Handler m NameAuthDay) -> m [Handler m AnyBranch]
+toBranches :: FindBranches m => Filtered (Handler m NameAuthDay) -> m [Handler m AnyBranch]
 
 -- | Collects [<a>AnyBranch</a>] into <a>FinalResults</a>.
-collectResults :: MonadStaleBranches m => [Handler m AnyBranch] -> m (FinalResults m)
+collectResults :: FindBranches m => [Handler m AnyBranch] -> m (FinalResults m)
 
 -- | Displays results.
-display :: MonadStaleBranches m => FinalResults m -> m ()
+display :: FindBranches m => FinalResults m -> m ()
 
--- | High level logic of <a>MonadStaleBranches</a> usage. This function is
---   the entrypoint for any <a>MonadStaleBranches</a> instance.
-runGitUtils :: MonadStaleBranches m => m ()
-instance Control.Monad.IO.Class.MonadIO m => Core.MonadStaleBranches.MonadStaleBranches (App.AppT m)
+-- | High level logic of <a>FindBranches</a> usage. This function is the
+--   entrypoint for any <a>FindBranches</a> instance.
+runFindBranches :: FindBranches m => m ()
+instance Control.Monad.IO.Class.MonadIO m => Git.Stale.Core.FindBranches.FindBranches (App.AppT Git.Stale.Types.Env.Env m)
+
+
+-- | Provides functions and types for descrbing the result of an update
+--   attempt.
+module Git.FastForward.Types.UpdateResult
+
+-- | Groups the <a>String</a> <a>Name</a> of all results by
+--   <a>UpdateResult</a>.
+data SplitResults
+SplitResults :: [String] -> [String] -> [String] -> SplitResults
+[failures] :: SplitResults -> [String]
+[noChanges] :: SplitResults -> [String]
+[successes] :: SplitResults -> [String]
+
+-- | Describes the result of an attempt to update a branch.
+data UpdateResult
+
+-- | Indicates updating <a>Name</a> failed.
+Failure :: Name -> UpdateResult
+
+-- | Indicates updating <a>Name</a> resulted in no change.
+NoChange :: Name -> UpdateResult
+
+-- | Indicates updating <a>Name</a> succeeded.
+Success :: Name -> UpdateResult
+
+-- | Summarizes [<a>UpdateResult</a>] as a display <a>String</a>.
+displayResults :: [UpdateResult] -> String
+
+-- | Maps [<a>UpdateResult</a>] to intermediate <a>SplitResults</a>.
+splitResults :: [UpdateResult] -> SplitResults
+instance GHC.Show.Show Git.FastForward.Types.UpdateResult.SplitResults
+instance GHC.Show.Show Git.FastForward.Types.UpdateResult.UpdateResult
+
+
+-- | Provides <a>MergeType</a>.
+module Git.FastForward.Types.MergeType
+
+-- | Describes the type of merge we're going to perform.
+data MergeType
+
+-- | Merges upstream via @{u}.
+Upstream :: MergeType
+
+-- | Merges origin/master.
+Master :: MergeType
+
+-- | Merges <a>Name</a>.
+Other :: Name -> MergeType
+instance GHC.Show.Show Git.FastForward.Types.MergeType.MergeType
+instance GHC.Classes.Eq Git.FastForward.Types.MergeType.MergeType
+
+
+-- | Provides <a>Env</a> type.
+module Git.FastForward.Types.Env
+
+-- | The Env type to be used with Reader.
+data Env
+Env :: Maybe FilePath -> MergeType -> Env
+
+-- | The path of the git directory. <a>Just</a> <i>s</i> if non-empty,
+--   <a>Nothing</a> otherwise.
+[path] :: Env -> Maybe FilePath
+
+-- | The type of merge to perform.
+[mergeType] :: Env -> MergeType
+instance GHC.Show.Show Git.FastForward.Types.Env.Env
+
+
+-- | Provides <a>LocalBranches</a> type.
+module Git.FastForward.Types.LocalBranches
+
+-- | Alias for <a>Name</a>.
+type CurrentBranch = Name
+
+-- | Describes the local branches in a <tt>git</tt> directory.
+data LocalBranches
+LocalBranches :: CurrentBranch -> [Name] -> LocalBranches
+
+-- | The current branch, saved so that we can check it out after we are
+--   done updating all branches.
+[current] :: LocalBranches -> CurrentBranch
+
+-- | List of all branches.
+[branches] :: LocalBranches -> [Name]
+instance GHC.Show.Show Git.FastForward.Types.LocalBranches.LocalBranches
+
+
+-- | Handles parsing of <a>String</a> args into <a>Env</a>.
+module Git.FastForward.Parsing
+
+-- | Maps parsed [<a>String</a>] args into <a>Right</a> <a>Env</a>,
+--   returning any errors as <a>Left</a> <a>String</a>. All arguments are
+--   optional (i.e. an empty list is valid), but if any are provided then
+--   they must be valid or an error will be returned. Valid arguments are:
+--   
+--   <pre>
+--   --path=&lt;string&gt;
+--       Path to the git directory. Any <a>String</a> is fine, defaults
+--       to the empty string (current directory).
+--   
+--   -u, --merge-type=upstream
+--       Merges upstream via @{u} into each local branch. This is the default.
+--   
+--   -m, --branch-type=master
+--       Merges origin/master into each local branch.
+--   
+--   --branch-type=&lt;other&gt;
+--       Merges &lt;other&gt; into each local branch.
+--   
+--   -h, --help
+--       Returns instructions as <a>Left</a> <a>String</a>.
+--   </pre>
+parseArgs :: [String] -> Either String Env
+
+
+-- | Exports utility functions.
+module Git.FastForward.Core.Internal
+
+-- | Determines if a branch has already been updated.
+alreadyUpdated :: Text -> Bool
+
+-- | Maps <a>Text</a> to <a>Just</a> <a>LocalBranches</a> if we find a
+--   current branch and all branch names are otherwise parsed successfully.
+--   Returns <a>Nothing</a> otherwise.
+textToLocalBranches :: Text -> Maybe LocalBranches
+
+
+-- | Exports functions to be used by
+--   <a>Git.FastForward.Core.UpdateBranches</a> for <a>IO</a>.
+module Git.FastForward.Core.IO
+
+-- | Checks out the <a>CurrentBranch</a> on <a>Maybe</a> <a>FilePath</a>.
+checkoutCurrentIO :: CurrentBranch -> Maybe FilePath -> IO ()
+
+-- | Performs a <tt>git</tt> <tt>fetch</tt>.
+fetchIO :: Maybe FilePath -> IO ()
+
+-- | Gets all local branches.
+getBranchesIO :: Maybe FilePath -> IO LocalBranches
+
+-- | Prints a summary of all update results.
+summarizeIO :: [UpdateResult] -> IO ()
+
+-- | Updates branch <a>Name</a> according to the <a>MergeType</a>.
+updateBranchIO :: MergeType -> Name -> Maybe FilePath -> IO UpdateResult
+
+
+-- | The UpdateBranches class.
+module Git.FastForward.Core.UpdateBranches
+
+-- | The <a>UpdateBranches</a> class is used to describe updating branches
+--   on a git filesystem.
+class Monad m => UpdateBranches m
+
+-- | Performs <a>fetch</a>.
+fetch :: UpdateBranches m => m ()
+
+-- | Retrieves all local branches.
+getBranches :: UpdateBranches m => m LocalBranches
+
+-- | Updates a branch by <a>Name</a>, returns the result.
+updateBranch :: UpdateBranches m => Name -> m UpdateResult
+
+-- | Summarizes all results.
+summarize :: UpdateBranches m => [UpdateResult] -> m ()
+
+-- | Checks out the passed <a>CurrentBranch</a>.
+checkoutCurrent :: UpdateBranches m => CurrentBranch -> m ()
+
+-- | High level logic of <a>UpdateBranches</a> usage. This function is the
+--   entrypoint for any <a>UpdateBranches</a> instance.
+runUpdateBranches :: UpdateBranches m => m ()
+instance Control.Monad.IO.Class.MonadIO m => Git.FastForward.Core.UpdateBranches.UpdateBranches (App.AppT Git.FastForward.Types.Env.Env m)

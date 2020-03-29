@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE NamedFieldPuns #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Module      : Git.FastForward.Types.UpdateResult</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- Provides functions and types for descrbing the result of an</span><span>
+</span><span id="line-8"></span><span class="hs-comment">-- update attempt.</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Git.FastForward.Types.UpdateResult</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier">SplitResults</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#UpdateResult"><span class="hs-identifier">UpdateResult</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#displayResults"><span class="hs-identifier">displayResults</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#splitResults"><span class="hs-identifier">splitResults</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Foldable</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">F</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html"><span class="hs-identifier">Git.Types.GitTypes</span></a></span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- | Describes the result of an attempt to update a branch.</span><span>
+</span><span id="line-22"></span><span class="hs-keyword">data</span><span> </span><span id="UpdateResult"><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#UpdateResult"><span class="hs-identifier hs-var">UpdateResult</span></a></span></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-comment">-- | Indicates updating 'Name' failed.</span><span>
+</span><span id="line-24"></span><span>    </span><span id="Failure"><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#Failure"><span class="hs-identifier hs-var">Failure</span></a></span></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="hs-comment">-- | Indicates updating 'Name' resulted in no change.</span><span>
+</span><span id="line-26"></span><span>    </span><span id="NoChange"><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#NoChange"><span class="hs-identifier hs-var">NoChange</span></a></span></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="hs-comment">-- | Indicates updating 'Name' succeeded.</span><span>
+</span><span id="line-28"></span><span>    </span><span id="Success"><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#Success"><span class="hs-identifier hs-var">Success</span></a></span></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679071742"><span id="local-6989586621679071744"><span id="local-6989586621679071746"><span class="annot"><span class="annottext">Int -&gt; UpdateResult -&gt; ShowS
+[UpdateResult] -&gt; ShowS
+UpdateResult -&gt; String
+(Int -&gt; UpdateResult -&gt; ShowS)
+-&gt; (UpdateResult -&gt; String)
+-&gt; ([UpdateResult] -&gt; ShowS)
+-&gt; Show UpdateResult
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [UpdateResult] -&gt; ShowS
+$cshowList :: [UpdateResult] -&gt; ShowS
+show :: UpdateResult -&gt; String
+$cshow :: UpdateResult -&gt; String
+showsPrec :: Int -&gt; UpdateResult -&gt; ShowS
+$cshowsPrec :: Int -&gt; UpdateResult -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- | Groups the 'String' 'Name' of all results by 'UpdateResult'.</span><span>
+</span><span id="line-32"></span><span class="hs-keyword">data</span><span> </span><span id="SplitResults"><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier hs-var">SplitResults</span></a></span></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="SplitResults"><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier hs-var">SplitResults</span></a></span></span><span>
+</span><span id="line-34"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="failures"><span class="annot"><span class="annottext">SplitResults -&gt; [String]
+</span><a href="Git.FastForward.Types.UpdateResult.html#failures"><span class="hs-identifier hs-var hs-var">failures</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-35"></span><span>        </span><span id="noChanges"><span class="annot"><span class="annottext">SplitResults -&gt; [String]
+</span><a href="Git.FastForward.Types.UpdateResult.html#noChanges"><span class="hs-identifier hs-var hs-var">noChanges</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-36"></span><span>        </span><span id="successes"><span class="annot"><span class="annottext">SplitResults -&gt; [String]
+</span><a href="Git.FastForward.Types.UpdateResult.html#successes"><span class="hs-identifier hs-var hs-var">successes</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span>
+</span><span id="line-37"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679071731"><span id="local-6989586621679071733"><span id="local-6989586621679071735"><span class="annot"><span class="annottext">Int -&gt; SplitResults -&gt; ShowS
+[SplitResults] -&gt; ShowS
+SplitResults -&gt; String
+(Int -&gt; SplitResults -&gt; ShowS)
+-&gt; (SplitResults -&gt; String)
+-&gt; ([SplitResults] -&gt; ShowS)
+-&gt; Show SplitResults
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [SplitResults] -&gt; ShowS
+$cshowList :: [SplitResults] -&gt; ShowS
+show :: SplitResults -&gt; String
+$cshow :: SplitResults -&gt; String
+showsPrec :: Int -&gt; SplitResults -&gt; ShowS
+$cshowsPrec :: Int -&gt; SplitResults -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span>
+</span><span id="line-40"></span><span class="hs-comment">-- | Summarizes ['UpdateResult'] as a display 'String'.</span><span>
+</span><span id="line-41"></span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#displayResults"><span class="hs-identifier hs-type">displayResults</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#UpdateResult"><span class="hs-identifier hs-type">UpdateResult</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-42"></span><span id="displayResults"><span class="annot"><span class="annottext">displayResults :: [UpdateResult] -&gt; String
+</span><a href="Git.FastForward.Types.UpdateResult.html#displayResults"><span class="hs-identifier hs-var hs-var">displayResults</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SplitResults -&gt; String
+</span><a href="#local-6989586621679071730"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">(SplitResults -&gt; String)
+-&gt; ([UpdateResult] -&gt; SplitResults) -&gt; [UpdateResult] -&gt; String
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">[UpdateResult] -&gt; SplitResults
+</span><a href="Git.FastForward.Types.UpdateResult.html#splitResults"><span class="hs-identifier hs-var">splitResults</span></a></span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-44"></span><span>    </span><span id="local-6989586621679071730"><span class="annot"><span class="annottext">f :: SplitResults -&gt; String
+</span><a href="#local-6989586621679071730"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier hs-type">SplitResults</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679071728"><span class="annot"><span class="annottext">[String]
+failures :: [String]
+failures :: SplitResults -&gt; [String]
+</span><a href="#local-6989586621679071728"><span class="hs-identifier hs-var hs-var">failures</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071727"><span class="annot"><span class="annottext">[String]
+noChanges :: [String]
+noChanges :: SplitResults -&gt; [String]
+</span><a href="#local-6989586621679071727"><span class="hs-identifier hs-var hs-var">noChanges</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071726"><span class="annot"><span class="annottext">[String]
+successes :: [String]
+successes :: SplitResults -&gt; [String]
+</span><a href="#local-6989586621679071726"><span class="hs-identifier hs-var hs-var">successes</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-45"></span><span>      </span><span class="annot"><span class="hs-string">&quot;\nSUMMARY&quot;</span></span><span>
+</span><span id="line-46"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\n-------&quot;</span></span><span>
+</span><span id="line-47"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\nSuccesses: &quot;</span></span><span>
+</span><span id="line-48"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071726"><span class="hs-identifier hs-var">successes</span></a></span><span>
+</span><span id="line-49"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\nNo Changes: &quot;</span></span><span>
+</span><span id="line-50"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071727"><span class="hs-identifier hs-var">noChanges</span></a></span><span>
+</span><span id="line-51"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\nFailures: &quot;</span></span><span>
+</span><span id="line-52"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071728"><span class="hs-identifier hs-var">failures</span></a></span><span>
+</span><span id="line-53"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\n&quot;</span></span><span>
+</span><span id="line-54"></span><span>
+</span><span id="line-55"></span><span class="hs-comment">-- | Maps ['UpdateResult'] to intermediate 'SplitResults'.</span><span>
+</span><span id="line-56"></span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#splitResults"><span class="hs-identifier hs-type">splitResults</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#UpdateResult"><span class="hs-identifier hs-type">UpdateResult</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier hs-type">SplitResults</span></a></span><span>
+</span><span id="line-57"></span><span id="splitResults"><span class="annot"><span class="annottext">splitResults :: [UpdateResult] -&gt; SplitResults
+</span><a href="Git.FastForward.Types.UpdateResult.html#splitResults"><span class="hs-identifier hs-var hs-var">splitResults</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(SplitResults -&gt; UpdateResult -&gt; SplitResults)
+-&gt; SplitResults -&gt; [UpdateResult] -&gt; SplitResults
+forall (t :: * -&gt; *) b a.
+Foldable t =&gt;
+(b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span><span class="hs-identifier hs-var">F.foldl'</span></span><span> </span><span class="annot"><span class="annottext">SplitResults -&gt; UpdateResult -&gt; SplitResults
+</span><a href="#local-6989586621679071723"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[String] -&gt; [String] -&gt; [String] -&gt; SplitResults
+</span><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier hs-var">SplitResults</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-59"></span><span>    </span><span id="local-6989586621679071723"><span class="annot"><span class="annottext">f :: SplitResults -&gt; UpdateResult -&gt; SplitResults
+</span><a href="#local-6989586621679071723"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier hs-type">SplitResults</span></a></span><span> </span><span id="local-6989586621679071722"><span class="annot"><span class="annottext">fs :: [String]
+</span><a href="#local-6989586621679071722"><span class="hs-identifier hs-var">fs</span></a></span></span><span> </span><span id="local-6989586621679071721"><span class="annot"><span class="annottext">ns :: [String]
+</span><a href="#local-6989586621679071721"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span id="local-6989586621679071720"><span class="annot"><span class="annottext">ss :: [String]
+</span><a href="#local-6989586621679071720"><span class="hs-identifier hs-var">ss</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#Failure"><span class="hs-identifier hs-type">Failure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679071718"><span class="annot"><span class="annottext">x :: Text
+</span><a href="#local-6989586621679071718"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[String] -&gt; [String] -&gt; [String] -&gt; SplitResults
+</span><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier hs-var">SplitResults</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; String
+</span><span class="hs-identifier hs-var">T.unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071718"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; [String]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071722"><span class="hs-identifier hs-var">fs</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071721"><span class="hs-identifier hs-var">ns</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071720"><span class="hs-identifier hs-var">ss</span></a></span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><a href="#local-6989586621679071723"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier hs-type">SplitResults</span></a></span><span> </span><span id="local-6989586621679071716"><span class="annot"><span class="annottext">fs :: [String]
+</span><a href="#local-6989586621679071716"><span class="hs-identifier hs-var">fs</span></a></span></span><span> </span><span id="local-6989586621679071715"><span class="annot"><span class="annottext">ns :: [String]
+</span><a href="#local-6989586621679071715"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span id="local-6989586621679071714"><span class="annot"><span class="annottext">ss :: [String]
+</span><a href="#local-6989586621679071714"><span class="hs-identifier hs-var">ss</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#NoChange"><span class="hs-identifier hs-type">NoChange</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679071713"><span class="annot"><span class="annottext">x :: Text
+</span><a href="#local-6989586621679071713"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[String] -&gt; [String] -&gt; [String] -&gt; SplitResults
+</span><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier hs-var">SplitResults</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071716"><span class="hs-identifier hs-var">fs</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; String
+</span><span class="hs-identifier hs-var">T.unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071713"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; [String]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071715"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071714"><span class="hs-identifier hs-var">ss</span></a></span><span>
+</span><span id="line-61"></span><span>    </span><span class="annot"><a href="#local-6989586621679071723"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier hs-type">SplitResults</span></a></span><span> </span><span id="local-6989586621679071712"><span class="annot"><span class="annottext">fs :: [String]
+</span><a href="#local-6989586621679071712"><span class="hs-identifier hs-var">fs</span></a></span></span><span> </span><span id="local-6989586621679071711"><span class="annot"><span class="annottext">ns :: [String]
+</span><a href="#local-6989586621679071711"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span id="local-6989586621679071710"><span class="annot"><span class="annottext">ss :: [String]
+</span><a href="#local-6989586621679071710"><span class="hs-identifier hs-var">ss</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Types.UpdateResult.html#Success"><span class="hs-identifier hs-type">Success</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679071709"><span class="annot"><span class="annottext">x :: Text
+</span><a href="#local-6989586621679071709"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[String] -&gt; [String] -&gt; [String] -&gt; SplitResults
+</span><a href="Git.FastForward.Types.UpdateResult.html#SplitResults"><span class="hs-identifier hs-var">SplitResults</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071712"><span class="hs-identifier hs-var">fs</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071711"><span class="hs-identifier hs-var">ns</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; String
+</span><span class="hs-identifier hs-var">T.unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679071709"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; [String]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071710"><span class="hs-identifier hs-var">ss</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span></pre></body></html>

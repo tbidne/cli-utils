@@ -2,6 +2,11 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
+-- |
+-- Module      : Git.FastForward.Core.UpdateBranches
+-- License     : BSD3
+-- Maintainer  : tbidne@gmail.com
+-- The UpdateBranches class.
 module Git.FastForward.Core.UpdateBranches
   ( UpdateBranches (..),
     runUpdateBranches,
@@ -16,13 +21,29 @@ import Git.FastForward.Types.LocalBranches
 import Git.FastForward.Types.UpdateResult
 import Git.Types.GitTypes
 
+-- | The 'UpdateBranches' class is used to describe updating branches
+-- on a git filesystem.
 class Monad m => UpdateBranches m where
+  -- | Performs 'fetch'.
   fetch :: m ()
+
+  -- | Retrieves all local branches.
   getBranches :: m LocalBranches
+
+  -- | Updates a branch by 'Name', returns the result.
   updateBranch :: Name -> m UpdateResult
+
+  -- | Summarizes all results.
   summarize :: [UpdateResult] -> m ()
+
+  -- | Checks out the passed 'CurrentBranch'.
   checkoutCurrent :: CurrentBranch -> m ()
 
+-- | `UpdateBranches` instance for (`AppT` m) over `R.MonadIO`. In general, we
+-- do not care about error handling /except/ during 'updateBranch'. This is
+-- because a failure during 'updateBranch' is relatively common as we're
+-- being conservative by merging with "--ff-only", and we'd rather log it
+-- and continue trying to update other branches.
 instance R.MonadIO m => UpdateBranches (AppT Env m) where
   fetch :: AppT Env m ()
   fetch = do
@@ -47,6 +68,8 @@ instance R.MonadIO m => UpdateBranches (AppT Env m) where
     Env {path} <- R.ask
     R.liftIO $ checkoutCurrentIO curr path
 
+-- | High level logic of `UpdateBranches` usage. This function is the
+-- entrypoint for any `UpdateBranches` instance.
 runUpdateBranches :: UpdateBranches m => m ()
 runUpdateBranches = do
   fetch

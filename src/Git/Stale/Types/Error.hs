@@ -11,7 +11,7 @@ where
 
 import qualified Data.Text as T
 
--- | Wraps `T.Text` to describe an error. Git* errors describe errors
+-- | Wraps `T.Text` to describe an error. 'Git'* errors describe errors
 -- encountered by the underlying `Core.FindBranches.FindBranches`
 -- monad. Others describe pure errors encountered during parsing data returned
 -- by the monad.

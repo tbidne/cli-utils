@@ -32,7 +32,7 @@ data Branch (a :: BranchStatus) where
   MkBranch :: Name -> Author -> C.Day -> Branch a
   deriving (Show)
 
--- | Maps each [`Branch`] to its `T.Text` `Name` and concatenates results.
+-- | Maps each [`Branch` 'a'] to its `T.Text` `Name` and concatenates results.
 -- Attempts to strip out an irrelevant prefix it may have (i.e. `Types.Env.remoteName`).
 branchesToName :: T.Text -> [Branch a] -> T.Text
 branchesToName prefix branches = "[" <> T.intercalate "," names <> "]"
@@ -50,13 +50,13 @@ branchToName prefix (MkBranch (Name n) _ _) =
         _ -> "Err splitting " <> n <> " on " <> p
 
 -- | Hides `BranchStatus` type parameter, used for processing
--- `Branch` a in heterogeneous collections.
+-- `Branch` 'a' in heterogeneous collections.
 data AnyBranch where
   MergedBranch :: Branch 'Merged -> AnyBranch
   UnMergedBranch :: Branch 'UnMerged -> AnyBranch
   deriving (Show)
 
--- | Constructs an `AnyBranch` wrapper around a `Branch` a
+-- | Constructs an `AnyBranch` wrapper around a `Branch` 'a'
 -- where a is `Merged` if passed `True`, `UnMerged` otherwise.
 mkAnyBranch :: Name -> Author -> C.Day -> Bool -> AnyBranch
 mkAnyBranch n a d b

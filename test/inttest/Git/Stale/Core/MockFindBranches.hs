@@ -14,7 +14,6 @@ import Git.Stale.Types.Branch
 import Git.Stale.Types.Env
 import Git.Stale.Types.Filtered
 import Git.Types.GitTypes
-import Git.Types.Handler
 import Output
 
 newtype MockFindBranchesT m a = MockFindBranchesT {runMockFindBranchesT :: ReaderT Env m a}
@@ -22,9 +21,8 @@ newtype MockFindBranchesT m a = MockFindBranchesT {runMockFindBranchesT :: Reade
 
 type MockFindBranchesOut = MockFindBranchesT Output
 
-type instance Handler MockFindBranchesOut a = a
-
 instance FindBranches MockFindBranchesOut where
+  type Handler MockFindBranchesOut a = a
   type FinalResults MockFindBranchesOut = [AnyBranch]
 
   branchNamesByGrep :: MockFindBranchesOut [Name]

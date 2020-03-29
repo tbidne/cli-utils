@@ -26,6 +26,6 @@ instance Applicative Filtered where
 instance Monad Filtered where
   (Filtered xs) >>= f = Filtered (xs >>= (unFiltered . f))
 
--- | Constructs `Filtered` /a/ based on filter function.
+-- | Constructs `Filtered` 'a' based on filter function.
 mkFiltered :: (a -> Bool) -> [a] -> Filtered a
 mkFiltered f = Filtered . filter f

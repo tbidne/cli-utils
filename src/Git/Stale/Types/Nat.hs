@@ -16,8 +16,8 @@ newtype Nat = Nat {unNat :: Integer}
 -- | Constructs `Maybe` `Nat` as
 --   \[
 --     \mathrm{mkNat}(x) = \begin{cases}
---       \mathrm{Just}\ x, \quad &x >= 0 \\
---       \mathrm{Nothing}, \quad &\mathrm{otherwise}
+--       \mathrm{Just}\ x, &x >= 0 \\
+--       \mathrm{Nothing}, &\mathrm{otherwise}
 --     \end{cases}
 --   \]
 mkNat :: Integer -> Maybe Nat

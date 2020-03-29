@@ -4,7 +4,7 @@
 -- Module      : Git.Stale.Parsing
 -- License     : BSD3
 -- Maintainer  : tbidne@gmail.com
--- Handles parsing of String args into Env.
+-- Handles parsing of String args into 'Env'.
 module Git.Stale.Parsing
   ( parseArgs,
   )
@@ -25,29 +25,37 @@ import qualified Text.Read as R
 --
 -- @
 --   --grep=\<string\>
---       Used for filtering on branch names. Any `String` is fine, including
---       the empty string (i.e. --grep=). Defaults to the empty string.
+--       Used for filtering on branch names. Any `String` is fine,
+--       defaults to the empty string.
 --
 --   --path=\<string>\
---       Path to the git directory. Any `String` is fine, including the empty
---       string (i.e. --path=). Defaults to /share.
+--       Path to the git directory. Any `String` is fine, defaults
+--       to the empty string (current directory).
 --
 --   --limit=\<days\>
 --       Determines if a branch should be considered stale. Must be a
 --       non-negative integer. Defaults to 30.
 --
---   --branch-type=\<all|remote|local\>
---       Determines which branches we should search. Must be one of
---       [all, remote, local]. Defaults to remote.
+--   -a, --branch-type=all
+--       Searches local and remote branches.
+--
+--   -r, --branch-type=remote
+--       Searches remote branches only. This is the default.
+--
+--   -l, --branch-type=local
+--       Searches local branches only.
 --
 --   --remote=\<string\>
 --       Name of the remote, used for stripping out the the remote name for
---       display purposes. Any `String` is fine, including the empty string
---       (i.e. --remote=). Defaults to origin.
+--       display purposes. Any `String` is fine, including the empty string.
+--       Defaults to origin/.
 --
 --   --master=\<string\>
 --       Name of the branch to consider merges against. Any `String` is fine,
---       including the empty string (i.e. --master=). Defaults to origin/master.
+--       including the empty string. Defaults to origin/master.
+--
+--  -h, --help
+--       Returns instructions as `Left` `String`.
 -- @
 parseArgs :: Cal.Day -> [String] -> Either String Env
 parseArgs d args =

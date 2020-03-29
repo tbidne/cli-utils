@@ -1,5 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+-- |
+-- Module      : Git.FastForward.Core.Internal
+-- License     : BSD3
+-- Maintainer  : tbidne@gmail.com
+-- Exports utility functions.
 module Git.FastForward.Core.Internal
   ( alreadyUpdated,
     textToLocalBranches,
@@ -13,6 +18,9 @@ import Git.Types.GitTypes
 
 data LocalBranchesParser = LocalBranchesParser (Maybe CurrentBranch) [Name]
 
+-- | Maps 'T.Text' to 'Just' 'LocalBranches' if we find a current branch
+-- and all branch names are otherwise parsed successfully. Returns 'Nothing'
+-- otherwise.
 textToLocalBranches :: T.Text -> Maybe LocalBranches
 textToLocalBranches s =
   let ls = T.lines s
@@ -35,5 +43,6 @@ starredBranch b =
     [_, curr] -> Right $ Name $ T.strip curr
     _ -> Left $ Name $ T.strip b
 
+-- | Determines if a branch has already been updated.
 alreadyUpdated :: T.Text -> Bool
 alreadyUpdated = T.isInfixOf "Already up-to-date"

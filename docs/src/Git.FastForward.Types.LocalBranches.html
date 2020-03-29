@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- |</span><span>
+</span><span id="line-2"></span><span class="hs-comment">-- Module      : Git.FastForward.Types.LocalBranches</span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- Provides `LocalBranches` type.</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Git.FastForward.Types.LocalBranches</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#CurrentBranch"><span class="hs-identifier">CurrentBranch</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#LocalBranches"><span class="hs-identifier">LocalBranches</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html"><span class="hs-identifier">Git.Types.GitTypes</span></a></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- | Alias for 'Name'.</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">type</span><span> </span><span id="CurrentBranch"><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#CurrentBranch"><span class="hs-identifier hs-var">CurrentBranch</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-comment">-- | Describes the local branches in a 'git' directory.</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">data</span><span> </span><span id="LocalBranches"><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#LocalBranches"><span class="hs-identifier hs-var">LocalBranches</span></a></span></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="LocalBranches"><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#LocalBranches"><span class="hs-identifier hs-var">LocalBranches</span></a></span></span><span>
+</span><span id="line-20"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="hs-comment">-- | The current branch, saved so that we can check it out after</span><span>
+</span><span id="line-21"></span><span>        </span><span class="hs-comment">-- we are done updating all branches.</span><span>
+</span><span id="line-22"></span><span>        </span><span id="current"><span class="annot"><span class="annottext">LocalBranches -&gt; CurrentBranch
+</span><a href="Git.FastForward.Types.LocalBranches.html#current"><span class="hs-identifier hs-var hs-var">current</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#CurrentBranch"><span class="hs-identifier hs-type">CurrentBranch</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-23"></span><span>        </span><span class="hs-comment">-- | List of all branches.</span><span>
+</span><span id="line-24"></span><span>        </span><span id="branches"><span class="annot"><span class="annottext">LocalBranches -&gt; [CurrentBranch]
+</span><a href="Git.FastForward.Types.LocalBranches.html#branches"><span class="hs-identifier hs-var hs-var">branches</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-25"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679071805"><span id="local-6989586621679071807"><span id="local-6989586621679071809"><span class="annot"><span class="annottext">Int -&gt; LocalBranches -&gt; ShowS
+[LocalBranches] -&gt; ShowS
+LocalBranches -&gt; String
+(Int -&gt; LocalBranches -&gt; ShowS)
+-&gt; (LocalBranches -&gt; String)
+-&gt; ([LocalBranches] -&gt; ShowS)
+-&gt; Show LocalBranches
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [LocalBranches] -&gt; ShowS
+$cshowList :: [LocalBranches] -&gt; ShowS
+show :: LocalBranches -&gt; String
+$cshow :: LocalBranches -&gt; String
+showsPrec :: Int -&gt; LocalBranches -&gt; ShowS
+$cshowsPrec :: Int -&gt; LocalBranches -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span></pre></body></html>

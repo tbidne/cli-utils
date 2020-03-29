@@ -3,7 +3,7 @@
 -- License     : BSD3
 -- Maintainer  : tbidne@gmail.com
 -- Provides types to describe data returned by the
--- underlying `Core.FindBranches.FindBranches` monad.
+-- Git actions
 module Git.Types.GitTypes
   ( Name (..),
     Author (..),

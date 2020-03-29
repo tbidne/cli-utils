@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Module      : Git.FastForward.Parsing</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- Handles parsing of 'String' args into 'Env'.</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Git.FastForward.Parsing</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#parseArgs"><span class="hs-identifier">parseArgs</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.Parsing.html"><span class="hs-identifier">Common.Parsing</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html"><span class="hs-identifier">Git.FastForward.Types.Env</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html"><span class="hs-identifier">Git.FastForward.Types.MergeType</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html"><span class="hs-identifier">Git.Types.GitTypes</span></a></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-comment">-- | Maps parsed [`String`] args into `Right` `Env`, returning</span><span>
+</span><span id="line-20"></span><span class="hs-comment">-- any errors as `Left` `String`. All arguments are optional</span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- (i.e. an empty list is valid), but if any are provided then they must</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- be valid or an error will be returned. Valid arguments are:</span><span>
+</span><span id="line-23"></span><span class="hs-comment">--</span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-25"></span><span class="hs-comment">--   --path=\&lt;string&gt;\</span><span>
+</span><span id="line-26"></span><span class="hs-comment">--       Path to the git directory. Any `String` is fine, defaults</span><span>
+</span><span id="line-27"></span><span class="hs-comment">--       to the empty string (current directory).</span><span>
+</span><span id="line-28"></span><span class="hs-comment">--</span><span>
+</span><span id="line-29"></span><span class="hs-comment">--   -u, --merge-type=upstream</span><span>
+</span><span id="line-30"></span><span class="hs-comment">--       Merges upstream via @{u} into each local branch. This is the default.</span><span>
+</span><span id="line-31"></span><span class="hs-comment">--</span><span>
+</span><span id="line-32"></span><span class="hs-comment">--   -m, --branch-type=master</span><span>
+</span><span id="line-33"></span><span class="hs-comment">--       Merges origin/master into each local branch.</span><span>
+</span><span id="line-34"></span><span class="hs-comment">--</span><span>
+</span><span id="line-35"></span><span class="hs-comment">--   --branch-type=\&lt;other\&gt;</span><span>
+</span><span id="line-36"></span><span class="hs-comment">--       Merges \&lt;other\&gt; into each local branch.</span><span>
+</span><span id="line-37"></span><span class="hs-comment">--</span><span>
+</span><span id="line-38"></span><span class="hs-comment">--   -h, --help</span><span>
+</span><span id="line-39"></span><span class="hs-comment">--       Returns instructions as `Left` `String`.</span><span>
+</span><span id="line-40"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-41"></span><span class="annot"><a href="Git.FastForward.Parsing.html#parseArgs"><span class="hs-identifier hs-type">parseArgs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
+</span><span id="line-42"></span><span id="parseArgs"><span class="annot"><span class="annottext">parseArgs :: [String] -&gt; Either String Env
+</span><a href="Git.FastForward.Parsing.html#parseArgs"><span class="hs-identifier hs-var hs-var">parseArgs</span></a></span></span><span> </span><span id="local-6989586621679071861"><span class="annot"><span class="annottext">args :: [String]
+</span><a href="#local-6989586621679071861"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[AnyParser Env] -&gt; [String] -&gt; Env -&gt; Either ParseErr Env
+forall acc.
+[AnyParser acc] -&gt; [String] -&gt; acc -&gt; Either ParseErr acc
+</span><a href="Common.Parsing.html#parseAll"><span class="hs-identifier hs-var">parseAll</span></a></span><span> </span><span class="annot"><span class="annottext">[AnyParser Env]
+</span><a href="Git.FastForward.Parsing.html#allParsers"><span class="hs-identifier hs-var">allParsers</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679071861"><span class="hs-identifier hs-var">args</span></a></span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="Git.FastForward.Parsing.html#defaultEnv"><span class="hs-identifier hs-var">defaultEnv</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span class="annot"><a href="Common.Parsing.html#Help"><span class="hs-identifier hs-type">Help</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either String Env
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="Git.FastForward.Parsing.html#help"><span class="hs-identifier hs-var">help</span></a></span><span>
+</span><span id="line-45"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.html#Err"><span class="hs-identifier hs-type">Err</span></a></span><span> </span><span id="local-6989586621679071854"><span class="annot"><span class="annottext">arg :: String
+</span><a href="#local-6989586621679071854"><span class="hs-identifier hs-var">arg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either String Env
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Either String Env) -&gt; String -&gt; Either String Env
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Could not parse `&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679071854"><span class="hs-identifier hs-var">arg</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;`. Try --help.&quot;</span></span><span>
+</span><span id="line-46"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679071853"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679071853"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Either String Env
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679071853"><span class="hs-identifier hs-var">env</span></a></span><span>
+</span><span id="line-47"></span><span>
+</span><span id="line-48"></span><span class="annot"><a href="Git.FastForward.Parsing.html#defaultEnv"><span class="hs-identifier hs-type">defaultEnv</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
+</span><span id="line-49"></span><span id="defaultEnv"><span class="annot"><span class="annottext">defaultEnv :: Env
+</span><a href="Git.FastForward.Parsing.html#defaultEnv"><span class="hs-identifier hs-var hs-var">defaultEnv</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-50"></span><span>  </span><span class="annot"><span class="annottext">Maybe String -&gt; MergeType -&gt; Env
+</span><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-var">Env</span></a></span><span>
+</span><span id="line-51"></span><span>    </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><span class="annottext">MergeType
+</span><a href="Git.FastForward.Types.MergeType.html#Upstream"><span class="hs-identifier hs-var">Upstream</span></a></span><span>
+</span><span id="line-53"></span><span>
+</span><span id="line-54"></span><span class="annot"><a href="Git.FastForward.Parsing.html#allParsers"><span class="hs-identifier hs-type">allParsers</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-55"></span><span id="allParsers"><span class="annot"><span class="annottext">allParsers :: [AnyParser Env]
+</span><a href="Git.FastForward.Parsing.html#allParsers"><span class="hs-identifier hs-var hs-var">allParsers</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-56"></span><span>  </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">AnyParser Env
+</span><a href="Git.FastForward.Parsing.html#pathParser"><span class="hs-identifier hs-var">pathParser</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-57"></span><span>    </span><span class="annot"><span class="annottext">AnyParser Env
+</span><a href="Git.FastForward.Parsing.html#mergeTypeParser"><span class="hs-identifier hs-var">mergeTypeParser</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-58"></span><span>    </span><span class="annot"><span class="annottext">AnyParser Env
+</span><a href="Git.FastForward.Parsing.html#mergeUpstreamFlagParser"><span class="hs-identifier hs-var">mergeUpstreamFlagParser</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-59"></span><span>    </span><span class="annot"><span class="annottext">AnyParser Env
+</span><a href="Git.FastForward.Parsing.html#mergeMasterFlagParser"><span class="hs-identifier hs-var">mergeMasterFlagParser</span></a></span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-special">]</span><span>
+</span><span id="line-61"></span><span>
+</span><span id="line-62"></span><span class="annot"><a href="Git.FastForward.Parsing.html#pathParser"><span class="hs-identifier hs-type">pathParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
+</span><span id="line-63"></span><span id="pathParser"><span class="annot"><span class="annottext">pathParser :: AnyParser Env
+</span><a href="Git.FastForward.Parsing.html#pathParser"><span class="hs-identifier hs-var hs-var">pathParser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser (Maybe String) Env -&gt; AnyParser Env
+forall a acc. Parser a acc -&gt; AnyParser acc
+</span><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-var">AnyParser</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (Maybe String) Env -&gt; AnyParser Env)
+-&gt; Parser (Maybe String) Env -&gt; AnyParser Env
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(String, String -&gt; Maybe (Maybe String),
+ Env -&gt; Maybe String -&gt; Env)
+-&gt; Parser (Maybe String) Env
+forall a acc.
+(String, String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
+</span><a href="Common.Parsing.html#PrefixParser"><span class="hs-identifier hs-var">PrefixParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;--path=&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe (Maybe String)
+forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe (Maybe a)
+</span><a href="#local-6989586621679071844"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Maybe String -&gt; Env
+</span><a href="#local-6989586621679071843"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-64"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-65"></span><span>    </span><span id="local-6989586621679071844"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe (Maybe a)
+</span><a href="#local-6989586621679071844"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe a -&gt; Maybe (Maybe a)
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Maybe a
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-66"></span><span>    </span><span class="annot"><a href="#local-6989586621679071844"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679071842"><span class="annot"><span class="annottext">s :: a
+</span><a href="#local-6989586621679071842"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe a -&gt; Maybe (Maybe a)
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Maybe a -&gt; Maybe (Maybe a)) -&gt; Maybe a -&gt; Maybe (Maybe a)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Maybe a
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679071842"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-67"></span><span>    </span><span id="local-6989586621679071843"><span class="annot"><span class="annottext">updater :: Env -&gt; Maybe String -&gt; Env
+</span><a href="#local-6989586621679071843"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071841"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679071841"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071840"><span class="annot"><span class="annottext">p :: Maybe String
+</span><a href="#local-6989586621679071840"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679071841"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">path :: Maybe String
+</span><a href="Git.FastForward.Types.Env.html#path"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe String
+</span><a href="#local-6989586621679071840"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span class="annot"><a href="Git.FastForward.Parsing.html#mergeTypeParser"><span class="hs-identifier hs-type">mergeTypeParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
+</span><span id="line-70"></span><span id="mergeTypeParser"><span class="annot"><span class="annottext">mergeTypeParser :: AnyParser Env
+</span><a href="Git.FastForward.Parsing.html#mergeTypeParser"><span class="hs-identifier hs-var hs-var">mergeTypeParser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser MergeType Env -&gt; AnyParser Env
+forall a acc. Parser a acc -&gt; AnyParser acc
+</span><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-var">AnyParser</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser MergeType Env -&gt; AnyParser Env)
+-&gt; Parser MergeType Env -&gt; AnyParser Env
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(String, String -&gt; Maybe MergeType, Env -&gt; MergeType -&gt; Env)
+-&gt; Parser MergeType Env
+forall a acc.
+(String, String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
+</span><a href="Common.Parsing.html#PrefixParser"><span class="hs-identifier hs-var">PrefixParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;--merge-type=&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe MergeType
+</span><a href="#local-6989586621679071838"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; MergeType -&gt; Env
+</span><a href="#local-6989586621679071837"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-72"></span><span>    </span><span id="local-6989586621679071838"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe MergeType
+</span><a href="#local-6989586621679071838"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe MergeType
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-73"></span><span>    </span><span class="annot"><a href="#local-6989586621679071838"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-string">&quot;upstream&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MergeType -&gt; Maybe MergeType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">MergeType
+</span><a href="Git.FastForward.Types.MergeType.html#Upstream"><span class="hs-identifier hs-var">Upstream</span></a></span><span>
+</span><span id="line-74"></span><span>    </span><span class="annot"><a href="#local-6989586621679071838"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-string">&quot;master&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MergeType -&gt; Maybe MergeType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">MergeType
+</span><a href="Git.FastForward.Types.MergeType.html#Master"><span class="hs-identifier hs-var">Master</span></a></span><span>
+</span><span id="line-75"></span><span>    </span><span class="annot"><a href="#local-6989586621679071838"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679071835"><span class="annot"><span class="annottext">o :: String
+</span><a href="#local-6989586621679071835"><span class="hs-identifier hs-var">o</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MergeType -&gt; Maybe MergeType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(MergeType -&gt; Maybe MergeType) -&gt; MergeType -&gt; Maybe MergeType
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; MergeType
+</span><a href="Git.FastForward.Types.MergeType.html#Other"><span class="hs-identifier hs-var">Other</span></a></span><span> </span><span class="annot"><span class="annottext">(Name -&gt; MergeType) -&gt; Name -&gt; MergeType
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Name
+</span><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-var">Name</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Name) -&gt; Text -&gt; Name
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679071835"><span class="hs-identifier hs-var">o</span></a></span><span>
+</span><span id="line-76"></span><span>    </span><span id="local-6989586621679071837"><span class="annot"><span class="annottext">updater :: Env -&gt; MergeType -&gt; Env
+</span><a href="#local-6989586621679071837"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071831"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679071831"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071830"><span class="annot"><span class="annottext">m :: MergeType
+</span><a href="#local-6989586621679071830"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679071831"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">mergeType :: MergeType
+</span><a href="Git.FastForward.Types.Env.html#mergeType"><span class="hs-identifier hs-var">mergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MergeType
+</span><a href="#local-6989586621679071830"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-77"></span><span>
+</span><span id="line-78"></span><span class="annot"><a href="Git.FastForward.Parsing.html#mergeUpstreamFlagParser"><span class="hs-identifier hs-type">mergeUpstreamFlagParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
+</span><span id="line-79"></span><span id="mergeUpstreamFlagParser"><span class="annot"><span class="annottext">mergeUpstreamFlagParser :: AnyParser Env
+</span><a href="Git.FastForward.Parsing.html#mergeUpstreamFlagParser"><span class="hs-identifier hs-var hs-var">mergeUpstreamFlagParser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser MergeType Env -&gt; AnyParser Env
+forall a acc. Parser a acc -&gt; AnyParser acc
+</span><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-var">AnyParser</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser MergeType Env -&gt; AnyParser Env)
+-&gt; Parser MergeType Env -&gt; AnyParser Env
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Maybe MergeType, Env -&gt; MergeType -&gt; Env)
+-&gt; Parser MergeType Env
+forall a acc. (String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
+</span><a href="Common.Parsing.html#ExactParser"><span class="hs-identifier hs-var">ExactParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe MergeType
+forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe MergeType
+</span><a href="#local-6989586621679071827"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; MergeType -&gt; Env
+</span><a href="#local-6989586621679071826"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-80"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-81"></span><span>    </span><span id="local-6989586621679071827"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe MergeType
+</span><a href="#local-6989586621679071827"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;-u&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MergeType -&gt; Maybe MergeType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">MergeType
+</span><a href="Git.FastForward.Types.MergeType.html#Upstream"><span class="hs-identifier hs-var">Upstream</span></a></span><span>
+</span><span id="line-82"></span><span>    </span><span class="annot"><a href="#local-6989586621679071827"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe MergeType
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-83"></span><span>    </span><span id="local-6989586621679071826"><span class="annot"><span class="annottext">updater :: Env -&gt; MergeType -&gt; Env
+</span><a href="#local-6989586621679071826"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071825"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679071825"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071824"><span class="annot"><span class="annottext">m :: MergeType
+</span><a href="#local-6989586621679071824"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679071825"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">mergeType :: MergeType
+</span><a href="Git.FastForward.Types.Env.html#mergeType"><span class="hs-identifier hs-var">mergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MergeType
+</span><a href="#local-6989586621679071824"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-84"></span><span>
+</span><span id="line-85"></span><span class="annot"><a href="Git.FastForward.Parsing.html#mergeMasterFlagParser"><span class="hs-identifier hs-type">mergeMasterFlagParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
+</span><span id="line-86"></span><span id="mergeMasterFlagParser"><span class="annot"><span class="annottext">mergeMasterFlagParser :: AnyParser Env
+</span><a href="Git.FastForward.Parsing.html#mergeMasterFlagParser"><span class="hs-identifier hs-var hs-var">mergeMasterFlagParser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser MergeType Env -&gt; AnyParser Env
+forall a acc. Parser a acc -&gt; AnyParser acc
+</span><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-var">AnyParser</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser MergeType Env -&gt; AnyParser Env)
+-&gt; Parser MergeType Env -&gt; AnyParser Env
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Maybe MergeType, Env -&gt; MergeType -&gt; Env)
+-&gt; Parser MergeType Env
+forall a acc. (String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
+</span><a href="Common.Parsing.html#ExactParser"><span class="hs-identifier hs-var">ExactParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe MergeType
+forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe MergeType
+</span><a href="#local-6989586621679071823"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; MergeType -&gt; Env
+</span><a href="#local-6989586621679071822"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-88"></span><span>    </span><span id="local-6989586621679071823"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe MergeType
+</span><a href="#local-6989586621679071823"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;-m&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MergeType -&gt; Maybe MergeType
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">MergeType
+</span><a href="Git.FastForward.Types.MergeType.html#Master"><span class="hs-identifier hs-var">Master</span></a></span><span>
+</span><span id="line-89"></span><span>    </span><span class="annot"><a href="#local-6989586621679071823"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe MergeType
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-90"></span><span>    </span><span id="local-6989586621679071822"><span class="annot"><span class="annottext">updater :: Env -&gt; MergeType -&gt; Env
+</span><a href="#local-6989586621679071822"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071821"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679071821"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071820"><span class="annot"><span class="annottext">m :: MergeType
+</span><a href="#local-6989586621679071820"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679071821"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">mergeType :: MergeType
+</span><a href="Git.FastForward.Types.Env.html#mergeType"><span class="hs-identifier hs-var">mergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MergeType
+</span><a href="#local-6989586621679071820"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-91"></span><span>
+</span><span id="line-92"></span><span class="annot"><a href="Git.FastForward.Parsing.html#help"><span class="hs-identifier hs-type">help</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-93"></span><span id="help"><span class="annot"><span class="annottext">help :: String
+</span><a href="Git.FastForward.Parsing.html#help"><span class="hs-identifier hs-var hs-var">help</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-94"></span><span>  </span><span class="annot"><span class="hs-string">&quot;\nUsage: git-utils fastforward [OPTIONS]\n\n&quot;</span></span><span>
+</span><span id="line-95"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Fast-forwards all local branches with --ff-only.\n\nOptions:\n&quot;</span></span><span>
+</span><span id="line-96"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;  --path=&lt;string&gt;\t\tDirectory path, defaults to current directory.\n\n&quot;</span></span><span>
+</span><span id="line-97"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;  -u, --merge-type=upstream\tMerges each branches' upstream via @{u}. This is the default.\n\n&quot;</span></span><span>
+</span><span id="line-98"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;  -m, --merge-type=master\tMerges origin/master into each branch.\n\n&quot;</span></span><span>
+</span><span id="line-99"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;  --merge-type=&lt;string&gt;\t\tMerges branch given by &lt;string&gt; into each branch.&quot;</span></span><span>
+</span><span id="line-100"></span></pre></body></html>

@@ -1,5 +1,11 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
+-- |
+-- Module      : Git.FastForward.Types.UpdateResult
+-- License     : BSD3
+-- Maintainer  : tbidne@gmail.com
+-- Provides functions and types for descrbing the result of an
+-- update attempt.
 module Git.FastForward.Types.UpdateResult
   ( SplitResults (..),
     UpdateResult (..),
@@ -12,12 +18,17 @@ import qualified Data.Foldable as F
 import qualified Data.Text as T
 import Git.Types.GitTypes
 
+-- | Describes the result of an attempt to update a branch.
 data UpdateResult
-  = Failure Name
-  | NoChange Name
-  | Success Name
+  = -- | Indicates updating 'Name' failed.
+    Failure Name
+  | -- | Indicates updating 'Name' resulted in no change.
+    NoChange Name
+  | -- | Indicates updating 'Name' succeeded.
+    Success Name
   deriving (Show)
 
+-- | Groups the 'String' 'Name' of all results by 'UpdateResult'.
 data SplitResults
   = SplitResults
       { failures :: [String],
@@ -26,6 +37,7 @@ data SplitResults
       }
   deriving (Show)
 
+-- | Summarizes ['UpdateResult'] as a display 'String'.
 displayResults :: [UpdateResult] -> String
 displayResults = f . splitResults
   where
@@ -40,6 +52,7 @@ displayResults = f . splitResults
         <> show failures
         <> "\n"
 
+-- | Maps ['UpdateResult'] to intermediate 'SplitResults'.
 splitResults :: [UpdateResult] -> SplitResults
 splitResults = F.foldl' f (SplitResults [] [] [])
   where
