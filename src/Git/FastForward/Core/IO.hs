@@ -9,6 +9,7 @@ module Git.FastForward.Core.IO
   ( checkoutCurrentIO,
     fetchIO,
     getBranchesIO,
+    pushBranchIO,
     summarizeIO,
     updateBranchIO,
   )
@@ -42,12 +43,27 @@ getBranchesIO path = do
 updateBranchIO :: MergeType -> Name -> Maybe FilePath -> IO UpdateResult
 updateBranchIO merge nm@(Name name) path = do
   putStrLn $ "Checking out " <> T.unpack name
-  sh_ ("git checkout " <> name) path
+  sh_ ("git checkout \"" <> name <> "\"") path
   putStrLn $ "Updating " <> T.unpack name
   res <- trySh (mergeTypeToCmd merge) path
   case res of
     Right o
-      | alreadyUpdated o -> pure $ NoChange nm
+      | branchUpToDate o -> pure $ NoChange nm
+      | otherwise -> pure $ Success nm
+    Left ex -> do
+      putStrLn $ "Error updating " <> T.unpack name <> ": " <> show ex
+      pure $ Failure nm
+
+-- | Pushes branch 'Name'.
+pushBranchIO :: Maybe FilePath -> Name -> IO UpdateResult
+pushBranchIO path nm@(Name name) = do
+  putStrLn $ "Pushing " <> T.unpack name
+  -- "git push" returns the "up to date..." string as stderr for
+  -- some reason...
+  res <- tryShCaptureErr_ ("git push " <> name) path
+  case res of
+    Right o
+      | remoteUpToDate o -> pure $ NoChange nm
       | otherwise -> pure $ Success nm
     Left ex -> do
       putStrLn $ "Error updating " <> T.unpack name <> ": " <> show ex
@@ -59,9 +75,9 @@ summarizeIO = putStrLn . displayResults
 
 -- | Checks out the 'CurrentBranch' on 'Maybe' 'FilePath'.
 checkoutCurrentIO :: CurrentBranch -> Maybe FilePath -> IO ()
-checkoutCurrentIO (Name name) = sh_ ("git checkout " <> name)
+checkoutCurrentIO (Name name) = sh_ ("git checkout \"" <> name <> "\"")
 
 mergeTypeToCmd :: MergeType -> T.Text
 mergeTypeToCmd Upstream = "git merge @{u} --ff-only"
 mergeTypeToCmd Master = "git merge origin/master --ff-only"
-mergeTypeToCmd (Other (Name up)) = "git merge " <> up <> " --ff-only"
+mergeTypeToCmd (Other (Name up)) = "git merge \"" <> up <> "\" --ff-only"

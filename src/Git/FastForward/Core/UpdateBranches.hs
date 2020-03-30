@@ -33,6 +33,9 @@ class Monad m => UpdateBranches m where
   -- | Updates a branch by 'Name', returns the result.
   updateBranch :: Name -> m UpdateResult
 
+  -- | Pushes branches, returns the results.
+  pushBranches :: m [UpdateResult]
+
   -- | Summarizes all results.
   summarize :: [UpdateResult] -> m ()
 
@@ -60,6 +63,11 @@ instance R.MonadIO m => UpdateBranches (AppT Env m) where
     Env {mergeType, path} <- R.ask
     R.liftIO $ updateBranchIO mergeType name path
 
+  pushBranches :: AppT Env m [UpdateResult]
+  pushBranches = do
+    Env {path, push} <- R.ask
+    R.liftIO $ traverse (pushBranchIO path) push
+
   summarize :: [UpdateResult] -> AppT Env m ()
   summarize = R.liftIO . summarizeIO
 
@@ -76,4 +84,6 @@ runUpdateBranches = do
   LocalBranches {current, branches} <- getBranches
   res <- traverse updateBranch branches
   summarize res
+  pushed <- pushBranches
+  summarize pushed
   checkoutCurrent current

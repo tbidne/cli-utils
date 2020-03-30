@@ -35,6 +35,12 @@ import Git.Types.GitTypes
 --   --branch-type=\<other\>
 --       Merges \<other\> into each local branch.
 --
+--   --push=<\list\>
+--       List of branches to push to after we're done updating.
+--       Each branch is formatted "remote_name branch_name",
+--       and each "remote_name branch_name" is separated by a comma.
+--       For instance, --push="origin dev, other temp".
+--
 --   -h, --help
 --       Returns instructions as `Left` `String`.
 -- @
@@ -50,13 +56,15 @@ defaultEnv =
   Env
     Nothing
     Upstream
+    []
 
 allParsers :: [AnyParser Env]
 allParsers =
   [ pathParser,
     mergeTypeParser,
     mergeUpstreamFlagParser,
-    mergeMasterFlagParser
+    mergeMasterFlagParser,
+    pushBranchesParser
   ]
 
 pathParser :: AnyParser Env
@@ -89,6 +97,13 @@ mergeMasterFlagParser = AnyParser $ ExactParser (parser, updater)
     parser _ = Nothing
     updater env m = env {mergeType = m}
 
+pushBranchesParser :: AnyParser Env
+pushBranchesParser = AnyParser $ PrefixParser ("--push=", parser, updater)
+  where
+    parser "" = Nothing
+    parser s = Just $ Name . T.strip <$> T.splitOn "," (T.pack s)
+    updater env ps = env {push = ps}
+
 help :: String
 help =
   "\nUsage: git-utils fastforward [OPTIONS]\n\n"
@@ -96,4 +111,8 @@ help =
     <> "  --path=<string>\t\tDirectory path, defaults to current directory.\n\n"
     <> "  -u, --merge-type=upstream\tMerges each branches' upstream via @{u}. This is the default.\n\n"
     <> "  -m, --merge-type=master\tMerges origin/master into each branch.\n\n"
-    <> "  --merge-type=<string>\t\tMerges branch given by <string> into each branch."
+    <> "  --merge-type=<string>\t\tMerges branch given by <string> into each branch.\n\n"
+    <> "  --push=<list>\t\t\tList of branches to push to after we're done updating.\n"
+    <> "\t\t\t\tEach branch is formatted \"remote_name branch_name\",\n"
+    <> "\t\t\t\tand each \"remote_name branch_name\" is separated by a comma.\n"
+    <> "\t\t\t\tFor instance, --push=\"origin dev, other temp\"."

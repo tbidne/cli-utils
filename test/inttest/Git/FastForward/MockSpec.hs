@@ -6,8 +6,8 @@ import Control.Monad.Reader (runReaderT)
 import qualified Data.Text as T
 import Git.FastForward.Core.MockUpdateBranches
 import Git.FastForward.Core.UpdateBranches
+import Git.FastForward.Parsing
 import Git.FastForward.Types.Env
-import Git.FastForward.Types.MergeType
 import Output
 import Test.Hspec
 
@@ -19,10 +19,19 @@ spec = do
       res `shouldSatisfy` verifyOutput
 
 runMock :: Output ()
-runMock = runReaderT (runMockUpdateBranchesT runUpdateBranches) env
+runMock = runReaderT (runMockUpdateBranchesT runUpdateBranches) mkEnv
 
-env :: Env
-env = Env Nothing Upstream
+args :: [String]
+args =
+  [ "--path=",
+    "--merge-type=master",
+    "--push=origin push1, remote push2"
+  ]
+
+mkEnv :: Env
+mkEnv = case parseArgs args of
+  Left err -> error $ "Failure parsing args in integration test: " <> err
+  Right env -> env
 
 verifyOutput :: [T.Text] -> Bool
 verifyOutput =
@@ -34,5 +43,7 @@ verifyOutput =
       "NoChange (Name \"noChange2\")",
       "Failure (Name \"failure1\")",
       "Failure (Name \"failure2\")",
+      "Success (Name \"origin push1\")",
+      "Success (Name \"remote push2\")",
       "\"Checked out current\""
     ]
