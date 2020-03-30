@@ -46,7 +46,7 @@ A docker image can be downloaded with `docker pull tbidne/git-utils:latest`.
 It can also be built manually, e.g.
 
 ```docker
-Docker build .
+docker build .
 ```
 
 To run you must mount your local filesystem with `-v` and provide the mapped directory as a path argument, e.g.,

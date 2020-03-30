@@ -47,6 +47,6 @@ run appFn parseFn args =
 help :: String
 help =
   "\nUsage: git-utils [CMD] [OPTIONS]\n\n"
-    <> "Wrapper for executing Git actions.\n\nCommands:\n\n"
+    <> "Wrapper for executing Git actions.\n\nCommands:\n"
     <> " fast-forward, ff\tFast-forwards all local branches.\n\n"
     <> " find-stale, fs\t\tFinds stale branches.\n\n"
