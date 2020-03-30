@@ -5,7 +5,7 @@
 -- | Please see the README on GitHub at
 --   <a>https://github.com/tbidne/git-utils#readme</a>
 @package git-utils
-@version 2.0.0
+@version 2.1.0
 
 
 -- | Provides the main component used in this application.
@@ -32,12 +32,18 @@ sh :: Text -> Maybe FilePath -> IO Text
 -- | Version of <a>sh</a> that ignores the return value.
 sh_ :: Text -> Maybe FilePath -> IO ()
 
+-- | Version of <a>sh</a> that ignores the return value and returns stderr.
+shCaptureErr_ :: Text -> Maybe FilePath -> IO Text
+
 -- | Attempts to return the result of running a shell command given by
 --   <a>Text</a> on <a>FilePath</a>.
 trySh :: Text -> Maybe FilePath -> IO (Either SomeException Text)
 
 -- | Version of <a>trySh</a> that ignores the return value.
 trySh_ :: String -> Text -> Maybe FilePath -> IO ()
+
+-- | Version of <a>trySh</a> that returns stderr.
+tryShCaptureErr_ :: Text -> Maybe FilePath -> IO (Either SomeException Text)
 
 
 -- | Exports utility functions
@@ -532,22 +538,6 @@ instance GHC.Show.Show Git.FastForward.Types.MergeType.MergeType
 instance GHC.Classes.Eq Git.FastForward.Types.MergeType.MergeType
 
 
--- | Provides <a>Env</a> type.
-module Git.FastForward.Types.Env
-
--- | The Env type to be used with Reader.
-data Env
-Env :: Maybe FilePath -> MergeType -> Env
-
--- | The path of the git directory. <a>Just</a> <i>s</i> if non-empty,
---   <a>Nothing</a> otherwise.
-[path] :: Env -> Maybe FilePath
-
--- | The type of merge to perform.
-[mergeType] :: Env -> MergeType
-instance GHC.Show.Show Git.FastForward.Types.Env.Env
-
-
 -- | Provides <a>LocalBranches</a> type.
 module Git.FastForward.Types.LocalBranches
 
@@ -565,6 +555,25 @@ LocalBranches :: CurrentBranch -> [Name] -> LocalBranches
 -- | List of all branches.
 [branches] :: LocalBranches -> [Name]
 instance GHC.Show.Show Git.FastForward.Types.LocalBranches.LocalBranches
+
+
+-- | Provides <a>Env</a> type.
+module Git.FastForward.Types.Env
+
+-- | The Env type to be used with Reader.
+data Env
+Env :: Maybe FilePath -> MergeType -> [Name] -> Env
+
+-- | The path of the git directory. <a>Just</a> <i>s</i> if non-empty,
+--   <a>Nothing</a> otherwise.
+[path] :: Env -> Maybe FilePath
+
+-- | The type of merge to perform.
+[mergeType] :: Env -> MergeType
+
+-- | Branches to push to remote.
+[push] :: Env -> [Name]
+instance GHC.Show.Show Git.FastForward.Types.Env.Env
 
 
 -- | Handles parsing of <a>String</a> args into <a>Env</a>.
@@ -589,6 +598,12 @@ module Git.FastForward.Parsing
 --   --branch-type=&lt;other&gt;
 --       Merges &lt;other&gt; into each local branch.
 --   
+--   --push=&lt;list&gt;
+--       List of branches to push to after we're done updating.
+--       Each branch is formatted "remote_name branch_name",
+--       and each "remote_name branch_name" is separated by a comma.
+--       For instance, --push="origin dev, other temp".
+--   
 --   -h, --help
 --       Returns instructions as <a>Left</a> <a>String</a>.
 --   </pre>
@@ -598,8 +613,11 @@ parseArgs :: [String] -> Either String Env
 -- | Exports utility functions.
 module Git.FastForward.Core.Internal
 
--- | Determines if a branch has already been updated.
-alreadyUpdated :: Text -> Bool
+-- | Determines if a local branch is up to date.
+branchUpToDate :: Text -> Bool
+
+-- | Determines if a remote branch is up to date.
+remoteUpToDate :: Text -> Bool
 
 -- | Maps <a>Text</a> to <a>Just</a> <a>LocalBranches</a> if we find a
 --   current branch and all branch names are otherwise parsed successfully.
@@ -619,6 +637,9 @@ fetchIO :: Maybe FilePath -> IO ()
 
 -- | Gets all local branches.
 getBranchesIO :: Maybe FilePath -> IO LocalBranches
+
+-- | Pushes branch <a>Name</a>.
+pushBranchIO :: Maybe FilePath -> Name -> IO UpdateResult
 
 -- | Prints a summary of all update results.
 summarizeIO :: [UpdateResult] -> IO ()
@@ -642,6 +663,9 @@ getBranches :: UpdateBranches m => m LocalBranches
 
 -- | Updates a branch by <a>Name</a>, returns the result.
 updateBranch :: UpdateBranches m => Name -> m UpdateResult
+
+-- | Pushes branches, returns the results.
+pushBranches :: UpdateBranches m => m [UpdateResult]
 
 -- | Summarizes all results.
 summarize :: UpdateBranches m => [UpdateResult] -> m ()

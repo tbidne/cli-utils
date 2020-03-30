@@ -34,23 +34,6 @@ instance Arbitrary StarredBranch where
     (PrintableString s) <- arbitrary `suchThat` \x -> noStar x && nonEmpty x
     pure $ StarredBranch ("* " <> (T.pack s))
 
-newtype AlreadyUpdated = AlreadyUpdated T.Text
-  deriving (Show)
-
-instance Arbitrary AlreadyUpdated where
-  arbitrary = do
-    (PrintableString prefix) <- arbitrary
-    (PrintableString suffix) <- arbitrary
-    pure $ AlreadyUpdated $ T.pack $ prefix <> "Already up-to-date" <> suffix
-
-newtype NotAlreadyUpdated = NotAlreadyUpdated T.Text
-  deriving (Show)
-
-instance Arbitrary NotAlreadyUpdated where
-  arbitrary = do
-    (PrintableString s) <- arbitrary
-    pure $ NotAlreadyUpdated $ T.pack s
-
 nonEmpty :: PrintableString -> Bool
 nonEmpty = (/=) "" . getPrintableString
 

@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Git.FastForward.Core.InternalSpec where
 
 import Git.FastForward.Core.Arbitraries
@@ -10,8 +12,11 @@ spec = do
   describe "FastForward Internal Tests" $ do
     prop "Correctly formatted branches are parsed" validBranchesAreParsed
     prop "Missing starred (current) branch dies" noStarDies
-    prop "Already updated branch handled" alreadyUpdatedTrue
-    prop "Not already updated branch handled" notAlreadyUpdatedFalse
+    it "Up to date branch tests" $ do
+      "Already up to date.\n" `shouldSatisfy` branchUpToDate
+      "" `shouldSatisfy` not . branchUpToDate
+      "Everything up-to-date\n" `shouldSatisfy` remoteUpToDate
+      "" `shouldSatisfy` not . remoteUpToDate
 
 validBranchesAreParsed :: ValidLocalBranches -> Bool
 validBranchesAreParsed (ValidLocalBranches txt) =
@@ -24,9 +29,3 @@ noStarDies (BranchesNoStar txt) =
   case textToLocalBranches txt of
     Just _ -> False
     Nothing -> True
-
-alreadyUpdatedTrue :: AlreadyUpdated -> Bool
-alreadyUpdatedTrue (AlreadyUpdated s) = alreadyUpdated s
-
-notAlreadyUpdatedFalse :: NotAlreadyUpdated -> Bool
-notAlreadyUpdatedFalse (NotAlreadyUpdated s) = not (alreadyUpdated s)

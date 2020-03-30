@@ -6,7 +6,8 @@
 -- Maintainer  : tbidne@gmail.com
 -- Exports utility functions.
 module Git.FastForward.Core.Internal
-  ( alreadyUpdated,
+  ( branchUpToDate,
+    remoteUpToDate,
     textToLocalBranches,
   )
 where
@@ -43,6 +44,10 @@ starredBranch b =
     [_, curr] -> Right $ Name $ T.strip curr
     _ -> Left $ Name $ T.strip b
 
--- | Determines if a branch has already been updated.
-alreadyUpdated :: T.Text -> Bool
-alreadyUpdated = T.isInfixOf "Already up-to-date"
+-- | Determines if a local branch is up to date.
+branchUpToDate :: T.Text -> Bool
+branchUpToDate = (==) "Already up to date.\n"
+
+-- | Determines if a remote branch is up to date.
+remoteUpToDate :: T.Text -> Bool
+remoteUpToDate = (==) "Everything up-to-date\n"

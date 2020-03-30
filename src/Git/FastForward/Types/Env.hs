@@ -9,6 +9,7 @@ module Git.FastForward.Types.Env
 where
 
 import Git.FastForward.Types.MergeType
+import Git.Types.GitTypes
 
 -- | The Env type to be used with Reader.
 data Env
@@ -17,6 +18,8 @@ data Env
         -- `Nothing` otherwise.
         path :: Maybe FilePath,
         -- | The type of merge to perform.
-        mergeType :: MergeType
+        mergeType :: MergeType,
+        -- | Branches to push to remote.
+        push :: [Name]
       }
   deriving (Show)

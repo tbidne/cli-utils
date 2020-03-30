@@ -59,37 +59,37 @@
 </span><span id="line-59"></span><span class="hs-comment">-- @</span><span>
 </span><span id="line-60"></span><span class="annot"><a href="Git.Stale.Parsing.html#parseArgs"><span class="hs-identifier hs-type">parseArgs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Cal.Day</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
 </span><span id="line-61"></span><span id="parseArgs"><span class="annot"><span class="annottext">parseArgs :: Day -&gt; [String] -&gt; Either String Env
-</span><a href="Git.Stale.Parsing.html#parseArgs"><span class="hs-identifier hs-var hs-var">parseArgs</span></a></span></span><span> </span><span id="local-6989586621679071078"><span class="annot"><span class="annottext">d :: Day
-</span><a href="#local-6989586621679071078"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span id="local-6989586621679071077"><span class="annot"><span class="annottext">args :: [String]
-</span><a href="#local-6989586621679071077"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Git.Stale.Parsing.html#parseArgs"><span class="hs-identifier hs-var hs-var">parseArgs</span></a></span></span><span> </span><span id="local-6989586621679072111"><span class="annot"><span class="annottext">d :: Day
+</span><a href="#local-6989586621679072111"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span id="local-6989586621679072110"><span class="annot"><span class="annottext">args :: [String]
+</span><a href="#local-6989586621679072110"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-62"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[AnyParser Env] -&gt; [String] -&gt; Env -&gt; Either ParseErr Env
 forall acc.
 [AnyParser acc] -&gt; [String] -&gt; acc -&gt; Either ParseErr acc
 </span><a href="Common.Parsing.html#parseAll"><span class="hs-identifier hs-var">parseAll</span></a></span><span> </span><span class="annot"><span class="annottext">[AnyParser Env]
 </span><a href="Git.Stale.Parsing.html#allParsers"><span class="hs-identifier hs-var">allParsers</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679071077"><span class="hs-identifier hs-var">args</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Day -&gt; Env
+</span><a href="#local-6989586621679072110"><span class="hs-identifier hs-var">args</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Day -&gt; Env
 </span><a href="Git.Stale.Parsing.html#defaultEnv"><span class="hs-identifier hs-var">defaultEnv</span></a></span><span> </span><span class="annot"><span class="annottext">Day
-</span><a href="#local-6989586621679071078"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679072111"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-63"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span class="annot"><a href="Common.Parsing.html#Help"><span class="hs-identifier hs-type">Help</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either String Env
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="Git.Stale.Parsing.html#help"><span class="hs-identifier hs-var">help</span></a></span><span>
-</span><span id="line-64"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.html#Err"><span class="hs-identifier hs-type">Err</span></a></span><span> </span><span id="local-6989586621679071070"><span class="annot"><span class="annottext">arg :: String
-</span><a href="#local-6989586621679071070"><span class="hs-identifier hs-var">arg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either String Env
+</span><span id="line-64"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.html#Err"><span class="hs-identifier hs-type">Err</span></a></span><span> </span><span id="local-6989586621679072103"><span class="annot"><span class="annottext">arg :: String
+</span><a href="#local-6989586621679072103"><span class="hs-identifier hs-var">arg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either String Env
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Either String Env) -&gt; String -&gt; Either String Env
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Could not parse `&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679071070"><span class="hs-identifier hs-var">arg</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679072103"><span class="hs-identifier hs-var">arg</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;`. Try --help.&quot;</span></span><span>
-</span><span id="line-65"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679071069"><span class="annot"><span class="annottext">env :: Env
-</span><a href="#local-6989586621679071069"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Either String Env
+</span><span id="line-65"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679072102"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679072102"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Either String Env
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">Env
-</span><a href="#local-6989586621679071069"><span class="hs-identifier hs-var">env</span></a></span><span>
+</span><a href="#local-6989586621679072102"><span class="hs-identifier hs-var">env</span></a></span><span>
 </span><span id="line-66"></span><span>
 </span><span id="line-67"></span><span class="annot"><a href="Git.Stale.Parsing.html#defaultEnv"><span class="hs-identifier hs-type">defaultEnv</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Cal.Day</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
 </span><span id="line-68"></span><span id="defaultEnv"><span class="annot"><span class="annottext">defaultEnv :: Day -&gt; Env
@@ -147,17 +147,17 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a acc.
 (String, String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.html#PrefixParser"><span class="hs-identifier hs-var">PrefixParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;--grep=&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe (Maybe Text)
-</span><a href="#local-6989586621679071053"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Maybe Text -&gt; Env
-</span><a href="#local-6989586621679071052"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679072086"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Maybe Text -&gt; Env
+</span><a href="#local-6989586621679072085"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-92"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-93"></span><span>    </span><span id="local-6989586621679071053"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe (Maybe Text)
-</span><a href="#local-6989586621679071053"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Text -&gt; Maybe (Maybe Text)
+</span><span id="line-93"></span><span>    </span><span id="local-6989586621679072086"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe (Maybe Text)
+</span><a href="#local-6989586621679072086"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Text -&gt; Maybe (Maybe Text)
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Maybe Text
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-94"></span><span>    </span><span class="annot"><a href="#local-6989586621679071053"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679071051"><span class="annot"><span class="annottext">s :: String
-</span><a href="#local-6989586621679071051"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Text -&gt; Maybe (Maybe Text)
+</span><span id="line-94"></span><span>    </span><span class="annot"><a href="#local-6989586621679072086"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679072084"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679072084"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Text -&gt; Maybe (Maybe Text)
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Maybe Text -&gt; Maybe (Maybe Text))
 -&gt; Maybe Text -&gt; Maybe (Maybe Text)
@@ -168,14 +168,14 @@ forall a. a -&gt; Maybe a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679071051"><span class="hs-identifier hs-var">s</span></a></span><span>
-</span><span id="line-95"></span><span>    </span><span id="local-6989586621679071052"><span class="annot"><span class="annottext">updater :: Env -&gt; Maybe Text -&gt; Env
-</span><a href="#local-6989586621679071052"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071049"><span class="annot"><span class="annottext">env :: Env
-</span><a href="#local-6989586621679071049"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071048"><span class="annot"><span class="annottext">g :: Maybe Text
-</span><a href="#local-6989586621679071048"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
-</span><a href="#local-6989586621679071049"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">grepStr :: Maybe Text
-</span><a href="#local-6989586621679071047"><span class="hs-identifier hs-var">grepStr</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Text
-</span><a href="#local-6989586621679071048"><span class="hs-identifier hs-var">g</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679072084"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-95"></span><span>    </span><span id="local-6989586621679072085"><span class="annot"><span class="annottext">updater :: Env -&gt; Maybe Text -&gt; Env
+</span><a href="#local-6989586621679072085"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679072082"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679072082"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679072081"><span class="annot"><span class="annottext">g :: Maybe Text
+</span><a href="#local-6989586621679072081"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679072082"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">grepStr :: Maybe Text
+</span><a href="#local-6989586621679072080"><span class="hs-identifier hs-var">grepStr</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679072081"><span class="hs-identifier hs-var">g</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-96"></span><span>
 </span><span id="line-97"></span><span class="annot"><a href="Git.Stale.Parsing.html#pathParser"><span class="hs-identifier hs-type">pathParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
 </span><span id="line-98"></span><span id="pathParser"><span class="annot"><span class="annottext">pathParser :: AnyParser Env
@@ -191,31 +191,31 @@ forall a acc.
 (String, String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.html#PrefixParser"><span class="hs-identifier hs-var">PrefixParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;--path=&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe (Maybe String)
 forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe (Maybe a)
-</span><a href="#local-6989586621679071046"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Maybe String -&gt; Env
-</span><a href="#local-6989586621679071045"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679072079"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Maybe String -&gt; Env
+</span><a href="#local-6989586621679072078"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-99"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-100"></span><span>    </span><span id="local-6989586621679071046"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe (Maybe a)
-</span><a href="#local-6989586621679071046"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe a -&gt; Maybe (Maybe a)
+</span><span id="line-100"></span><span>    </span><span id="local-6989586621679072079"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe (Maybe a)
+</span><a href="#local-6989586621679072079"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe a -&gt; Maybe (Maybe a)
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Maybe a
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-101"></span><span>    </span><span class="annot"><a href="#local-6989586621679071046"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679071044"><span class="annot"><span class="annottext">s :: a
-</span><a href="#local-6989586621679071044"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe a -&gt; Maybe (Maybe a)
+</span><span id="line-101"></span><span>    </span><span class="annot"><a href="#local-6989586621679072079"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679072077"><span class="annot"><span class="annottext">s :: a
+</span><a href="#local-6989586621679072077"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe a -&gt; Maybe (Maybe a)
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Maybe a -&gt; Maybe (Maybe a)) -&gt; Maybe a -&gt; Maybe (Maybe a)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Maybe a
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071044"><span class="hs-identifier hs-var">s</span></a></span><span>
-</span><span id="line-102"></span><span>    </span><span id="local-6989586621679071045"><span class="annot"><span class="annottext">updater :: Env -&gt; Maybe String -&gt; Env
-</span><a href="#local-6989586621679071045"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071043"><span class="annot"><span class="annottext">env :: Env
-</span><a href="#local-6989586621679071043"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071042"><span class="annot"><span class="annottext">p :: Maybe String
-</span><a href="#local-6989586621679071042"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
-</span><a href="#local-6989586621679071043"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">path :: Maybe String
+</span><a href="#local-6989586621679072077"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-102"></span><span>    </span><span id="local-6989586621679072078"><span class="annot"><span class="annottext">updater :: Env -&gt; Maybe String -&gt; Env
+</span><a href="#local-6989586621679072078"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679072076"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679072076"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679072075"><span class="annot"><span class="annottext">p :: Maybe String
+</span><a href="#local-6989586621679072075"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679072076"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">path :: Maybe String
 </span><a href="Git.Stale.Types.Env.html#path"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679071042"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679072075"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-103"></span><span>
 </span><span id="line-104"></span><span class="annot"><a href="Git.Stale.Parsing.html#limitParser"><span class="hs-identifier hs-type">limitParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
 </span><span id="line-105"></span><span id="limitParser"><span class="annot"><span class="annottext">limitParser :: AnyParser Env
@@ -228,28 +228,28 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a acc.
 (String, String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.html#PrefixParser"><span class="hs-identifier hs-var">PrefixParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;--limit=&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe Nat
-</span><a href="#local-6989586621679071040"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Nat -&gt; Env
-</span><a href="#local-6989586621679071039"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679072073"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Nat -&gt; Env
+</span><a href="#local-6989586621679072072"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-106"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-107"></span><span>    </span><span id="local-6989586621679071040"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe Nat
-</span><a href="#local-6989586621679071040"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Nat
+</span><span id="line-107"></span><span>    </span><span id="local-6989586621679072073"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe Nat
+</span><a href="#local-6989586621679072073"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Nat
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-108"></span><span>    </span><span class="annot"><a href="#local-6989586621679071040"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679071038"><span class="annot"><span class="annottext">s :: String
-</span><a href="#local-6989586621679071038"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe Integer
+</span><span id="line-108"></span><span>    </span><span class="annot"><a href="#local-6989586621679072073"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679072071"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679072071"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe Integer
 forall a. Read a =&gt; String -&gt; Maybe a
 </span><span class="hs-identifier hs-var">R.readMaybe</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679071038"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Integer -&gt; (Integer -&gt; Maybe Nat) -&gt; Maybe Nat
+</span><a href="#local-6989586621679072071"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Integer -&gt; (Integer -&gt; Maybe Nat) -&gt; Maybe Nat
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
 </span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Maybe Nat
 </span><a href="Git.Stale.Types.Nat.html#mkNat"><span class="hs-identifier hs-var">mkNat</span></a></span><span>
-</span><span id="line-109"></span><span>    </span><span id="local-6989586621679071039"><span class="annot"><span class="annottext">updater :: Env -&gt; Nat -&gt; Env
-</span><a href="#local-6989586621679071039"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071036"><span class="annot"><span class="annottext">env :: Env
-</span><a href="#local-6989586621679071036"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071035"><span class="annot"><span class="annottext">l :: Nat
-</span><a href="#local-6989586621679071035"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
-</span><a href="#local-6989586621679071036"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">limit :: Nat
+</span><span id="line-109"></span><span>    </span><span id="local-6989586621679072072"><span class="annot"><span class="annottext">updater :: Env -&gt; Nat -&gt; Env
+</span><a href="#local-6989586621679072072"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679072069"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679072069"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679072068"><span class="annot"><span class="annottext">l :: Nat
+</span><a href="#local-6989586621679072068"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679072069"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">limit :: Nat
 </span><a href="Git.Stale.Types.Env.html#limit"><span class="hs-identifier hs-var">limit</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Nat
-</span><a href="#local-6989586621679071035"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679072068"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-110"></span><span>
 </span><span id="line-111"></span><span class="annot"><a href="Git.Stale.Parsing.html#branchTypeParser"><span class="hs-identifier hs-type">branchTypeParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
 </span><span id="line-112"></span><span id="branchTypeParser"><span class="annot"><span class="annottext">branchTypeParser :: AnyParser Env
@@ -264,32 +264,32 @@ forall a acc.
 (String, String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.html#PrefixParser"><span class="hs-identifier hs-var">PrefixParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;--branch-type=&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe BranchType
 forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe BranchType
-</span><a href="#local-6989586621679071033"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; BranchType -&gt; Env
-</span><a href="#local-6989586621679071032"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679072066"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; BranchType -&gt; Env
+</span><a href="#local-6989586621679072065"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-113"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-114"></span><span>    </span><span id="local-6989586621679071033"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe BranchType
-</span><a href="#local-6989586621679071033"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;all&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+</span><span id="line-114"></span><span>    </span><span id="local-6989586621679072066"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe BranchType
+</span><a href="#local-6989586621679072066"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;all&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
 </span><a href="Git.Stale.Types.Env.html#All"><span class="hs-identifier hs-var">All</span></a></span><span>
-</span><span id="line-115"></span><span>    </span><span class="annot"><a href="#local-6989586621679071033"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-string">&quot;remote&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+</span><span id="line-115"></span><span>    </span><span class="annot"><a href="#local-6989586621679072066"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-string">&quot;remote&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
 </span><a href="Git.Stale.Types.Env.html#Remote"><span class="hs-identifier hs-var">Remote</span></a></span><span>
-</span><span id="line-116"></span><span>    </span><span class="annot"><a href="#local-6989586621679071033"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-string">&quot;local&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+</span><span id="line-116"></span><span>    </span><span class="annot"><a href="#local-6989586621679072066"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-string">&quot;local&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
 </span><a href="Git.Stale.Types.Env.html#Local"><span class="hs-identifier hs-var">Local</span></a></span><span>
-</span><span id="line-117"></span><span>    </span><span class="annot"><a href="#local-6989586621679071033"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
+</span><span id="line-117"></span><span>    </span><span class="annot"><a href="#local-6989586621679072066"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-118"></span><span>    </span><span id="local-6989586621679071032"><span class="annot"><span class="annottext">updater :: Env -&gt; BranchType -&gt; Env
-</span><a href="#local-6989586621679071032"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071029"><span class="annot"><span class="annottext">env :: Env
-</span><a href="#local-6989586621679071029"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071028"><span class="annot"><span class="annottext">b :: BranchType
-</span><a href="#local-6989586621679071028"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
-</span><a href="#local-6989586621679071029"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">branchType :: BranchType
+</span><span id="line-118"></span><span>    </span><span id="local-6989586621679072065"><span class="annot"><span class="annottext">updater :: Env -&gt; BranchType -&gt; Env
+</span><a href="#local-6989586621679072065"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679072062"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679072062"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679072061"><span class="annot"><span class="annottext">b :: BranchType
+</span><a href="#local-6989586621679072061"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679072062"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">branchType :: BranchType
 </span><a href="Git.Stale.Types.Env.html#branchType"><span class="hs-identifier hs-var">branchType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType
-</span><a href="#local-6989586621679071028"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679072061"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-119"></span><span>
 </span><span id="line-120"></span><span class="annot"><a href="Git.Stale.Parsing.html#branchAllFlagParser"><span class="hs-identifier hs-type">branchAllFlagParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
 </span><span id="line-121"></span><span id="branchAllFlagParser"><span class="annot"><span class="annottext">branchAllFlagParser :: AnyParser Env
@@ -303,24 +303,24 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a acc. (String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.html#ExactParser"><span class="hs-identifier hs-var">ExactParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe BranchType
 forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe BranchType
-</span><a href="#local-6989586621679071025"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; BranchType -&gt; Env
-</span><a href="#local-6989586621679071024"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679072058"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; BranchType -&gt; Env
+</span><a href="#local-6989586621679072057"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-122"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-123"></span><span>    </span><span id="local-6989586621679071025"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe BranchType
-</span><a href="#local-6989586621679071025"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;-a&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+</span><span id="line-123"></span><span>    </span><span id="local-6989586621679072058"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe BranchType
+</span><a href="#local-6989586621679072058"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;-a&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
 </span><a href="Git.Stale.Types.Env.html#All"><span class="hs-identifier hs-var">All</span></a></span><span>
-</span><span id="line-124"></span><span>    </span><span class="annot"><a href="#local-6989586621679071025"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
+</span><span id="line-124"></span><span>    </span><span class="annot"><a href="#local-6989586621679072058"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-125"></span><span>    </span><span id="local-6989586621679071024"><span class="annot"><span class="annottext">updater :: Env -&gt; BranchType -&gt; Env
-</span><a href="#local-6989586621679071024"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071023"><span class="annot"><span class="annottext">env :: Env
-</span><a href="#local-6989586621679071023"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071022"><span class="annot"><span class="annottext">b :: BranchType
-</span><a href="#local-6989586621679071022"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
-</span><a href="#local-6989586621679071023"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">branchType :: BranchType
+</span><span id="line-125"></span><span>    </span><span id="local-6989586621679072057"><span class="annot"><span class="annottext">updater :: Env -&gt; BranchType -&gt; Env
+</span><a href="#local-6989586621679072057"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679072056"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679072056"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679072055"><span class="annot"><span class="annottext">b :: BranchType
+</span><a href="#local-6989586621679072055"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679072056"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">branchType :: BranchType
 </span><a href="Git.Stale.Types.Env.html#branchType"><span class="hs-identifier hs-var">branchType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType
-</span><a href="#local-6989586621679071022"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679072055"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-126"></span><span>
 </span><span id="line-127"></span><span class="annot"><a href="Git.Stale.Parsing.html#branchRemoteFlagParser"><span class="hs-identifier hs-type">branchRemoteFlagParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
 </span><span id="line-128"></span><span id="branchRemoteFlagParser"><span class="annot"><span class="annottext">branchRemoteFlagParser :: AnyParser Env
@@ -334,24 +334,24 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a acc. (String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.html#ExactParser"><span class="hs-identifier hs-var">ExactParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe BranchType
 forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe BranchType
-</span><a href="#local-6989586621679071021"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; BranchType -&gt; Env
-</span><a href="#local-6989586621679071020"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679072054"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; BranchType -&gt; Env
+</span><a href="#local-6989586621679072053"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-129"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-130"></span><span>    </span><span id="local-6989586621679071021"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe BranchType
-</span><a href="#local-6989586621679071021"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;-r&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+</span><span id="line-130"></span><span>    </span><span id="local-6989586621679072054"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe BranchType
+</span><a href="#local-6989586621679072054"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;-r&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
 </span><a href="Git.Stale.Types.Env.html#Remote"><span class="hs-identifier hs-var">Remote</span></a></span><span>
-</span><span id="line-131"></span><span>    </span><span class="annot"><a href="#local-6989586621679071021"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
+</span><span id="line-131"></span><span>    </span><span class="annot"><a href="#local-6989586621679072054"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-132"></span><span>    </span><span id="local-6989586621679071020"><span class="annot"><span class="annottext">updater :: Env -&gt; BranchType -&gt; Env
-</span><a href="#local-6989586621679071020"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071019"><span class="annot"><span class="annottext">env :: Env
-</span><a href="#local-6989586621679071019"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071018"><span class="annot"><span class="annottext">b :: BranchType
-</span><a href="#local-6989586621679071018"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
-</span><a href="#local-6989586621679071019"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">branchType :: BranchType
+</span><span id="line-132"></span><span>    </span><span id="local-6989586621679072053"><span class="annot"><span class="annottext">updater :: Env -&gt; BranchType -&gt; Env
+</span><a href="#local-6989586621679072053"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679072052"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679072052"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679072051"><span class="annot"><span class="annottext">b :: BranchType
+</span><a href="#local-6989586621679072051"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679072052"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">branchType :: BranchType
 </span><a href="Git.Stale.Types.Env.html#branchType"><span class="hs-identifier hs-var">branchType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType
-</span><a href="#local-6989586621679071018"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679072051"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-133"></span><span>
 </span><span id="line-134"></span><span class="annot"><a href="Git.Stale.Parsing.html#branchLocalFlagParser"><span class="hs-identifier hs-type">branchLocalFlagParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
 </span><span id="line-135"></span><span id="branchLocalFlagParser"><span class="annot"><span class="annottext">branchLocalFlagParser :: AnyParser Env
@@ -365,24 +365,24 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a acc. (String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.html#ExactParser"><span class="hs-identifier hs-var">ExactParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe BranchType
 forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe BranchType
-</span><a href="#local-6989586621679071017"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; BranchType -&gt; Env
-</span><a href="#local-6989586621679071016"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679072050"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; BranchType -&gt; Env
+</span><a href="#local-6989586621679072049"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-136"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-137"></span><span>    </span><span id="local-6989586621679071017"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe BranchType
-</span><a href="#local-6989586621679071017"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;-l&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
+</span><span id="line-137"></span><span>    </span><span id="local-6989586621679072050"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe BranchType
+</span><a href="#local-6989586621679072050"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;-l&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType -&gt; Maybe BranchType
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">BranchType
 </span><a href="Git.Stale.Types.Env.html#Local"><span class="hs-identifier hs-var">Local</span></a></span><span>
-</span><span id="line-138"></span><span>    </span><span class="annot"><a href="#local-6989586621679071017"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
+</span><span id="line-138"></span><span>    </span><span class="annot"><a href="#local-6989586621679072050"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe BranchType
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-139"></span><span>    </span><span id="local-6989586621679071016"><span class="annot"><span class="annottext">updater :: Env -&gt; BranchType -&gt; Env
-</span><a href="#local-6989586621679071016"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071015"><span class="annot"><span class="annottext">env :: Env
-</span><a href="#local-6989586621679071015"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071014"><span class="annot"><span class="annottext">b :: BranchType
-</span><a href="#local-6989586621679071014"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
-</span><a href="#local-6989586621679071015"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">branchType :: BranchType
+</span><span id="line-139"></span><span>    </span><span id="local-6989586621679072049"><span class="annot"><span class="annottext">updater :: Env -&gt; BranchType -&gt; Env
+</span><a href="#local-6989586621679072049"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679072048"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679072048"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679072047"><span class="annot"><span class="annottext">b :: BranchType
+</span><a href="#local-6989586621679072047"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679072048"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">branchType :: BranchType
 </span><a href="Git.Stale.Types.Env.html#branchType"><span class="hs-identifier hs-var">branchType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BranchType
-</span><a href="#local-6989586621679071014"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679072047"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-140"></span><span>
 </span><span id="line-141"></span><span class="annot"><a href="Git.Stale.Parsing.html#remoteNameParser"><span class="hs-identifier hs-type">remoteNameParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
 </span><span id="line-142"></span><span id="remoteNameParser"><span class="annot"><span class="annottext">remoteNameParser :: AnyParser Env
@@ -396,30 +396,30 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a acc.
 (String, String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.html#PrefixParser"><span class="hs-identifier hs-var">PrefixParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;--remote=&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe Text
-</span><a href="#local-6989586621679071013"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Text -&gt; Env
-</span><a href="#local-6989586621679071012"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679072046"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Text -&gt; Env
+</span><a href="#local-6989586621679072045"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-143"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-144"></span><span>    </span><span id="local-6989586621679071013"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe Text
-</span><a href="#local-6989586621679071013"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
+</span><span id="line-144"></span><span>    </span><span id="local-6989586621679072046"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe Text
+</span><a href="#local-6989586621679072046"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
-</span><span id="line-145"></span><span>    </span><span class="annot"><a href="#local-6989586621679071013"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679071011"><span class="annot"><span class="annottext">s :: String
-</span><a href="#local-6989586621679071011"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
+</span><span id="line-145"></span><span>    </span><span class="annot"><a href="#local-6989586621679072046"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679072044"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679072044"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Maybe Text) -&gt; Text -&gt; Maybe Text
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679071011"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679072044"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;/&quot;</span></span><span class="hs-special">)</span><span>
-</span><span id="line-146"></span><span>    </span><span id="local-6989586621679071012"><span class="annot"><span class="annottext">updater :: Env -&gt; Text -&gt; Env
-</span><a href="#local-6989586621679071012"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071010"><span class="annot"><span class="annottext">env :: Env
-</span><a href="#local-6989586621679071010"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071009"><span class="annot"><span class="annottext">r :: Text
-</span><a href="#local-6989586621679071009"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
-</span><a href="#local-6989586621679071010"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">remoteName :: Text
+</span><span id="line-146"></span><span>    </span><span id="local-6989586621679072045"><span class="annot"><span class="annottext">updater :: Env -&gt; Text -&gt; Env
+</span><a href="#local-6989586621679072045"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679072043"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679072043"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679072042"><span class="annot"><span class="annottext">r :: Text
+</span><a href="#local-6989586621679072042"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679072043"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">remoteName :: Text
 </span><a href="Git.Stale.Types.Env.html#remoteName"><span class="hs-identifier hs-var">remoteName</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679071009"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679072042"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-147"></span><span>
 </span><span id="line-148"></span><span class="annot"><a href="Git.Stale.Parsing.html#masterParser"><span class="hs-identifier hs-type">masterParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
 </span><span id="line-149"></span><span id="masterParser"><span class="annot"><span class="annottext">masterParser :: AnyParser Env
@@ -433,28 +433,28 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a acc.
 (String, String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.html#PrefixParser"><span class="hs-identifier hs-var">PrefixParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;--master=&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe Text
-</span><a href="#local-6989586621679071007"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Text -&gt; Env
-</span><a href="#local-6989586621679071006"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679072040"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Text -&gt; Env
+</span><a href="#local-6989586621679072039"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-150"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-151"></span><span>    </span><span id="local-6989586621679071007"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe Text
-</span><a href="#local-6989586621679071007"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
+</span><span id="line-151"></span><span>    </span><span id="local-6989586621679072040"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe Text
+</span><a href="#local-6989586621679072040"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
-</span><span id="line-152"></span><span>    </span><span class="annot"><a href="#local-6989586621679071007"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679071005"><span class="annot"><span class="annottext">s :: String
-</span><a href="#local-6989586621679071005"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
+</span><span id="line-152"></span><span>    </span><span class="annot"><a href="#local-6989586621679072040"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679072038"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679072038"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Text
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Maybe Text) -&gt; Text -&gt; Maybe Text
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679071005"><span class="hs-identifier hs-var">s</span></a></span><span>
-</span><span id="line-153"></span><span>    </span><span id="local-6989586621679071006"><span class="annot"><span class="annottext">updater :: Env -&gt; Text -&gt; Env
-</span><a href="#local-6989586621679071006"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679071004"><span class="annot"><span class="annottext">env :: Env
-</span><a href="#local-6989586621679071004"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679071003"><span class="annot"><span class="annottext">m :: Text
-</span><a href="#local-6989586621679071003"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
-</span><a href="#local-6989586621679071004"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">master :: Text
+</span><a href="#local-6989586621679072038"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-153"></span><span>    </span><span id="local-6989586621679072039"><span class="annot"><span class="annottext">updater :: Env -&gt; Text -&gt; Env
+</span><a href="#local-6989586621679072039"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679072037"><span class="annot"><span class="annottext">env :: Env
+</span><a href="#local-6989586621679072037"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679072036"><span class="annot"><span class="annottext">m :: Text
+</span><a href="#local-6989586621679072036"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Env
+</span><a href="#local-6989586621679072037"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">master :: Text
 </span><a href="Git.Stale.Types.Env.html#master"><span class="hs-identifier hs-var">master</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679071003"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679072036"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-154"></span><span>
 </span><span id="line-155"></span><span class="annot"><a href="Git.Stale.Parsing.html#help"><span class="hs-identifier hs-type">help</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
 </span><span id="line-156"></span><span id="help"><span class="annot"><span class="annottext">help :: String

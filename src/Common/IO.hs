@@ -6,8 +6,10 @@
 module Common.IO
   ( sh,
     sh_,
+    shCaptureErr_,
     trySh,
     trySh_,
+    tryShCaptureErr_,
   )
 where
 
@@ -15,6 +17,8 @@ import qualified Control.Exception as Ex
 import Data.Functor (($>))
 import qualified Data.Text as T
 import qualified System.Process as P
+import qualified System.IO.Silently as Shh
+import qualified System.IO as IO
 
 -- | Returns the result of running a shell command given by
 -- 'T.Text' on 'FilePath'.
@@ -28,6 +32,10 @@ sh_ :: T.Text -> Maybe FilePath -> IO ()
 sh_ cmd fp = P.readCreateProcess proc "" $> ()
   where
     proc = (P.shell (T.unpack cmd)) {P.cwd = fp}
+
+-- | Version of 'sh' that ignores the return value and returns stderr.
+shCaptureErr_ :: T.Text -> Maybe FilePath -> IO T.Text
+shCaptureErr_ cmd path = T.pack <$> (Shh.hCapture_ [IO.stderr] $ sh_ cmd path)
 
 -- | Attempts to return the result of running a shell command given by
 -- 'T.Text' on 'FilePath'.
@@ -43,3 +51,7 @@ trySh_ err cmd path = do
       putStrLn $ err <> ": " <> show ex
       pure ()
     Right r -> pure r
+
+-- | Version of 'trySh' that returns stderr.
+tryShCaptureErr_ :: T.Text -> Maybe FilePath -> IO (Either Ex.SomeException T.Text)
+tryShCaptureErr_ cmd path = Ex.try (shCaptureErr_ cmd path)

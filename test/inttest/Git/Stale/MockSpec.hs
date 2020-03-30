@@ -1,15 +1,11 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Git.Stale.MockSpec where
 
 import Control.Monad.Reader (runReaderT)
-import qualified Data.Maybe as M
-import qualified Data.Text as Txt
 import qualified Data.Time.Calendar as Cal
 import Git.Stale.Core.FindBranches
 import Git.Stale.Core.MockFindBranches
 import Git.Stale.Types.Env
-import Git.Stale.Types.Nat
+import Git.Stale.Parsing
 import Output
 import Test.Hspec
 
@@ -29,15 +25,24 @@ spec = do
       let (Output res _) = runMock "nope"
       length res `shouldBe` 0
 
-runMock :: Txt.Text -> Output ()
+runMock :: String -> Output ()
 runMock t = runReaderT (runMockFindBranchesT runFindBranches) (envWithGrep t)
 
-envWithGrep :: Txt.Text -> Env
-envWithGrep "" = Env Nothing (Just "/share") unsafeNat Remote "origin/" "origin/master" mkDay
-envWithGrep s = Env (Just s) (Just "/share") unsafeNat Remote "origin/" "origin/master" mkDay
+args :: String -> [String]
+args s =
+  [
+    "--grep=" <> s,
+    "--path=/share",
+    "--limit=30",
+    "--branch-type=remote",
+    "--remote=origin/",
+    "--master=origin/master"
+  ]
+
+envWithGrep :: String -> Env
+envWithGrep s = case parseArgs mkDay (args s) of
+  Left err -> error $ "Failure parsing args in int test: " <> err
+  Right env -> env
 
 mkDay :: Cal.Day
 mkDay = Cal.fromGregorian 2017 7 27
-
-unsafeNat :: Nat
-unsafeNat = M.fromJust $ mkNat 30

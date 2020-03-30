@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Git.FastForward.Core.MockUpdateBranches where
@@ -48,5 +49,13 @@ instance UpdateBranches MockUpdateBranchesOut where
   summarize :: [UpdateResult] -> MockUpdateBranchesOut ()
   summarize = lift . putOutput
 
+  pushBranches :: MockUpdateBranchesOut [UpdateResult]
+  pushBranches = do
+    Env {push} <- ask
+    lift $ pure $ fmap nameToResult push
+
   checkoutCurrent :: CurrentBranch -> MockUpdateBranchesOut ()
   checkoutCurrent (Name nm) = lift $ putSingleOutput ("Checked out " <> nm)
+
+nameToResult :: Name -> UpdateResult
+nameToResult = Success
