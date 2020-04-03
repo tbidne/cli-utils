@@ -22,8 +22,8 @@ data BranchType
   | Local
   deriving (Eq, Show)
 
--- | Maps a `BranchType` to a `String` flag to be used in "Core.FindBranches"'
--- `Core.FindBranches.branchNamesByGrep` command.
+-- | Maps a `BranchType` to a `String` flag to be used in "Core.MonadFindBranches"'
+-- `Core.MonadFindBranches.branchNamesByGrep` command.
 branchTypeToArg :: BranchType -> String
 branchTypeToArg All = "-a"
 branchTypeToArg Remote = "-r"

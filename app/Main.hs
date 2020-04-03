@@ -8,9 +8,9 @@ import Control.Concurrent.ParallelIO.Global
 import Control.Monad.Reader (runReaderT)
 import Data.Time.Calendar (Day)
 import Data.Time.Clock (getCurrentTime, utctDay)
-import Git.FastForward.Core.UpdateBranches
+import Git.FastForward.Core.MonadUpdateBranches
 import qualified Git.FastForward.Parsing as FF
-import Git.Stale.Core.FindBranches
+import Git.Stale.Core.MonadFindBranches
 import qualified Git.Stale.Parsing as Stale
 import Git.Stale.Types.Env ()
 import System.Environment (getArgs)

@@ -2,7 +2,7 @@
 {-# LANGUAGE TupleSections #-}
 
 -- |
--- Module      : Git.Stale.Core.FindBranches
+-- Module      : Git.Stale.Core.Internal
 -- License     : BSD3
 -- Maintainer  : tbidne@gmail.com
 -- Exports utility functions mainly for parsing/transforming

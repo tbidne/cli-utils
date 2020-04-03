@@ -16,11 +16,11 @@ instance Arbitrary ValidMergeType where
     (PrintableString p) <- arbitrary `suchThat` \(PrintableString s) -> s /= ""
     bt <-
       elements
-        [ "--merge-type=upstream",
+        [ "--merge=upstream",
           "-u",
-          "--merge-type=master",
+          "--merge=master",
           "-m",
-          "--merge-type=" <> p
+          "--merge=" <> p
         ]
     pure $ ValidMergeType bt
 

@@ -26,7 +26,7 @@ import Git.Types.GitTypes
 --       Path to the git directory. Any `String` is fine, defaults
 --       to the empty string (current directory).
 --
---   -u, --merge-type=upstream
+--   -u, --merge=upstream
 --       Merges upstream via @{u} into each local branch. This is the default.
 --
 --   -m, --branch-type=master
@@ -75,7 +75,7 @@ pathParser = AnyParser $ PrefixParser ("--path=", parser, updater)
     updater env p = env {path = p}
 
 mergeTypeParser :: AnyParser Env
-mergeTypeParser = AnyParser $ PrefixParser ("--merge-type=", parser, updater)
+mergeTypeParser = AnyParser $ PrefixParser ("--merge=", parser, updater)
   where
     parser "" = Nothing
     parser "upstream" = Just Upstream
@@ -109,9 +109,9 @@ help =
   "\nUsage: git-utils fastforward [OPTIONS]\n\n"
     <> "Fast-forwards all local branches with --ff-only.\n\nOptions:\n"
     <> "  --path=<string>\t\tDirectory path, defaults to current directory.\n\n"
-    <> "  -u, --merge-type=upstream\tMerges each branches' upstream via @{u}. This is the default.\n\n"
-    <> "  -m, --merge-type=master\tMerges origin/master into each branch.\n\n"
-    <> "  --merge-type=<string>\t\tMerges branch given by <string> into each branch.\n\n"
+    <> "  -u, --merge=upstream\tMerges each branches' upstream via @{u}. This is the default.\n\n"
+    <> "  -m, --merge=master\tMerges origin/master into each branch.\n\n"
+    <> "  --merge=<string>\t\tMerges branch given by <string> into each branch.\n\n"
     <> "  --push=<list>\t\t\tList of branches to push to after we're done updating.\n"
     <> "\t\t\t\tEach branch is formatted \"remote_name branch_name\",\n"
     <> "\t\t\t\tand each \"remote_name branch_name\" is separated by a comma.\n"

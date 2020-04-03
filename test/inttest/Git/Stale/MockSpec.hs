@@ -2,7 +2,7 @@ module Git.Stale.MockSpec where
 
 import Control.Monad.Reader (runReaderT)
 import qualified Data.Time.Calendar as Cal
-import Git.Stale.Core.FindBranches
+import Git.Stale.Core.MonadFindBranches
 import Git.Stale.Core.MockFindBranches
 import Git.Stale.Types.Env
 import Git.Stale.Parsing

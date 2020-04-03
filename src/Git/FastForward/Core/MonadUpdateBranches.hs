@@ -3,12 +3,12 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 -- |
--- Module      : Git.FastForward.Core.UpdateBranches
+-- Module      : Git.FastForward.Core.MonadUpdateBranches
 -- License     : BSD3
 -- Maintainer  : tbidne@gmail.com
--- The UpdateBranches class.
-module Git.FastForward.Core.UpdateBranches
-  ( UpdateBranches (..),
+-- The MonadUpdateBranches class.
+module Git.FastForward.Core.MonadUpdateBranches
+  ( MonadUpdateBranches (..),
     runUpdateBranches,
   )
 where
@@ -21,9 +21,9 @@ import Git.FastForward.Types.LocalBranches
 import Git.FastForward.Types.UpdateResult
 import Git.Types.GitTypes
 
--- | The 'UpdateBranches' class is used to describe updating branches
+-- | The 'MonadUpdateBranches' class is used to describe updating branches
 -- on a git filesystem.
-class Monad m => UpdateBranches m where
+class Monad m => MonadUpdateBranches m where
   -- | Performs 'fetch'.
   fetch :: m ()
 
@@ -42,12 +42,12 @@ class Monad m => UpdateBranches m where
   -- | Checks out the passed 'CurrentBranch'.
   checkoutCurrent :: CurrentBranch -> m ()
 
--- | `UpdateBranches` instance for (`AppT` m) over `R.MonadIO`. In general, we
+-- | `MonadUpdateBranches` instance for (`AppT` m) over `R.MonadIO`. In general, we
 -- do not care about error handling /except/ during 'updateBranch'. This is
 -- because a failure during 'updateBranch' is relatively common as we're
 -- being conservative by merging with "--ff-only", and we'd rather log it
 -- and continue trying to update other branches.
-instance R.MonadIO m => UpdateBranches (AppT Env m) where
+instance R.MonadIO m => MonadUpdateBranches (AppT Env m) where
   fetch :: AppT Env m ()
   fetch = do
     Env {path} <- R.ask
@@ -76,9 +76,9 @@ instance R.MonadIO m => UpdateBranches (AppT Env m) where
     Env {path} <- R.ask
     R.liftIO $ checkoutCurrentIO curr path
 
--- | High level logic of `UpdateBranches` usage. This function is the
--- entrypoint for any `UpdateBranches` instance.
-runUpdateBranches :: UpdateBranches m => m ()
+-- | High level logic of `MonadUpdateBranches` usage. This function is the
+-- entrypoint for any `MonadUpdateBranches` instance.
+runUpdateBranches :: MonadUpdateBranches m => m ()
 runUpdateBranches = do
   fetch
   LocalBranches {current, branches} <- getBranches

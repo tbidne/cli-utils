@@ -2,10 +2,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- |
--- Module      : Git.Stale.Core.FindBranches
+-- Module      : Git.Stale.Core.IO
 -- License     : BSD3
 -- Maintainer  : tbidne@gmail.com
--- Exports functions to be used by "Git.Stale.Core.FindBranches" for `IO`.
+-- Exports functions to be used by "Git.Stale.Core.MonadFindBranches" for `IO`.
 module Git.Stale.Core.IO
   ( errTupleToBranch,
     logIfErr,

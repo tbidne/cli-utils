@@ -9,7 +9,7 @@ module Git.Stale.Types.Filtered
   )
 where
 
--- | Intermediate type to ensure `Core.FindBranches.getStaleLogs`
+-- | Intermediate type to ensure `Core.MonadFindBranches.getStaleLogs`
 -- filters stale logs.
 newtype Filtered a = Filtered {unFiltered :: [a]}
 

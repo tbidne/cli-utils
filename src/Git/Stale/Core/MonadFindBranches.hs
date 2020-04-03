@@ -7,12 +7,12 @@
 {-# LANGUAGE TypeFamilies #-}
 
 -- |
--- Module      : Git.Stale.Core.FindBranches
+-- Module      : Git.Stale.Core.MonadFindBranches
 -- License     : BSD3
 -- Maintainer  : tbidne@gmail.com
--- The FindBranches class.
-module Git.Stale.Core.FindBranches
-  ( FindBranches (..),
+-- The MonadFindBranches class.
+module Git.Stale.Core.MonadFindBranches
+  ( MonadFindBranches (..),
     runFindBranches,
   )
 where
@@ -31,9 +31,9 @@ import Git.Stale.Types.Filtered
 import Git.Stale.Types.ResultsWithErrs
 import Git.Types.GitTypes
 
--- | The 'FindBranches' class is used to describe various git
+-- | The 'MonadFindBranches' class is used to describe various git
 -- actions for finding stale branches.
-class Monad m => FindBranches m where
+class Monad m => MonadFindBranches m where
   -- | Adds custom handling to returned data (e.g. for error handling).
   type Handler (m :: K.Type -> K.Type) (a :: K.Type)
 
@@ -55,7 +55,7 @@ class Monad m => FindBranches m where
   -- | Displays results.
   display :: FinalResults m -> m ()
 
--- | `FindBranches` instance for (`AppT` m) over `R.MonadIO`. This means we can
+-- | `MonadFindBranches` instance for (`AppT` m) over `R.MonadIO`. This means we can
 -- encounter exceptions, but
 --
 --   * We do not want a single exception trying to parse one branch kill
@@ -66,7 +66,7 @@ class Monad m => FindBranches m where
 -- and two maps, one for merged branches and another for unmerged branches. 
 -- We opt to define `Handler` as (`ErrOr` a) -- an alias for
 -- (`Either` `Err` a) -- as we do not want a single error to crash the app.
-instance R.MonadIO m => FindBranches (AppT Env m) where
+instance R.MonadIO m => MonadFindBranches (AppT Env m) where
   type Handler (AppT Env m) a = ErrOr a
 
   type FinalResults (AppT Env m) = ResultsWithErrs
@@ -104,9 +104,9 @@ instance R.MonadIO m => FindBranches (AppT Env m) where
     Env {remoteName} <- R.ask
     R.liftIO $ putStrLn $ T.unpack $ displayResultsWithErrs remoteName res
 
--- | High level logic of `FindBranches` usage. This function is the
--- entrypoint for any `FindBranches` instance.
-runFindBranches :: FindBranches m => m ()
+-- | High level logic of `MonadFindBranches` usage. This function is the
+-- entrypoint for any `MonadFindBranches` instance.
+runFindBranches :: MonadFindBranches m => m ()
 runFindBranches = do
   branchNames <- branchNamesByGrep
   staleLogs <- getStaleLogs branchNames

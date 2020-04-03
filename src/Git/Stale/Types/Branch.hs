@@ -35,7 +35,7 @@ data Branch (a :: BranchStatus) where
 -- | Maps each [`Branch` 'a'] to its `T.Text` `Name` and concatenates results.
 -- Attempts to strip out an irrelevant prefix it may have (i.e. `Types.Env.remoteName`).
 branchesToName :: T.Text -> [Branch a] -> T.Text
-branchesToName prefix branches = "[" <> T.intercalate "," names <> "]"
+branchesToName prefix branches = "[" <> T.intercalate " " names <> "]"
   where
     names = branchToName prefix <$> branches
 
