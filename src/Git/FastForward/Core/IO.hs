@@ -4,7 +4,7 @@
 -- Module      : Git.FastForward.Core.IO
 -- License     : BSD3
 -- Maintainer  : tbidne@gmail.com
--- Exports functions to be used by "Git.FastForward.Core.UpdateBranches" for `IO`.
+-- Exports functions to be used by "Git.FastForward.Core.MonadUpdateBranches" for `IO`.
 module Git.FastForward.Core.IO
   ( checkoutCurrentIO,
     fetchIO,

@@ -45,11 +45,11 @@ verifyPath (matchAndStrip "--path=" -> Just s) (Just s') = s == s'
 verifyPath _ _ = False
 
 verifyMergeType :: String -> MergeType -> Bool
-verifyMergeType "--merge-type=upstream" Upstream = True
+verifyMergeType "--merge=upstream" Upstream = True
 verifyMergeType "-u" Upstream = True
-verifyMergeType "--merge-type=master" Master = True
+verifyMergeType "--merge=master" Master = True
 verifyMergeType "-m" Master = True
-verifyMergeType (matchAndStrip "--merge-type=" -> Just s) (Other (Name n)) = (T.pack s) == n
+verifyMergeType (matchAndStrip "--merge=" -> Just s) (Other (Name n)) = (T.pack s) == n
 verifyMergeType _ _ = False
 
 invalidArgsDies :: InvalidArgs -> Bool

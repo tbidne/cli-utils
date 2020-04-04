@@ -5,7 +5,7 @@ module Git.FastForward.MockSpec where
 import Control.Monad.Reader (runReaderT)
 import qualified Data.Text as T
 import Git.FastForward.Core.MockUpdateBranches
-import Git.FastForward.Core.UpdateBranches
+import Git.FastForward.Core.MonadUpdateBranches
 import Git.FastForward.Parsing
 import Git.FastForward.Types.Env
 import Output
@@ -19,12 +19,12 @@ spec = do
       res `shouldSatisfy` verifyOutput
 
 runMock :: Output ()
-runMock = runReaderT (runMockUpdateBranchesT runUpdateBranches) mkEnv
+runMock = runReaderT (runMockUpdateT runUpdateBranches) mkEnv
 
 args :: [String]
 args =
   [ "--path=",
-    "--merge-type=master",
+    "--merge=master",
     "--push=origin push1, remote push2"
   ]
 

@@ -8,7 +8,7 @@ import Common.Utils
 import qualified Control.Monad.Reader as R
 import qualified Data.Time.Calendar as Cal
 import qualified Data.Time.Clock as Clock
-import Git.Stale.Core.FindBranches
+import Git.Stale.Core.MonadFindBranches
 import Git.Stale.Parsing
 import Git.Stale.Types.Env
 import qualified System.IO as IO

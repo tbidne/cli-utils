@@ -25,11 +25,17 @@ instance Monad Output where
   (>>=) :: Output a -> (a -> Output b) -> Output b
   (Output rs x) >>= f = Output (rs <> ts) y where (Output ts y) = f x
 
-putOutput :: Show a => [a] -> Output ()
-putOutput xs = Output (fmap (T.pack . show) xs) ()
+putShowList :: Show a => [a] -> Output ()
+putShowList xs = Output (fmap (T.pack . show) xs) ()
 
-putSingleOutput :: Show a => a -> Output ()
-putSingleOutput x = Output [(T.pack . show) x] ()
+putShowable :: Show a => a -> Output ()
+putShowable x = Output [(T.pack . show) x] ()
 
-prependOut :: [T.Text] -> Output a -> Output a
-prependOut ts (Output rs x) = Output (ts <> rs) x
+putText :: T.Text -> Output ()
+putText t = Output [t] ()
+
+prependTextList :: [T.Text] -> Output a -> Output a
+prependTextList ts (Output rs x) = Output (ts <> rs) x
+
+prependText :: T.Text -> Output a -> Output a
+prependText r (Output rs x) = Output (r : rs) x
