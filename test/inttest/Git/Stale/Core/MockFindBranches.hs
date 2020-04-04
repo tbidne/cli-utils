@@ -9,7 +9,7 @@ module Git.Stale.Core.MockFindBranches where
 
 import Control.Monad.Reader
 import qualified Data.Text as Txt
-import Git.Stale.Core.FindBranches
+import Git.Stale.Core.MonadFindBranches
 import Git.Stale.Types.Branch
 import Git.Stale.Types.Env
 import Git.Stale.Types.Filtered
@@ -21,7 +21,7 @@ newtype MockFindBranchesT m a = MockFindBranchesT {runMockFindBranchesT :: Reade
 
 type MockFindBranchesOut = MockFindBranchesT Output
 
-instance FindBranches MockFindBranchesOut where
+instance MonadFindBranches MockFindBranchesOut where
   type Handler MockFindBranchesOut a = a
   type FinalResults MockFindBranchesOut = [AnyBranch]
 
@@ -48,10 +48,10 @@ instance FindBranches MockFindBranchesOut where
   collectResults = lift . return
 
   display :: [AnyBranch] -> MockFindBranchesOut ()
-  display = MockFindBranchesT . lift . putOutput
+  display = MockFindBranchesT . lift . putShowList
 
 addMockOut :: [Txt.Text] -> MockFindBranchesOut a -> MockFindBranchesOut a
-addMockOut ts = MockFindBranchesT . mapReaderT (prependOut ts) . runMockFindBranchesT
+addMockOut ts = MockFindBranchesT . mapReaderT (prependTextList ts) . runMockFindBranchesT
 
 allBranches :: [Name]
 allBranches =
