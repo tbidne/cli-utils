@@ -7,27 +7,30 @@
 
 module Git.FastForward.Core.MockUpdateBranches where
 
+import Control.Monad.Logger
 import Control.Monad.Reader
 import Git.FastForward.Core.MonadUpdateBranches
 import Git.FastForward.Types.Env
 import Git.FastForward.Types.LocalBranches
 import Git.FastForward.Types.UpdateResult
 import Git.Types.GitTypes
-import Output
+import Control.Monad.Identity
 
-newtype MockUpdateT m a = MockUpdateT {runMockUpdateT :: ReaderT Env m a}
-  deriving (Functor, Applicative, Monad, MonadTrans, MonadReader Env)
+newtype MockUpdateT m a = MockUpdateT {runMockUpdateT :: ReaderT Env (WriterLoggingT m) a}
+  deriving (Functor, Applicative, Monad, MonadReader Env)
 
-type MockUpdateOut = MockUpdateT Output
+instance MonadTrans MockUpdateT where
+  lift = MockUpdateT . lift . lift
 
+type MockUpdateI = MockUpdateT Identity
+type LogLine = (Loc, LogSource, LogLevel, LogStr)
 
-instance MonadUpdateBranches MockUpdateOut where
-  fetch :: MockUpdateOut ()
-  fetch = lift $ putShowable ("Fetching" :: String)
+instance MonadUpdateBranches MockUpdateI where
+  fetch :: MockUpdateI ()
+  fetch = logInfoN "Fetching"
 
-  getBranches :: MockUpdateOut LocalBranches
-  getBranches =
-    lift $ pure $
+  getBranches :: MockUpdateI LocalBranches
+  getBranches = lift $ pure $
       LocalBranches
         (Name "current")
         [ Name "success1",
@@ -38,7 +41,7 @@ instance MonadUpdateBranches MockUpdateOut where
           Name "failure2"
         ]
 
-  updateBranch :: Name -> MockUpdateOut UpdateResult
+  updateBranch :: Name -> MockUpdateI UpdateResult
   updateBranch nm@(Name "success1") = lift $ pure $ Success nm
   updateBranch nm@(Name "success2") = lift $ pure $ Success nm
   updateBranch nm@(Name "noChange1") = lift $ pure $ NoChange nm
@@ -47,16 +50,16 @@ instance MonadUpdateBranches MockUpdateOut where
   updateBranch nm@(Name "failure2") = lift $ pure $ Failure nm
   updateBranch _ = error "Mock MonadUpdateBranches is missing a pattern!"
 
-  summarize :: [UpdateResult] -> MockUpdateOut ()
-  summarize = lift . putShowList
-
-  pushBranches :: MockUpdateOut [UpdateResult]
+  pushBranches :: MockUpdateI [UpdateResult]
   pushBranches = do
     Env {push} <- ask
     lift $ pure $ fmap nameToResult push
 
-  checkoutCurrent :: CurrentBranch -> MockUpdateOut ()
-  checkoutCurrent (Name nm) = lift $ putShowable ("Checked out " <> nm)
+  checkoutCurrent :: CurrentBranch -> MockUpdateI ()
+  checkoutCurrent (Name nm) = logInfoN $ "Checked out " <> nm
+
+instance MonadLogger MockUpdateI where
+  monadLoggerLog a b c d = MockUpdateT $ lift $ monadLoggerLog a b c d
 
 nameToResult :: Name -> UpdateResult
 nameToResult = Success

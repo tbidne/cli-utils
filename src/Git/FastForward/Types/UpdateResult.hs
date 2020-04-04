@@ -1,4 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 -- |
 -- Module      : Git.FastForward.Types.UpdateResult
@@ -37,20 +38,17 @@ data SplitResults
       }
   deriving (Show)
 
--- | Summarizes ['UpdateResult'] as a display 'String'.
-displayResults :: [UpdateResult] -> String
+-- | Summarizes ['UpdateResult'] as a display 'T.Text'.
+displayResults :: [UpdateResult] -> T.Text
 displayResults = f . splitResults
   where
     f SplitResults {failures, noChanges, successes} =
-      "\nSUMMARY"
-        <> "\n-------"
-        <> "\nSuccesses: "
-        <> show successes
+      "Successes: "
+        <> T.pack (show successes)
         <> "\nNo Changes: "
-        <> show noChanges
+        <> T.pack (show noChanges)
         <> "\nFailures: "
-        <> show failures
-        <> "\n"
+        <> T.pack (show failures)
 
 -- | Maps ['UpdateResult'] to intermediate 'SplitResults'.
 splitResults :: [UpdateResult] -> SplitResults

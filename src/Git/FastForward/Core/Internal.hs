@@ -7,6 +7,7 @@
 -- Exports utility functions.
 module Git.FastForward.Core.Internal
   ( branchUpToDate,
+    mergeTypeToCmd,
     remoteUpToDate,
     textToLocalBranches,
   )
@@ -15,6 +16,7 @@ where
 import qualified Data.Foldable as F
 import qualified Data.Text as T
 import Git.FastForward.Types.LocalBranches
+import Git.FastForward.Types.MergeType
 import Git.Types.GitTypes
 
 data LocalBranchesParser = LocalBranchesParser (Maybe CurrentBranch) [Name]
@@ -51,3 +53,9 @@ branchUpToDate = (==) "Already up to date.\n"
 -- | Determines if a remote branch is up to date.
 remoteUpToDate :: T.Text -> Bool
 remoteUpToDate = (==) "Everything up-to-date\n"
+
+-- | Maps a merge type to its command
+mergeTypeToCmd :: MergeType -> T.Text
+mergeTypeToCmd Upstream = "git merge @{u} --ff-only"
+mergeTypeToCmd Master = "git merge origin/master --ff-only"
+mergeTypeToCmd (Other (Name up)) = "git merge \"" <> up <> "\" --ff-only"

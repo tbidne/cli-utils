@@ -5,7 +5,8 @@ where
 
 import App
 import Control.Concurrent.ParallelIO.Global
-import Control.Monad.Reader (runReaderT)
+import qualified Control.Monad.Logger as L
+import qualified Control.Monad.Reader as R
 import Data.Time.Calendar (Day)
 import Data.Time.Clock (getCurrentTime, utctDay)
 import Git.FastForward.Core.MonadUpdateBranches
@@ -39,10 +40,10 @@ run ::
   ([String] -> Either String env) ->
   [String] ->
   IO ()
-run appFn parseFn args =
+run app parseFn args =
   case parseFn args of
     Left err -> putStrLn err
-    Right env -> runReaderT (runAppT appFn) env
+    Right env -> L.runStdoutLoggingT $ R.runReaderT (runAppT app) env
 
 help :: String
 help =
