@@ -21,16 +21,16 @@ import Git.Types.GitTypes
 
 data LocalBranchesParser = LocalBranchesParser (Maybe CurrentBranch) [Name]
 
--- | Maps 'T.Text' to 'Just' 'LocalBranches' if we find a current branch
--- and all branch names are otherwise parsed successfully. Returns 'Nothing'
+-- | Maps 'T.Text' to 'Right' 'LocalBranches' if we find a current branch
+-- and all branch names are otherwise parsed successfully. Returns 'Left' err
 -- otherwise.
-textToLocalBranches :: T.Text -> Maybe LocalBranches
+textToLocalBranches :: T.Text -> Either T.Text LocalBranches
 textToLocalBranches s =
   let ls = T.lines s
       res = linesToParser ls
    in case res of
-        LocalBranchesParser (Just curr) ns -> Just $ LocalBranches curr ns
-        _ -> Nothing
+        LocalBranchesParser (Just curr) ns -> Right $ LocalBranches curr ns
+        _ -> Left $ "Error parsing local branches: " <> s
 
 linesToParser :: [T.Text] -> LocalBranchesParser
 linesToParser = F.foldl' f (LocalBranchesParser Nothing [])

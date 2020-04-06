@@ -56,37 +56,38 @@ instance R.MonadIO m => MonadUpdateBranches (AppT Env m) where
   fetch = do
     Env {path} <- R.ask
     logInfo "Fetching..."
-    R.liftIO $ sh_ "git fetch --prune" path
+    res <- R.liftIO $ tryShExitCode "git fetch --prune" path
+    case res of
+      Left t -> do
+        logError t
+        R.liftIO Ex.exitFailure
+      Right _ -> pure ()
 
   getBranches :: AppT Env m LocalBranches
   getBranches = do
     Env {path} <- R.ask
     logInfo "Parsing branches..."
-    branchesText <- R.liftIO $ sh "git branch" path
-    case textToLocalBranches branchesText of
-      Just x -> pure x
-      Nothing -> do
-        logError "Error getting local branches"
-        R.liftIO $ Ex.die "Fatal error"
+    res <- R.liftIO $ tryShExitCode "git branch" path
+    case res >>= textToLocalBranches of
+      Left t -> do
+        logError t
+        R.liftIO Ex.exitFailure
+      Right x -> pure x
 
   updateBranch :: Name -> AppT Env m UpdateResult
   updateBranch nm@(Name name) = do
     Env {mergeType, path} <- R.ask
-    logInfo $ "Checking out " <> name
-    R.liftIO $ sh_ ("git checkout \"" <> name <> "\"") path
+    let checkout = tryShExitCode ("git checkout \"" <> name <> "\"") path
+        update = tryShExitCode (mergeTypeToCmd mergeType) path
     logInfo $ "Updating " <> name
-    res <- R.liftIO $ trySh (mergeTypeToCmd mergeType) path
+    res <- R.liftIO $ failFast checkout update
     case res of
+      Left t -> do
+        logWarn t
+        pure $ Failure nm
       Right o
         | branchUpToDate o -> pure $ NoChange nm
         | otherwise -> pure $ Success nm
-      Left ex -> do
-        logWarn $
-          "Error updating "
-            <> name
-            <> ": "
-            <> T.pack (show ex)
-        pure $ Failure nm
 
   pushBranches :: AppT Env m [UpdateResult]
   pushBranches = do
@@ -103,18 +104,14 @@ pushBranch path nm@(Name name) = do
   logInfo $ "Pushing " <> name
   -- "git push" returns the "up to date..." string as stderr for
   -- some reason...
-  res <- R.liftIO $ tryShCaptureErr_ ("git push " <> name) path
+  res <- R.liftIO $ tryShAndReturnStdErr ("git push " <> name) path
   case res of
+    Left t -> do
+      logWarn t
+      pure $ Failure nm
     Right o
       | remoteUpToDate o -> pure $ NoChange nm
       | otherwise -> pure $ Success nm
-    Left ex -> do
-      logWarn $
-        "Error updating "
-          <> name
-          <> ": "
-          <> T.pack (show ex)
-      pure $ Failure nm
 
 -- | High level logic of `MonadUpdateBranches` usage. This function is the
 -- entrypoint for any `MonadUpdateBranches` instance.
@@ -123,21 +120,26 @@ runUpdateBranches = do
   fetch
   LocalBranches {current, branches} <- getBranches
   updated <- traverse updateBranch branches
-  logInfoPretty $ prettyUpdate $ displayResults updated
+  logInfo ""
+  logInfoBlue "UPDATE SUMMARY"
+  logInfoBlue "--------------"
+  displaySplits $ splitResults updated
   pushed <- pushBranches
-  logInfoPretty $ prettyPush $ displayResults pushed
+  logInfo ""
+  logInfoBlue "PUSH SUMMARY"
+  logInfoBlue "------------"
+  displaySplits $ splitResults pushed
   checkoutCurrent current
 
-prettyUpdate :: T.Text -> T.Text
-prettyUpdate summary =
-  "\n\nUPDATE SUMMARY\n"
-    <> "--------------\n"
-    <> summary
-    <> "\n"
+displaySplits :: ML.MonadLogger m => SplitResults -> m ()
+displaySplits SplitResults {successes, noChanges, failures} = do
+  logInfoSuccess $ "Successes: " <> T.pack (show successes)
+  logInfo $ "No Change: " <> T.pack (show noChanges)
+  logWarn $ "Failures: " <> T.pack (show failures) <> "\n"
 
-prettyPush :: T.Text -> T.Text
-prettyPush summary =
-  "\n\nPUSH SUMMARY\n"
-    <> "-----------\n"
-    <> summary
-    <> "\n"
+failFast :: IO (Either e a) -> IO (Either e a) -> IO (Either e a)
+failFast io1 io2 = do
+  res <- io1
+  case res of
+    Left e -> pure $ Left e
+    Right _ -> io2

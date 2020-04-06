@@ -21,11 +21,11 @@ spec = do
 validBranchesAreParsed :: ValidLocalBranches -> Bool
 validBranchesAreParsed (ValidLocalBranches txt) =
   case textToLocalBranches txt of
-    Just _ -> True
-    Nothing -> False
+    Right _ -> True
+    Left _ -> False
 
 noStarDies :: BranchesNoStar -> Bool
 noStarDies (BranchesNoStar txt) =
   case textToLocalBranches txt of
-    Just _ -> False
-    Nothing -> True
+    Right _ -> False
+    Left _ -> True

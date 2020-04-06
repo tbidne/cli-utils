@@ -2,7 +2,8 @@ module Common.Logging
   ( logError,
     logDebug,
     logInfo,
-    logInfoPretty,
+    logInfoBlue,
+    logInfoSuccess,
     logWarn,
   )
 where
@@ -17,8 +18,11 @@ logDebug = L.logDebugN . P.color P.Blue
 logInfo :: L.MonadLogger m => T.Text -> m ()
 logInfo = L.logInfoN
 
-logInfoPretty :: L.MonadLogger m => T.Text -> m ()
-logInfoPretty = L.logInfoN . P.color P.Cyan
+logInfoBlue :: L.MonadLogger m => T.Text -> m ()
+logInfoBlue = L.logInfoN . P.color P.Blue
+
+logInfoSuccess :: L.MonadLogger m => T.Text -> m ()
+logInfoSuccess = L.logInfoN . P.color P.Green
 
 logWarn :: L.MonadLogger m => T.Text -> m ()
 logWarn = L.logWarnN . P.color P.Magenta

@@ -40,23 +40,32 @@ verifyOutput :: [LogStr] -> Bool
 verifyOutput =
   (==)
     [ "Fetching",
-      infoPrettyColor
-        <> "\n\nUPDATE SUMMARY\n--------------\n"
-        <> "Successes: [\"success2\",\"success1\"]\n"
-        <> "No Changes: [\"noChange2\",\"noChange1\"]\n"
-        <> "Failures: [\"failure2\",\"failure1\"]\n"
-        <> endColor,
-      infoPrettyColor
-        <> "\n\nPUSH SUMMARY\n-----------\n"
-        <> "Successes: [\"remote push2\",\"origin push1\"]\n"
-        <> "No Changes: []\n"
-        <> "Failures: []\n"
-        <> endColor,
+      "",
+      logInfoBlueStr "UPDATE SUMMARY",
+      logInfoBlueStr "--------------",
+      logInfoSuccessStr "Successes: [\"success2\",\"success1\"]",
+      logInfoStr "No Change: [\"noChange2\",\"noChange1\"]",
+      logWarnStr "Failures: [\"failure2\",\"failure1\"]\n",
+      "",
+      logInfoBlueStr "PUSH SUMMARY",
+      logInfoBlueStr "------------",
+      logInfoSuccessStr "Successes: [\"remote push2\",\"origin push1\"]",
+      logInfoStr "No Change: []",
+      logWarnStr "Failures: []\n",
       "Checked out current"
     ]
 
-infoPrettyColor :: LogStr
-infoPrettyColor = "\ESC[96m"
+logInfoBlueStr :: LogStr -> LogStr
+logInfoBlueStr s = "\ESC[94m" <> s <> logEnd
 
-endColor :: LogStr
-endColor = "\ESC[0m"
+logInfoStr :: LogStr -> LogStr
+logInfoStr = id
+
+logInfoSuccessStr :: LogStr -> LogStr
+logInfoSuccessStr s = "\ESC[92m" <> s <> logEnd
+
+logWarnStr :: LogStr -> LogStr
+logWarnStr s = "\ESC[95m" <> s <> logEnd
+
+logEnd :: LogStr
+logEnd = "\ESC[0m"
