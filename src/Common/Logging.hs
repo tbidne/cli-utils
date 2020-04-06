@@ -3,6 +3,7 @@ module Common.Logging
     logDebug,
     logInfo,
     logInfoBlue,
+    logInfoCyan,
     logInfoSuccess,
     logWarn,
   )
@@ -20,6 +21,9 @@ logInfo = L.logInfoN
 
 logInfoBlue :: L.MonadLogger m => T.Text -> m ()
 logInfoBlue = L.logInfoN . P.color P.Blue
+
+logInfoCyan :: L.MonadLogger m => T.Text -> m ()
+logInfoCyan = L.logInfoN . P.color P.Cyan
 
 logInfoSuccess :: L.MonadLogger m => T.Text -> m ()
 logInfoSuccess = L.logInfoN . P.color P.Green

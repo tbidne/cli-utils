@@ -9,8 +9,11 @@
 -- Provides a `ResultsWithErrs` type that wraps `Results` along with
 -- a list of errors.
 module Git.Stale.Types.ResultsWithErrs
-  ( ResultsWithErrs (..),
+  ( ErrDisp (..),
+    ResultsWithErrs (..),
+    ResultsWithErrsDisp (..),
     displayResultsWithErrs,
+    toResultsErrDisp,
     toResultsWithErrs,
   )
 where
@@ -30,6 +33,16 @@ data ResultsWithErrs
         results :: Results
       }
   deriving (Show)
+
+newtype ErrDisp = ErrDisp (T.Text, Int)
+
+newtype ResultsWithErrsDisp = ResultsWithErrsDisp (ErrDisp, ResultsDisp)
+
+toResultsErrDisp :: T.Text -> ResultsWithErrs -> ResultsWithErrsDisp
+toResultsErrDisp prefix ResultsWithErrs {errList, results} = ResultsWithErrsDisp (errDisp, res)
+  where
+    errDisp = ErrDisp (showText errList, length errList)
+    res = toResultsDisp prefix results
 
 -- | Displays `ResultsWithErrs`. Differs from `Show` in that it is formatted differently
 -- and strips the `T.Text` /prefix/ from the branch names.

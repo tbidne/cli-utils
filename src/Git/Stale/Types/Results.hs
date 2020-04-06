@@ -10,7 +10,11 @@
 -- and one for unmerged.
 module Git.Stale.Types.Results
   ( Results (..),
+    MergedDisp (..),
+    UnMergedDisp (..),
+    ResultsDisp (..),
     displayResults,
+    toResultsDisp,
     toResults,
   )
 where
@@ -33,6 +37,12 @@ data Results
       }
   deriving (Show)
 
+newtype MergedDisp = MergedDisp (T.Text, Int)
+
+newtype UnMergedDisp = UnMergedDisp (T.Text, Int)
+
+newtype ResultsDisp = ResultsDisp (MergedDisp, UnMergedDisp)
+
 -- | Displays `Results`. Differs from `Show` in that it is formatted differently
 -- and strips the `T.Text` /prefix/ from the branch names.
 displayResults :: T.Text -> Results -> T.Text
@@ -51,6 +61,12 @@ displayResults prefix Results {mergedMap, unMergedMap} = T.concat str
         "\n--------\n",
         u
       ]
+
+toResultsDisp :: T.Text -> Results -> ResultsDisp
+toResultsDisp prefix Results {mergedMap, unMergedMap} = ResultsDisp (merged, unmerged)
+  where
+    merged = MergedDisp $ displayMap prefix mergedMap
+    unmerged = UnMergedDisp $ displayMap prefix unMergedMap
 
 displayMap :: T.Text -> M.Map Author [Branch a] -> (T.Text, Int)
 displayMap prefix = M.foldrWithKey f ("", 0)

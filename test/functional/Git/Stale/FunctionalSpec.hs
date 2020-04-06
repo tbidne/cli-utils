@@ -73,7 +73,10 @@ allTrue _ = False
 toVerifier :: [String] -> Verifier
 toVerifier = foldr ((<>) . f) mempty
   where
-    f (matchAndStrip "ERRORS: " -> Just res) = Verifier ((res == "0"), False, False)
-    f (matchAndStrip "MERGED: " -> Just res) = Verifier (False, (res == "20"), False)
-    f (matchAndStrip "UNMERGED: " -> Just res) = Verifier (False, False, (res == "14"))
+    f (matchAndStrip "[Warn] \ESC[95mERRORS: " -> Just res) =
+      Verifier ((res == "0\ESC[0m"), False, False)
+    f (matchAndStrip "[Info] \ESC[92mMERGED: " -> Just res) =
+      Verifier (False, (res == "20\ESC[0m"), False)
+    f (matchAndStrip "[Info] \ESC[96mUNMERGED: " -> Just res) =
+      Verifier (False, False, (res == "14\ESC[0m"))
     f _ = mempty
