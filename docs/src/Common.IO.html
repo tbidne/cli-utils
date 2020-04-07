@@ -1,143 +1,192 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- |</span><span>
-</span><span id="line-2"></span><span class="hs-comment">-- Module      : Common.Utils</span><span>
-</span><span id="line-3"></span><span class="hs-comment">-- License     : BSD3</span><span>
-</span><span id="line-4"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
-</span><span id="line-5"></span><span class="hs-comment">-- Exports common `IO` functions.</span><span>
-</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Common.IO</span><span>
-</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Common.IO.html#sh"><span class="hs-identifier">sh</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Common.IO.html#sh_"><span class="hs-identifier">sh_</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-9"></span><span>    </span><span class="annot"><a href="Common.IO.html#shCaptureErr_"><span class="hs-identifier">shCaptureErr_</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-10"></span><span>    </span><span class="annot"><a href="Common.IO.html#trySh"><span class="hs-identifier">trySh</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-11"></span><span>    </span><span class="annot"><a href="Common.IO.html#trySh_"><span class="hs-identifier">trySh_</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Common.IO.html#tryShCaptureErr_"><span class="hs-identifier">tryShCaptureErr_</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-13"></span><span>  </span><span class="hs-special">)</span><span>
-</span><span id="line-14"></span><span class="hs-keyword">where</span><span>
-</span><span id="line-15"></span><span>
-</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Exception</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Ex</span></span><span>
-</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Functor</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">($&gt;)</span></span><span class="hs-special">)</span><span>
-</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
-</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">System.Process</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">P</span></span><span>
-</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">System.IO.Silently</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Shh</span></span><span>
-</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">System.IO</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IO</span></span><span>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Module      : Common.Utils</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- Exports common `IO` functions.</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Common.IO</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Common.IO.html#sh"><span class="hs-identifier">sh</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><a href="Common.IO.html#sh_"><span class="hs-identifier">sh_</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><a href="Common.IO.html#trySh"><span class="hs-identifier">trySh</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Common.IO.html#tryShAndReturnStdErr"><span class="hs-identifier">tryShAndReturnStdErr</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="annot"><a href="Common.IO.html#tryShExitCode"><span class="hs-identifier">tryShExitCode</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Exception</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Ex</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Functor</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">($&gt;)</span></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">System.Exit</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Exit</span></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">System.Process</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">P</span></span><span>
 </span><span id="line-22"></span><span>
 </span><span id="line-23"></span><span class="hs-comment">-- | Returns the result of running a shell command given by</span><span>
 </span><span id="line-24"></span><span class="hs-comment">-- 'T.Text' on 'FilePath'.</span><span>
 </span><span id="line-25"></span><span class="annot"><a href="Common.IO.html#sh"><span class="hs-identifier hs-type">sh</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span>
 </span><span id="line-26"></span><span id="sh"><span class="annot"><span class="annottext">sh :: Text -&gt; Maybe FilePath -&gt; IO Text
-</span><a href="Common.IO.html#sh"><span class="hs-identifier hs-var hs-var">sh</span></a></span></span><span> </span><span id="local-6989586621679071706"><span class="annot"><span class="annottext">cmd :: Text
-</span><a href="#local-6989586621679071706"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679071705"><span class="annot"><span class="annottext">fp :: Maybe FilePath
-</span><a href="#local-6989586621679071705"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Text
+</span><a href="Common.IO.html#sh"><span class="hs-identifier hs-var hs-var">sh</span></a></span></span><span> </span><span id="local-6989586621679096457"><span class="annot"><span class="annottext">cmd :: Text
+</span><a href="#local-6989586621679096457"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679096456"><span class="annot"><span class="annottext">fp :: Maybe FilePath
+</span><a href="#local-6989586621679096456"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Text
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">(FilePath -&gt; Text) -&gt; IO FilePath -&gt; IO Text
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">CreateProcess -&gt; FilePath -&gt; IO FilePath
 </span><span class="hs-identifier hs-var">P.readCreateProcess</span></span><span> </span><span class="annot"><span class="annottext">CreateProcess
-</span><a href="#local-6989586621679071701"><span class="hs-identifier hs-var">proc</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
+</span><a href="#local-6989586621679096452"><span class="hs-identifier hs-var">proc</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
 </span><span id="line-27"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-28"></span><span>    </span><span id="local-6989586621679071701"><span class="annot"><span class="annottext">proc :: CreateProcess
-</span><a href="#local-6989586621679071701"><span class="hs-identifier hs-var hs-var">proc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath -&gt; CreateProcess
+</span><span id="line-28"></span><span>    </span><span id="local-6989586621679096452"><span class="annot"><span class="annottext">proc :: CreateProcess
+</span><a href="#local-6989586621679096452"><span class="hs-identifier hs-var hs-var">proc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath -&gt; CreateProcess
 </span><span class="hs-identifier hs-var">P.shell</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; FilePath
 </span><span class="hs-identifier hs-var">T.unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679071706"><span class="hs-identifier hs-var">cmd</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">cwd :: Maybe FilePath
+</span><a href="#local-6989586621679096457"><span class="hs-identifier hs-var">cmd</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">cwd :: Maybe FilePath
 </span><span class="hs-identifier hs-var">P.cwd</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679071705"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679096456"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-29"></span><span>
 </span><span id="line-30"></span><span class="hs-comment">-- | Version of 'sh' that ignores the return value.</span><span>
 </span><span id="line-31"></span><span class="annot"><a href="Common.IO.html#sh_"><span class="hs-identifier hs-type">sh_</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-32"></span><span id="sh_"><span class="annot"><span class="annottext">sh_ :: Text -&gt; Maybe FilePath -&gt; IO ()
-</span><a href="Common.IO.html#sh_"><span class="hs-identifier hs-var hs-var">sh_</span></a></span></span><span> </span><span id="local-6989586621679071697"><span class="annot"><span class="annottext">cmd :: Text
-</span><a href="#local-6989586621679071697"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679071696"><span class="annot"><span class="annottext">fp :: Maybe FilePath
-</span><a href="#local-6989586621679071696"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CreateProcess -&gt; FilePath -&gt; IO FilePath
+</span><a href="Common.IO.html#sh_"><span class="hs-identifier hs-var hs-var">sh_</span></a></span></span><span> </span><span id="local-6989586621679096448"><span class="annot"><span class="annottext">cmd :: Text
+</span><a href="#local-6989586621679096448"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679096447"><span class="annot"><span class="annottext">fp :: Maybe FilePath
+</span><a href="#local-6989586621679096447"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CreateProcess -&gt; FilePath -&gt; IO FilePath
 </span><span class="hs-identifier hs-var">P.readCreateProcess</span></span><span> </span><span class="annot"><span class="annottext">CreateProcess
-</span><a href="#local-6989586621679071695"><span class="hs-identifier hs-var">proc</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span> </span><span class="annot"><span class="annottext">IO FilePath -&gt; () -&gt; IO ()
+</span><a href="#local-6989586621679096446"><span class="hs-identifier hs-var">proc</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span> </span><span class="annot"><span class="annottext">IO FilePath -&gt; () -&gt; IO ()
 forall (f :: * -&gt; *) a b. Functor f =&gt; f a -&gt; b -&gt; f b
 </span><span class="hs-operator hs-var">$&gt;</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-33"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-34"></span><span>    </span><span id="local-6989586621679071695"><span class="annot"><span class="annottext">proc :: CreateProcess
-</span><a href="#local-6989586621679071695"><span class="hs-identifier hs-var hs-var">proc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath -&gt; CreateProcess
+</span><span id="line-34"></span><span>    </span><span id="local-6989586621679096446"><span class="annot"><span class="annottext">proc :: CreateProcess
+</span><a href="#local-6989586621679096446"><span class="hs-identifier hs-var hs-var">proc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath -&gt; CreateProcess
 </span><span class="hs-identifier hs-var">P.shell</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; FilePath
 </span><span class="hs-identifier hs-var">T.unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679071697"><span class="hs-identifier hs-var">cmd</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">cwd :: Maybe FilePath
+</span><a href="#local-6989586621679096448"><span class="hs-identifier hs-var">cmd</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">cwd :: Maybe FilePath
 </span><span class="hs-identifier hs-var">P.cwd</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679071696"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679096447"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-35"></span><span>
-</span><span id="line-36"></span><span class="hs-comment">-- | Version of 'sh' that ignores the return value and returns stderr.</span><span>
-</span><span id="line-37"></span><span class="annot"><a href="Common.IO.html#shCaptureErr_"><span class="hs-identifier hs-type">shCaptureErr_</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span>
-</span><span id="line-38"></span><span id="shCaptureErr_"><span class="annot"><span class="annottext">shCaptureErr_ :: Text -&gt; Maybe FilePath -&gt; IO Text
-</span><a href="Common.IO.html#shCaptureErr_"><span class="hs-identifier hs-var hs-var">shCaptureErr_</span></a></span></span><span> </span><span id="local-6989586621679071694"><span class="annot"><span class="annottext">cmd :: Text
-</span><a href="#local-6989586621679071694"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679071693"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679071693"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Text
-</span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">(FilePath -&gt; Text) -&gt; IO FilePath -&gt; IO Text
-forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Handle] -&gt; IO () -&gt; IO FilePath
-forall a. [Handle] -&gt; IO a -&gt; IO FilePath
-</span><span class="hs-identifier hs-var">Shh.hCapture_</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Handle
-</span><span class="hs-identifier hs-var">IO.stderr</span></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; IO FilePath) -&gt; IO () -&gt; IO FilePath
-forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO ()
-</span><a href="Common.IO.html#sh_"><span class="hs-identifier hs-var">sh_</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679071694"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679071693"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-39"></span><span>
-</span><span id="line-40"></span><span class="hs-comment">-- | Attempts to return the result of running a shell command given by</span><span>
-</span><span id="line-41"></span><span class="hs-comment">-- 'T.Text' on 'FilePath'.</span><span>
-</span><span id="line-42"></span><span class="annot"><a href="Common.IO.html#trySh"><span class="hs-identifier hs-type">trySh</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ex.SomeException</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">)</span><span>
-</span><span id="line-43"></span><span id="trySh"><span class="annot"><span class="annottext">trySh :: Text -&gt; Maybe FilePath -&gt; IO (Either SomeException Text)
-</span><a href="Common.IO.html#trySh"><span class="hs-identifier hs-var hs-var">trySh</span></a></span></span><span> </span><span id="local-6989586621679071690"><span class="annot"><span class="annottext">cmd :: Text
-</span><a href="#local-6989586621679071690"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679071689"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679071689"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO Text -&gt; IO (Either SomeException Text)
+</span><span id="line-36"></span><span class="hs-comment">-- | Version of 'sh' that returns ('Exit.ExitCode', stdout, stderr)</span><span>
+</span><span id="line-37"></span><span class="annot"><a href="Common.IO.html#shExitCode"><span class="hs-identifier hs-type">shExitCode</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Exit.ExitCode</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span id="shExitCode"><span class="annot"><span class="annottext">shExitCode :: Text -&gt; Maybe FilePath -&gt; IO (ExitCode, FilePath, FilePath)
+</span><a href="Common.IO.html#shExitCode"><span class="hs-identifier hs-var hs-var">shExitCode</span></a></span></span><span> </span><span id="local-6989586621679096443"><span class="annot"><span class="annottext">cmd :: Text
+</span><a href="#local-6989586621679096443"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679096442"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679096442"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CreateProcess -&gt; FilePath -&gt; IO (ExitCode, FilePath, FilePath)
+</span><span class="hs-identifier hs-var">P.readCreateProcessWithExitCode</span></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679096440"><span class="hs-identifier hs-var">proc</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-40"></span><span>    </span><span id="local-6989586621679096440"><span class="annot"><span class="annottext">proc :: CreateProcess
+</span><a href="#local-6989586621679096440"><span class="hs-identifier hs-var hs-var">proc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath -&gt; CreateProcess
+</span><span class="hs-identifier hs-var">P.shell</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; FilePath
+</span><span class="hs-identifier hs-var">T.unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679096443"><span class="hs-identifier hs-var">cmd</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">cwd :: Maybe FilePath
+</span><span class="hs-identifier hs-var">P.cwd</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679096442"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-41"></span><span>
+</span><span id="line-42"></span><span class="hs-comment">-- | Attempts to return the result of running a shell command given by</span><span>
+</span><span id="line-43"></span><span class="hs-comment">-- 'T.Text' on 'FilePath'.</span><span>
+</span><span id="line-44"></span><span class="annot"><a href="Common.IO.html#trySh"><span class="hs-identifier hs-type">trySh</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ex.SomeException</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-45"></span><span id="trySh"><span class="annot"><span class="annottext">trySh :: Text -&gt; Maybe FilePath -&gt; IO (Either SomeException Text)
+</span><a href="Common.IO.html#trySh"><span class="hs-identifier hs-var hs-var">trySh</span></a></span></span><span> </span><span id="local-6989586621679096439"><span class="annot"><span class="annottext">cmd :: Text
+</span><a href="#local-6989586621679096439"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679096438"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679096438"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO Text -&gt; IO (Either SomeException Text)
 forall e a. Exception e =&gt; IO a -&gt; IO (Either e a)
 </span><span class="hs-identifier hs-var">Ex.try</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO Text
 </span><a href="Common.IO.html#sh"><span class="hs-identifier hs-var">sh</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679071690"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679071689"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-44"></span><span>
-</span><span id="line-45"></span><span class="hs-comment">-- | Version of 'trySh' that ignores the return value.</span><span>
-</span><span id="line-46"></span><span class="annot"><a href="Common.IO.html#trySh_"><span class="hs-identifier hs-type">trySh_</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-47"></span><span id="trySh_"><span class="annot"><span class="annottext">trySh_ :: FilePath -&gt; Text -&gt; Maybe FilePath -&gt; IO ()
-</span><a href="Common.IO.html#trySh_"><span class="hs-identifier hs-var hs-var">trySh_</span></a></span></span><span> </span><span id="local-6989586621679071686"><span class="annot"><span class="annottext">err :: FilePath
-</span><a href="#local-6989586621679071686"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span id="local-6989586621679071685"><span class="annot"><span class="annottext">cmd :: Text
-</span><a href="#local-6989586621679071685"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679071684"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679071684"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-48"></span><span>  </span><span id="local-6989586621679071683"><span class="annot"><span class="annottext">Either SomeException ()
-</span><a href="#local-6989586621679071683"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; IO (Either SomeException ())
-forall e a. Exception e =&gt; IO a -&gt; IO (Either e a)
-</span><span class="hs-identifier hs-var">Ex.try</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO ()
-</span><a href="Common.IO.html#sh_"><span class="hs-identifier hs-var">sh_</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679071685"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679071684"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ex.SomeException</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-49"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either SomeException ()
-</span><a href="#local-6989586621679071683"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-50"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679071682"><span class="annot"><span class="annottext">ex :: SomeException
-</span><a href="#local-6989586621679071682"><span class="hs-identifier hs-var">ex</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-51"></span><span>      </span><span class="annot"><span class="annottext">FilePath -&gt; IO ()
-</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="annottext">(FilePath -&gt; IO ()) -&gt; FilePath -&gt; IO ()
+</span><a href="#local-6989586621679096439"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679096438"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- | This is an odd function; it returns stderr on both success and failure.</span><span>
+</span><span id="line-48"></span><span class="hs-comment">-- Why is this useful? There are some shell commands that set the return code</span><span>
+</span><span id="line-49"></span><span class="hs-comment">-- to 0 (success) but also return information we care about as stderr.</span><span>
+</span><span id="line-50"></span><span class="hs-comment">-- Performing git push on a branch that is already up-to-date is an example</span><span>
+</span><span id="line-51"></span><span class="hs-comment">-- that &quot;succeeds&quot;, but the output we care about (&quot;Everything up-to-date&quot;) is</span><span>
+</span><span id="line-52"></span><span class="hs-comment">-- inexplicably sent to stderr instead of stdout. This function is meant for</span><span>
+</span><span id="line-53"></span><span class="hs-comment">-- these situations, where we still want the usual `trySh_` semantics, but want</span><span>
+</span><span id="line-54"></span><span class="hs-comment">-- to paradoxically return stderr on success.</span><span>
+</span><span id="line-55"></span><span class="annot"><a href="Common.IO.html#tryShAndReturnStdErr"><span class="hs-identifier hs-type">tryShAndReturnStdErr</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-56"></span><span id="tryShAndReturnStdErr"><span class="annot"><span class="annottext">tryShAndReturnStdErr :: Text -&gt; Maybe FilePath -&gt; IO (Either Text Text)
+</span><a href="Common.IO.html#tryShAndReturnStdErr"><span class="hs-identifier hs-var hs-var">tryShAndReturnStdErr</span></a></span></span><span> </span><span id="local-6989586621679096436"><span class="annot"><span class="annottext">cmd :: Text
+</span><a href="#local-6989586621679096436"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679096435"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679096435"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-57"></span><span>  </span><span class="hs-special">(</span><span id="local-6989586621679096434"><span class="annot"><span class="annottext">code :: ExitCode
+</span><a href="#local-6989586621679096434"><span class="hs-identifier hs-var">code</span></a></span></span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span id="local-6989586621679096433"><span class="annot"><span class="annottext">err :: FilePath
+</span><a href="#local-6989586621679096433"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO (ExitCode, FilePath, FilePath)
+</span><a href="Common.IO.html#shExitCode"><span class="hs-identifier hs-var">shExitCode</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679096436"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679096435"><span class="hs-identifier hs-var">path</span></a></span><span>
+</span><span id="line-58"></span><span>  </span><span class="annot"><span class="annottext">Either Text Text -&gt; IO (Either Text Text)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Either Text Text -&gt; IO (Either Text Text))
+-&gt; Either Text Text -&gt; IO (Either Text Text)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">FilePath
-</span><a href="#local-6989586621679071686"><span class="hs-identifier hs-var">err</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; FilePath -&gt; FilePath
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ExitCode
+</span><a href="#local-6989586621679096434"><span class="hs-identifier hs-var">code</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-59"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Exit.ExitSuccess</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Either Text Text
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Either Text Text) -&gt; Text -&gt; Either Text Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Text
+</span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621679096433"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Exit.ExitFailure</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-61"></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Either Text Text
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Either Text Text) -&gt; Text -&gt; Either Text Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-62"></span><span>        </span><span class="annot"><span class="hs-string">&quot;Error running `&quot;</span></span><span>
+</span><span id="line-63"></span><span>          </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;: &quot;</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; FilePath -&gt; FilePath
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679096436"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-64"></span><span>          </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">SomeException -&gt; FilePath
-forall a. Show a =&gt; a -&gt; FilePath
-</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">SomeException
-</span><a href="#local-6989586621679071682"><span class="hs-identifier hs-var">ex</span></a></span><span>
-</span><span id="line-52"></span><span>      </span><span class="annot"><span class="annottext">() -&gt; IO ()
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;`: &quot;</span></span><span>
+</span><span id="line-65"></span><span>          </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Text
+</span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621679096433"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-66"></span><span>
+</span><span id="line-67"></span><span class="hs-comment">-- | Returns 'Left' stderr if there is a failure, 'Right' stdout otherwise.</span><span>
+</span><span id="line-68"></span><span class="annot"><a href="Common.IO.html#tryShExitCode"><span class="hs-identifier hs-type">tryShExitCode</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-69"></span><span id="tryShExitCode"><span class="annot"><span class="annottext">tryShExitCode :: Text -&gt; Maybe FilePath -&gt; IO (Either Text Text)
+</span><a href="Common.IO.html#tryShExitCode"><span class="hs-identifier hs-var hs-var">tryShExitCode</span></a></span></span><span> </span><span id="local-6989586621679096430"><span class="annot"><span class="annottext">cmd :: Text
+</span><a href="#local-6989586621679096430"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679096429"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679096429"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-special">(</span><span id="local-6989586621679096428"><span class="annot"><span class="annottext">code :: ExitCode
+</span><a href="#local-6989586621679096428"><span class="hs-identifier hs-var">code</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679096427"><span class="annot"><span class="annottext">out :: FilePath
+</span><a href="#local-6989586621679096427"><span class="hs-identifier hs-var">out</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679096426"><span class="annot"><span class="annottext">err :: FilePath
+</span><a href="#local-6989586621679096426"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO (ExitCode, FilePath, FilePath)
+</span><a href="Common.IO.html#shExitCode"><span class="hs-identifier hs-var">shExitCode</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679096430"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679096429"><span class="hs-identifier hs-var">path</span></a></span><span>
+</span><span id="line-71"></span><span>  </span><span class="annot"><span class="annottext">Either Text Text -&gt; IO (Either Text Text)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
-</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-53"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679071679"><span class="annot"><span class="annottext">r :: ()
-</span><a href="#local-6989586621679071679"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; IO ()
-forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
-</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">()
-</span><a href="#local-6989586621679071679"><span class="hs-identifier hs-var">r</span></a></span><span>
-</span><span id="line-54"></span><span>
-</span><span id="line-55"></span><span class="hs-comment">-- | Version of 'trySh' that returns stderr.</span><span>
-</span><span id="line-56"></span><span class="annot"><a href="Common.IO.html#tryShCaptureErr_"><span class="hs-identifier hs-type">tryShCaptureErr_</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ex.SomeException</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">)</span><span>
-</span><span id="line-57"></span><span id="tryShCaptureErr_"><span class="annot"><span class="annottext">tryShCaptureErr_ :: Text -&gt; Maybe FilePath -&gt; IO (Either SomeException Text)
-</span><a href="Common.IO.html#tryShCaptureErr_"><span class="hs-identifier hs-var hs-var">tryShCaptureErr_</span></a></span></span><span> </span><span id="local-6989586621679071678"><span class="annot"><span class="annottext">cmd :: Text
-</span><a href="#local-6989586621679071678"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span id="local-6989586621679071677"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679071677"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO Text -&gt; IO (Either SomeException Text)
-forall e a. Exception e =&gt; IO a -&gt; IO (Either e a)
-</span><span class="hs-identifier hs-var">Ex.try</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO Text
-</span><a href="Common.IO.html#shCaptureErr_"><span class="hs-identifier hs-var">shCaptureErr_</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679071678"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679071677"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span></pre></body></html>
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Either Text Text -&gt; IO (Either Text Text))
+-&gt; Either Text Text -&gt; IO (Either Text Text)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ExitCode
+</span><a href="#local-6989586621679096428"><span class="hs-identifier hs-var">code</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-72"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Exit.ExitSuccess</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Either Text Text
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Either Text Text) -&gt; Text -&gt; Either Text Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Text
+</span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621679096427"><span class="hs-identifier hs-var">out</span></a></span><span>
+</span><span id="line-73"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Exit.ExitFailure</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-74"></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Either Text Text
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Either Text Text) -&gt; Text -&gt; Either Text Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-75"></span><span>        </span><span class="annot"><span class="hs-string">&quot;Error running `&quot;</span></span><span>
+</span><span id="line-76"></span><span>          </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679096430"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-77"></span><span>          </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;`: &quot;</span></span><span>
+</span><span id="line-78"></span><span>          </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Text
+</span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621679096426"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-79"></span></pre></body></html>

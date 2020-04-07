@@ -12,7 +12,6 @@ module Git.Stale.Types.ResultsWithErrs
   ( ErrDisp (..),
     ResultsWithErrs (..),
     ResultsWithErrsDisp (..),
-    displayResultsWithErrs,
     toResultsErrDisp,
     toResultsWithErrs,
   )
@@ -38,26 +37,13 @@ newtype ErrDisp = ErrDisp (T.Text, Int)
 
 newtype ResultsWithErrsDisp = ResultsWithErrsDisp (ErrDisp, ResultsDisp)
 
+-- | Transforms the 'ResultsWithErrs' into a 'ResultsWithErrsDisp' for display
+-- purposes. Strips out the 'prefix' from the branches, if it exists.
 toResultsErrDisp :: T.Text -> ResultsWithErrs -> ResultsWithErrsDisp
 toResultsErrDisp prefix ResultsWithErrs {errList, results} = ResultsWithErrsDisp (errDisp, res)
   where
     errDisp = ErrDisp (showText errList, length errList)
     res = toResultsDisp prefix results
-
--- | Displays `ResultsWithErrs`. Differs from `Show` in that it is formatted differently
--- and strips the `T.Text` /prefix/ from the branch names.
-displayResultsWithErrs :: T.Text -> ResultsWithErrs -> T.Text
-displayResultsWithErrs prefix ResultsWithErrs {errList, results} =
-  T.concat str
-  where
-    str =
-      [ "ERRORS: ",
-        showText (length errList),
-        "\n------\n",
-        showText errList,
-        "\n\n",
-        displayResults prefix results
-      ]
 
 -- | Maps [`ErrOr` `AnyBranch`] to `ResultsWithErrs`.
 toResultsWithErrs :: [ErrOr AnyBranch] -> ResultsWithErrs

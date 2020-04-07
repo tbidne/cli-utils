@@ -5,21 +5,22 @@
 -- | Please see the README on GitHub at
 --   <a>https://github.com/tbidne/git-utils#readme</a>
 @package git-utils
-@version 2.1.0
+@version 3.0.0
 
 
 -- | Provides the main component used in this application.
 module App
 newtype AppT e m a
-AppT :: ReaderT e m a -> AppT e m a
-[runAppT] :: AppT e m a -> ReaderT e m a
-mapAppT :: (ReaderT e m a -> ReaderT e n b) -> AppT e m a -> AppT e n b
+AppT :: ReaderT e (LoggingT m) a -> AppT e m a
+[runAppT] :: AppT e m a -> ReaderT e (LoggingT m) a
+mapAppT :: (ReaderT e (LoggingT m) a -> ReaderT e (LoggingT n) b) -> AppT e m a -> AppT e n b
 instance GHC.Base.Functor m => GHC.Base.Functor (App.AppT e m)
 instance GHC.Base.Applicative f => GHC.Base.Applicative (App.AppT e f)
 instance GHC.Base.Monad m => GHC.Base.Monad (App.AppT e m)
 instance Control.Monad.Trans.Class.MonadTrans (App.AppT e)
 instance Control.Monad.IO.Class.MonadIO m => Control.Monad.IO.Class.MonadIO (App.AppT e m)
 instance GHC.Base.Monad m => Control.Monad.Reader.Class.MonadReader e (App.AppT e m)
+instance Control.Monad.IO.Class.MonadIO m => Control.Monad.Logger.MonadLogger (App.AppT e m)
 
 
 -- | Exports common <a>IO</a> functions.
@@ -32,18 +33,33 @@ sh :: Text -> Maybe FilePath -> IO Text
 -- | Version of <a>sh</a> that ignores the return value.
 sh_ :: Text -> Maybe FilePath -> IO ()
 
--- | Version of <a>sh</a> that ignores the return value and returns stderr.
-shCaptureErr_ :: Text -> Maybe FilePath -> IO Text
-
 -- | Attempts to return the result of running a shell command given by
 --   <a>Text</a> on <a>FilePath</a>.
 trySh :: Text -> Maybe FilePath -> IO (Either SomeException Text)
 
--- | Version of <a>trySh</a> that ignores the return value.
-trySh_ :: String -> Text -> Maybe FilePath -> IO ()
+-- | This is an odd function; it returns stderr on both success and
+--   failure. Why is this useful? There are some shell commands that set
+--   the return code to 0 (success) but also return information we care
+--   about as stderr. Performing git push on a branch that is already
+--   up-to-date is an example that "succeeds", but the output we care about
+--   ("Everything up-to-date") is inexplicably sent to stderr instead of
+--   stdout. This function is meant for these situations, where we still
+--   want the usual <tt>trySh_</tt> semantics, but want to paradoxically
+--   return stderr on success.
+tryShAndReturnStdErr :: Text -> Maybe FilePath -> IO (Either Text Text)
 
--- | Version of <a>trySh</a> that returns stderr.
-tryShCaptureErr_ :: Text -> Maybe FilePath -> IO (Either SomeException Text)
+-- | Returns <a>Left</a> stderr if there is a failure, <a>Right</a> stdout
+--   otherwise.
+tryShExitCode :: Text -> Maybe FilePath -> IO (Either Text Text)
+
+module Common.Logging
+logError :: MonadLogger m => Text -> m ()
+logDebug :: MonadLogger m => Text -> m ()
+logInfo :: MonadLogger m => Text -> m ()
+logInfoBlue :: MonadLogger m => Text -> m ()
+logInfoCyan :: MonadLogger m => Text -> m ()
+logInfoSuccess :: MonadLogger m => Text -> m ()
+logWarn :: MonadLogger m => Text -> m ()
 
 
 -- | Exports utility functions
@@ -133,9 +149,9 @@ instance GHC.Base.Semigroup (Common.Parsing.ParseAttempt acc)
 module Git.Stale.Types.Error
 
 -- | Wraps <a>Text</a> to describe an error. <tt>Git</tt>* errors describe
---   errors encountered by the underlying <a>FindBranches</a> monad. Others
---   describe pure errors encountered during parsing data returned by the
---   monad.
+--   errors encountered by the underlying <a>MonadFindBranches</a> monad.
+--   Others describe pure errors encountered during parsing data returned
+--   by the monad.
 data Err
 ParseLog :: Text -> Err
 ParseDate :: Text -> Err
@@ -213,7 +229,7 @@ Env :: Maybe Text -> Maybe FilePath -> Nat -> BranchType -> Text -> Text -> Day 
 [today] :: Env -> Day
 
 -- | Maps a <a>BranchType</a> to a <a>String</a> flag to be used in
---   <a>Core.FindBranches</a>' <a>branchNamesByGrep</a> command.
+--   <a>Core.MonadFindBranches</a>' <a>branchNamesByGrep</a> command.
 branchTypeToArg :: BranchType -> String
 instance GHC.Show.Show Git.Stale.Types.Env.Env
 instance GHC.Show.Show Git.Stale.Types.Env.BranchType
@@ -337,11 +353,17 @@ Results :: BranchMap 'Merged -> BranchMap 'UnMerged -> Results
 
 -- | <a>Map</a> <a>Author</a> [<a>Branch</a> <a>UnMerged</a>]
 [unMergedMap] :: Results -> BranchMap 'UnMerged
+newtype MergedDisp
+MergedDisp :: (Text, Int) -> MergedDisp
+newtype UnMergedDisp
+UnMergedDisp :: (Text, Int) -> UnMergedDisp
+newtype ResultsDisp
+ResultsDisp :: (MergedDisp, UnMergedDisp) -> ResultsDisp
 
--- | Displays <a>Results</a>. Differs from <a>Show</a> in that it is
---   formatted differently and strips the <a>Text</a> <i>prefix</i> from
---   the branch names.
-displayResults :: Text -> Results -> Text
+-- | Transforms the <a>Results</a> into a <a>ResultsDisp</a> for display
+--   purposes. Strips out the <tt>prefix</tt> from the branches, if it
+--   exists.
+toResultsDisp :: Text -> Results -> ResultsDisp
 
 -- | Maps [<a>AnyBranch</a>] to <a>Results</a>. Pattern matches on
 --   <a>AnyBranch</a> to reveal the underlying <a>BranchStatus</a>,
@@ -353,6 +375,8 @@ instance GHC.Show.Show Git.Stale.Types.Results.Results
 -- | Provides a <a>ResultsWithErrs</a> type that wraps <a>Results</a> along
 --   with a list of errors.
 module Git.Stale.Types.ResultsWithErrs
+newtype ErrDisp
+ErrDisp :: (Text, Int) -> ErrDisp
 
 -- | Wraps <a>Results</a> and includes [<a>Err</a>].
 data ResultsWithErrs
@@ -363,11 +387,13 @@ ResultsWithErrs :: [Err] -> Results -> ResultsWithErrs
 
 -- | The <a>Results</a>.
 [results] :: ResultsWithErrs -> Results
+newtype ResultsWithErrsDisp
+ResultsWithErrsDisp :: (ErrDisp, ResultsDisp) -> ResultsWithErrsDisp
 
--- | Displays <a>ResultsWithErrs</a>. Differs from <a>Show</a> in that it
---   is formatted differently and strips the <a>Text</a> <i>prefix</i> from
---   the branch names.
-displayResultsWithErrs :: Text -> ResultsWithErrs -> Text
+-- | Transforms the <a>ResultsWithErrs</a> into a
+--   <a>ResultsWithErrsDisp</a> for display purposes. Strips out the
+--   <tt>prefix</tt> from the branches, if it exists.
+toResultsErrDisp :: Text -> ResultsWithErrs -> ResultsWithErrsDisp
 
 -- | Maps [<a>ErrOr</a> <a>AnyBranch</a>] to <a>ResultsWithErrs</a>.
 toResultsWithErrs :: [ErrOr AnyBranch] -> ResultsWithErrs
@@ -429,8 +455,8 @@ textToName :: Text -> ErrOr Name
 unsafeToInt :: Text -> Int
 
 
--- | Exports functions to be used by <a>Git.Stale.Core.FindBranches</a> for
---   <a>IO</a>.
+-- | Exports functions to be used by
+--   <a>Git.Stale.Core.MonadFindBranches</a> for <a>IO</a>.
 module Git.Stale.Core.IO
 
 -- | Maps a <a>NameAuthDay</a> on <a>FilePath</a> to <a>AnyBranch</a>.
@@ -451,12 +477,12 @@ nameToLog :: Maybe FilePath -> ErrOr Name -> IO (ErrOr NameAuthDay)
 sh :: Text -> Maybe FilePath -> IO Text
 
 
--- | The FindBranches class.
-module Git.Stale.Core.FindBranches
+-- | The MonadFindBranches class.
+module Git.Stale.Core.MonadFindBranches
 
--- | The <a>FindBranches</a> class is used to describe various git actions
---   for finding stale branches.
-class Monad m => FindBranches m where {
+-- | The <a>MonadFindBranches</a> class is used to describe various git
+--   actions for finding stale branches.
+class Monad m => MonadFindBranches m where {
     
     -- | Adds custom handling to returned data (e.g. for error handling).
     type family Handler (m :: Type -> Type) (a :: Type);
@@ -466,25 +492,25 @@ class Monad m => FindBranches m where {
 }
 
 -- | Returns a [<a>Name</a>] representing git branches.
-branchNamesByGrep :: FindBranches m => m [Handler m Name]
+branchNamesByGrep :: MonadFindBranches m => m [Handler m Name]
 
 -- | Maps [<a>Name</a>] to [<a>NameAuthDay</a>], filtering out non-stale
 --   branches.
-getStaleLogs :: FindBranches m => [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
+getStaleLogs :: MonadFindBranches m => [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
 
 -- | Maps [<a>NameAuthDay</a>] to [<a>AnyBranch</a>].
-toBranches :: FindBranches m => Filtered (Handler m NameAuthDay) -> m [Handler m AnyBranch]
+toBranches :: MonadFindBranches m => Filtered (Handler m NameAuthDay) -> m [Handler m AnyBranch]
 
 -- | Collects [<a>AnyBranch</a>] into <a>FinalResults</a>.
-collectResults :: FindBranches m => [Handler m AnyBranch] -> m (FinalResults m)
+collectResults :: MonadFindBranches m => [Handler m AnyBranch] -> m (FinalResults m)
 
 -- | Displays results.
-display :: FindBranches m => FinalResults m -> m ()
+display :: MonadFindBranches m => FinalResults m -> m ()
 
--- | High level logic of <a>FindBranches</a> usage. This function is the
---   entrypoint for any <a>FindBranches</a> instance.
-runFindBranches :: FindBranches m => m ()
-instance Control.Monad.IO.Class.MonadIO m => Git.Stale.Core.FindBranches.FindBranches (App.AppT Git.Stale.Types.Env.Env m)
+-- | High level logic of <a>MonadFindBranches</a> usage. This function is
+--   the entrypoint for any <a>MonadFindBranches</a> instance.
+runFindBranches :: MonadFindBranches m => m ()
+instance Control.Monad.IO.Class.MonadIO m => Git.Stale.Core.MonadFindBranches.MonadFindBranches (App.AppT Git.Stale.Types.Env.Env m)
 
 
 -- | Provides functions and types for descrbing the result of an update
@@ -510,9 +536,6 @@ NoChange :: Name -> UpdateResult
 
 -- | Indicates updating <a>Name</a> succeeded.
 Success :: Name -> UpdateResult
-
--- | Summarizes [<a>UpdateResult</a>] as a display <a>String</a>.
-displayResults :: [UpdateResult] -> String
 
 -- | Maps [<a>UpdateResult</a>] to intermediate <a>SplitResults</a>.
 splitResults :: [UpdateResult] -> SplitResults
@@ -589,7 +612,7 @@ module Git.FastForward.Parsing
 --       Path to the git directory. Any <a>String</a> is fine, defaults
 --       to the empty string (current directory).
 --   
---   -u, --merge-type=upstream
+--   -u, --merge=upstream
 --       Merges upstream via @{u} into each local branch. This is the default.
 --   
 --   -m, --branch-type=master
@@ -616,64 +639,41 @@ module Git.FastForward.Core.Internal
 -- | Determines if a local branch is up to date.
 branchUpToDate :: Text -> Bool
 
+-- | Maps a merge type to its command
+mergeTypeToCmd :: MergeType -> Text
+
 -- | Determines if a remote branch is up to date.
 remoteUpToDate :: Text -> Bool
 
--- | Maps <a>Text</a> to <a>Just</a> <a>LocalBranches</a> if we find a
+-- | Maps <a>Text</a> to <a>Right</a> <a>LocalBranches</a> if we find a
 --   current branch and all branch names are otherwise parsed successfully.
---   Returns <a>Nothing</a> otherwise.
-textToLocalBranches :: Text -> Maybe LocalBranches
+--   Returns <a>Left</a> err otherwise.
+textToLocalBranches :: Text -> Either Text LocalBranches
 
 
--- | Exports functions to be used by
---   <a>Git.FastForward.Core.UpdateBranches</a> for <a>IO</a>.
-module Git.FastForward.Core.IO
+-- | The MonadUpdateBranches class.
+module Git.FastForward.Core.MonadUpdateBranches
 
--- | Checks out the <a>CurrentBranch</a> on <a>Maybe</a> <a>FilePath</a>.
-checkoutCurrentIO :: CurrentBranch -> Maybe FilePath -> IO ()
-
--- | Performs a <tt>git</tt> <tt>fetch</tt>.
-fetchIO :: Maybe FilePath -> IO ()
-
--- | Gets all local branches.
-getBranchesIO :: Maybe FilePath -> IO LocalBranches
-
--- | Pushes branch <a>Name</a>.
-pushBranchIO :: Maybe FilePath -> Name -> IO UpdateResult
-
--- | Prints a summary of all update results.
-summarizeIO :: [UpdateResult] -> IO ()
-
--- | Updates branch <a>Name</a> according to the <a>MergeType</a>.
-updateBranchIO :: MergeType -> Name -> Maybe FilePath -> IO UpdateResult
-
-
--- | The UpdateBranches class.
-module Git.FastForward.Core.UpdateBranches
-
--- | The <a>UpdateBranches</a> class is used to describe updating branches
---   on a git filesystem.
-class Monad m => UpdateBranches m
+-- | The <a>MonadUpdateBranches</a> class is used to describe updating
+--   branches on a git filesystem.
+class Monad m => MonadUpdateBranches m
 
 -- | Performs <a>fetch</a>.
-fetch :: UpdateBranches m => m ()
+fetch :: MonadUpdateBranches m => m ()
 
 -- | Retrieves all local branches.
-getBranches :: UpdateBranches m => m LocalBranches
+getBranches :: MonadUpdateBranches m => m LocalBranches
 
 -- | Updates a branch by <a>Name</a>, returns the result.
-updateBranch :: UpdateBranches m => Name -> m UpdateResult
+updateBranch :: MonadUpdateBranches m => Name -> m UpdateResult
 
 -- | Pushes branches, returns the results.
-pushBranches :: UpdateBranches m => m [UpdateResult]
-
--- | Summarizes all results.
-summarize :: UpdateBranches m => [UpdateResult] -> m ()
+pushBranches :: MonadUpdateBranches m => m [UpdateResult]
 
 -- | Checks out the passed <a>CurrentBranch</a>.
-checkoutCurrent :: UpdateBranches m => CurrentBranch -> m ()
+checkoutCurrent :: MonadUpdateBranches m => CurrentBranch -> m ()
 
--- | High level logic of <a>UpdateBranches</a> usage. This function is the
---   entrypoint for any <a>UpdateBranches</a> instance.
-runUpdateBranches :: UpdateBranches m => m ()
-instance Control.Monad.IO.Class.MonadIO m => Git.FastForward.Core.UpdateBranches.UpdateBranches (App.AppT Git.FastForward.Types.Env.Env m)
+-- | High level logic of <a>MonadUpdateBranches</a> usage. This function is
+--   the entrypoint for any <a>MonadUpdateBranches</a> instance.
+runUpdateBranches :: (MonadLogger m, MonadUpdateBranches m) => m ()
+instance Control.Monad.IO.Class.MonadIO m => Git.FastForward.Core.MonadUpdateBranches.MonadUpdateBranches (App.AppT Git.FastForward.Types.Env.Env m)

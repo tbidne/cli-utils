@@ -13,7 +13,6 @@ module Git.Stale.Types.Results
     MergedDisp (..),
     UnMergedDisp (..),
     ResultsDisp (..),
-    displayResults,
     toResultsDisp,
     toResults,
   )
@@ -43,25 +42,8 @@ newtype UnMergedDisp = UnMergedDisp (T.Text, Int)
 
 newtype ResultsDisp = ResultsDisp (MergedDisp, UnMergedDisp)
 
--- | Displays `Results`. Differs from `Show` in that it is formatted differently
--- and strips the `T.Text` /prefix/ from the branch names.
-displayResults :: T.Text -> Results -> T.Text
-displayResults prefix Results {mergedMap, unMergedMap} = T.concat str
-  where
-    (m, s) = displayMap prefix mergedMap
-    (u, t) = displayMap prefix unMergedMap
-    str =
-      [ "MERGED: ",
-        T.pack (show s),
-        "\n------\n",
-        m,
-        "\n\n",
-        "UNMERGED: ",
-        T.pack (show t),
-        "\n--------\n",
-        u
-      ]
-
+-- | Transforms the 'Results' into a 'ResultsDisp' for display purposes.
+-- Strips out the 'prefix' from the branches, if it exists.
 toResultsDisp :: T.Text -> Results -> ResultsDisp
 toResultsDisp prefix Results {mergedMap, unMergedMap} = ResultsDisp (merged, unmerged)
   where
