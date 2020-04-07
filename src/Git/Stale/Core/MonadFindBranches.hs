@@ -120,13 +120,20 @@ runFindBranches = do
 logResultsWithErrs :: L.MonadLogger m => ResultsWithErrsDisp -> m ()
 logResultsWithErrs (ResultsWithErrsDisp (errDisp, resultsDisp)) = do
   let (ErrDisp (errs, numErrs)) = errDisp
-  logWarn $ "ERRORS: " <> T.pack (show numErrs)
-  logWarn "------"
-  logWarn $ errs <> "\n"
+  logWarn $
+    "\n\nERRORS: "
+      <> T.pack (show numErrs)
+      <> "\n------\n"
+      <> errs
+      <> "\n"
   let (ResultsDisp (MergedDisp (ms, numMs), UnMergedDisp (unms, numUnMs))) = resultsDisp
-  logInfoSuccess $ "MERGED: " <> T.pack (show numMs)
-  logInfoSuccess "------"
-  logInfoSuccess ms
-  logInfoCyan $ "UNMERGED: " <> T.pack (show numUnMs)
-  logInfoCyan "--------"
-  logInfoCyan unms
+  logInfoSuccess $
+    "\n\nMERGED: "
+      <> T.pack (show numMs)
+      <> "\n------\n"
+      <> ms
+  logInfoCyan $
+    "\n\nUNMERGED: "
+      <> T.pack (show numUnMs)
+      <> "\n--------\n"
+      <> unms
