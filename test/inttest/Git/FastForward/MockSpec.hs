@@ -2,24 +2,24 @@
 
 module Git.FastForward.MockSpec where
 
+import Control.Monad.Identity
+import Control.Monad.Logger
 import Control.Monad.Reader (runReaderT)
-import qualified Data.Text as T
 import Git.FastForward.Core.MockUpdateBranches
 import Git.FastForward.Core.MonadUpdateBranches
 import Git.FastForward.Parsing
 import Git.FastForward.Types.Env
-import Output
 import Test.Hspec
 
 spec :: Spec
 spec = do
   describe "MockUpdateBranches Integration tests" $ do
     it "Mock run should process branches correctly" $ do
-      let (Output res _) = runMock
-      res `shouldSatisfy` verifyOutput
+      let (Identity (_, res)) = runMock
+      lineToLog <$> res `shouldSatisfy` verifyOutput
 
-runMock :: Output ()
-runMock = runReaderT (runMockUpdateT runUpdateBranches) mkEnv
+runMock :: Identity ((), [LogLine])
+runMock = runWriterLoggingT (runReaderT (runMockUpdateT runUpdateBranches) mkEnv)
 
 args :: [String]
 args =
@@ -33,17 +33,39 @@ mkEnv = case parseArgs args of
   Left err -> error $ "Failure parsing args in integration test: " <> err
   Right env -> env
 
-verifyOutput :: [T.Text] -> Bool
+lineToLog :: LogLine -> LogStr
+lineToLog (_, _, _, x) = x
+
+verifyOutput :: [LogStr] -> Bool
 verifyOutput =
   (==)
-    [ "\"Fetching\"",
-      "Success (Name \"success1\")",
-      "Success (Name \"success2\")",
-      "NoChange (Name \"noChange1\")",
-      "NoChange (Name \"noChange2\")",
-      "Failure (Name \"failure1\")",
-      "Failure (Name \"failure2\")",
-      "Success (Name \"origin push1\")",
-      "Success (Name \"remote push2\")",
-      "\"Checked out current\""
+    [ "Fetching",
+      "",
+      logInfoBlueStr "UPDATE SUMMARY",
+      logInfoBlueStr "--------------",
+      logInfoSuccessStr "Successes: [\"success2\",\"success1\"]",
+      logInfoStr "No Change: [\"noChange2\",\"noChange1\"]",
+      logWarnStr "Failures: [\"failure2\",\"failure1\"]\n",
+      "",
+      logInfoBlueStr "PUSH SUMMARY",
+      logInfoBlueStr "------------",
+      logInfoSuccessStr "Successes: [\"remote push2\",\"origin push1\"]",
+      logInfoStr "No Change: []",
+      logWarnStr "Failures: []\n",
+      "Checked out current"
     ]
+
+logInfoBlueStr :: LogStr -> LogStr
+logInfoBlueStr s = "\ESC[94m" <> s <> logEnd
+
+logInfoStr :: LogStr -> LogStr
+logInfoStr = id
+
+logInfoSuccessStr :: LogStr -> LogStr
+logInfoSuccessStr s = "\ESC[92m" <> s <> logEnd
+
+logWarnStr :: LogStr -> LogStr
+logWarnStr s = "\ESC[95m" <> s <> logEnd
+
+logEnd :: LogStr
+logEnd = "\ESC[0m"

@@ -18,7 +18,9 @@ module Git.Stale.Core.MonadFindBranches
 where
 
 import App
+import Common.Logging
 import qualified Control.Concurrent.ParallelIO.Global as Par
+import qualified Control.Monad.Logger as L
 import qualified Control.Monad.Reader as R
 import qualified Data.Kind as K
 import qualified Data.Text as T
@@ -28,6 +30,7 @@ import Git.Stale.Types.Branch
 import Git.Stale.Types.Env
 import Git.Stale.Types.Error
 import Git.Stale.Types.Filtered
+import Git.Stale.Types.Results
 import Git.Stale.Types.ResultsWithErrs
 import Git.Types.GitTypes
 
@@ -63,7 +66,7 @@ class Monad m => MonadFindBranches m where
 --   * We do not want to ignore problems entirely.
 --
 -- We collect the results in `ResultsWithErrs`, which contains a list of errors
--- and two maps, one for merged branches and another for unmerged branches. 
+-- and two maps, one for merged branches and another for unmerged branches.
 -- We opt to define `Handler` as (`ErrOr` a) -- an alias for
 -- (`Either` `Err` a) -- as we do not want a single error to crash the app.
 instance R.MonadIO m => MonadFindBranches (AppT Env m) where
@@ -102,7 +105,7 @@ instance R.MonadIO m => MonadFindBranches (AppT Env m) where
   display :: ResultsWithErrs -> (AppT Env m) ()
   display res = do
     Env {remoteName} <- R.ask
-    R.liftIO $ putStrLn $ T.unpack $ displayResultsWithErrs remoteName res
+    logResultsWithErrs $ toResultsErrDisp remoteName res
 
 -- | High level logic of `MonadFindBranches` usage. This function is the
 -- entrypoint for any `MonadFindBranches` instance.
@@ -113,3 +116,17 @@ runFindBranches = do
   staleBranches <- toBranches staleLogs
   res <- collectResults staleBranches
   display res
+
+logResultsWithErrs :: L.MonadLogger m => ResultsWithErrsDisp -> m ()
+logResultsWithErrs (ResultsWithErrsDisp (errDisp, resultsDisp)) = do
+  let (ErrDisp (errs, numErrs)) = errDisp
+  logWarn $ "ERRORS: " <> T.pack (show numErrs)
+  logWarn "------"
+  logWarn $ errs <> "\n"
+  let (ResultsDisp (MergedDisp (ms, numMs), UnMergedDisp (unms, numUnMs))) = resultsDisp
+  logInfoSuccess $ "MERGED: " <> T.pack (show numMs)
+  logInfoSuccess "------"
+  logInfoSuccess ms
+  logInfoCyan $ "UNMERGED: " <> T.pack (show numUnMs)
+  logInfoCyan "--------"
+  logInfoCyan unms

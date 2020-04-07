@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE InstanceSigs #-}
@@ -8,7 +7,7 @@
 module Git.Stale.Core.MockFindBranches where
 
 import Control.Monad.Reader
-import qualified Data.Text as Txt
+import qualified Data.Text as T
 import Git.Stale.Core.MonadFindBranches
 import Git.Stale.Types.Branch
 import Git.Stale.Types.Env
@@ -30,12 +29,12 @@ instance MonadFindBranches MockFindBranchesOut where
     grep <- asks grepStr
     let maybeFilter = case grep of
           Nothing -> id
-          Just s -> filter (\(Name n) -> s `Txt.isInfixOf` n)
+          Just s -> filter (\(Name n) -> s `T.isInfixOf` n)
     lift $ pure $ maybeFilter allBranches
 
   getStaleLogs :: [Name] -> MockFindBranchesOut (Filtered NameAuthDay)
   getStaleLogs ns = do
-    let removeStale ((Name n), _, _) = not $ "stale" `Txt.isInfixOf` n
+    let removeStale ((Name n), _, _) = not $ "stale" `T.isInfixOf` n
         toLog nm@(Name n) = (nm, Author n, error "MockFindBranches -> getStaleLogs: day not defined")
     lift $ pure $ (mkFiltered removeStale . fmap toLog) ns
 
@@ -50,7 +49,7 @@ instance MonadFindBranches MockFindBranchesOut where
   display :: [AnyBranch] -> MockFindBranchesOut ()
   display = MockFindBranchesT . lift . putShowList
 
-addMockOut :: [Txt.Text] -> MockFindBranchesOut a -> MockFindBranchesOut a
+addMockOut :: [T.Text] -> MockFindBranchesOut a -> MockFindBranchesOut a
 addMockOut ts = MockFindBranchesT . mapReaderT (prependTextList ts) . runMockFindBranchesT
 
 allBranches :: [Name]

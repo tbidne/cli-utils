@@ -1,5 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
-
 -- |
 -- Module      : Git.FastForward.Types.UpdateResult
 -- License     : BSD3
@@ -9,7 +7,6 @@
 module Git.FastForward.Types.UpdateResult
   ( SplitResults (..),
     UpdateResult (..),
-    displayResults,
     splitResults,
   )
 where
@@ -36,21 +33,6 @@ data SplitResults
         successes :: [String]
       }
   deriving (Show)
-
--- | Summarizes ['UpdateResult'] as a display 'String'.
-displayResults :: [UpdateResult] -> String
-displayResults = f . splitResults
-  where
-    f SplitResults {failures, noChanges, successes} =
-      "\nSUMMARY"
-        <> "\n-------"
-        <> "\nSuccesses: "
-        <> show successes
-        <> "\nNo Changes: "
-        <> show noChanges
-        <> "\nFailures: "
-        <> show failures
-        <> "\n"
 
 -- | Maps ['UpdateResult'] to intermediate 'SplitResults'.
 splitResults :: [UpdateResult] -> SplitResults

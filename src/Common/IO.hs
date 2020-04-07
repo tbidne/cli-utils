@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 -- |
 -- Module      : Common.Utils
 -- License     : BSD3
@@ -6,19 +8,17 @@
 module Common.IO
   ( sh,
     sh_,
-    shCaptureErr_,
     trySh,
-    trySh_,
-    tryShCaptureErr_,
+    tryShAndReturnStdErr,
+    tryShExitCode,
   )
 where
 
 import qualified Control.Exception as Ex
 import Data.Functor (($>))
 import qualified Data.Text as T
+import qualified System.Exit as Exit
 import qualified System.Process as P
-import qualified System.IO.Silently as Shh
-import qualified System.IO as IO
 
 -- | Returns the result of running a shell command given by
 -- 'T.Text' on 'FilePath'.
@@ -33,25 +33,46 @@ sh_ cmd fp = P.readCreateProcess proc "" $> ()
   where
     proc = (P.shell (T.unpack cmd)) {P.cwd = fp}
 
--- | Version of 'sh' that ignores the return value and returns stderr.
-shCaptureErr_ :: T.Text -> Maybe FilePath -> IO T.Text
-shCaptureErr_ cmd path = T.pack <$> (Shh.hCapture_ [IO.stderr] $ sh_ cmd path)
+-- | Version of 'sh' that returns ('Exit.ExitCode', stdout, stderr)
+shExitCode :: T.Text -> Maybe FilePath -> IO (Exit.ExitCode, String, String)
+shExitCode cmd path = P.readCreateProcessWithExitCode proc ""
+  where
+    proc = (P.shell (T.unpack cmd)) {P.cwd = path}
 
 -- | Attempts to return the result of running a shell command given by
 -- 'T.Text' on 'FilePath'.
 trySh :: T.Text -> Maybe FilePath -> IO (Either Ex.SomeException T.Text)
 trySh cmd path = Ex.try (sh cmd path)
 
--- | Version of 'trySh' that ignores the return value.
-trySh_ :: String -> T.Text -> Maybe FilePath -> IO ()
-trySh_ err cmd path = do
-  res <- Ex.try (sh_ cmd path) :: IO (Either Ex.SomeException ())
-  case res of
-    Left ex -> do
-      putStrLn $ err <> ": " <> show ex
-      pure ()
-    Right r -> pure r
+-- | This is an odd function; it returns stderr on both success and failure.
+-- Why is this useful? There are some shell commands that set the return code
+-- to 0 (success) but also return information we care about as stderr.
+-- Performing git push on a branch that is already up-to-date is an example
+-- that "succeeds", but the output we care about ("Everything up-to-date") is
+-- inexplicably sent to stderr instead of stdout. This function is meant for
+-- these situations, where we still want the usual `trySh_` semantics, but want
+-- to paradoxically return stderr on success.
+tryShAndReturnStdErr :: T.Text -> Maybe FilePath -> IO (Either T.Text T.Text)
+tryShAndReturnStdErr cmd path = do
+  (code, _, err) <- shExitCode cmd path
+  pure $ case code of
+    Exit.ExitSuccess -> Right $ T.pack err
+    Exit.ExitFailure _ ->
+      Left $
+        "Error running `"
+          <> cmd
+          <> "`: "
+          <> T.pack err
 
--- | Version of 'trySh' that returns stderr.
-tryShCaptureErr_ :: T.Text -> Maybe FilePath -> IO (Either Ex.SomeException T.Text)
-tryShCaptureErr_ cmd path = Ex.try (shCaptureErr_ cmd path)
+-- | Returns 'Left' stderr if there is a failure, 'Right' stdout otherwise.
+tryShExitCode :: T.Text -> Maybe FilePath -> IO (Either T.Text T.Text)
+tryShExitCode cmd path = do
+  (code, out, err) <- shExitCode cmd path
+  pure $ case code of
+    Exit.ExitSuccess -> Right $ T.pack out
+    Exit.ExitFailure _ ->
+      Left $
+        "Error running `"
+          <> cmd
+          <> "`: "
+          <> T.pack err

@@ -7,6 +7,7 @@
 -- Exports utility functions.
 module Git.FastForward.Core.Internal
   ( branchUpToDate,
+    mergeTypeToCmd,
     remoteUpToDate,
     textToLocalBranches,
   )
@@ -15,20 +16,21 @@ where
 import qualified Data.Foldable as F
 import qualified Data.Text as T
 import Git.FastForward.Types.LocalBranches
+import Git.FastForward.Types.MergeType
 import Git.Types.GitTypes
 
 data LocalBranchesParser = LocalBranchesParser (Maybe CurrentBranch) [Name]
 
--- | Maps 'T.Text' to 'Just' 'LocalBranches' if we find a current branch
--- and all branch names are otherwise parsed successfully. Returns 'Nothing'
+-- | Maps 'T.Text' to 'Right' 'LocalBranches' if we find a current branch
+-- and all branch names are otherwise parsed successfully. Returns 'Left' err
 -- otherwise.
-textToLocalBranches :: T.Text -> Maybe LocalBranches
+textToLocalBranches :: T.Text -> Either T.Text LocalBranches
 textToLocalBranches s =
   let ls = T.lines s
       res = linesToParser ls
    in case res of
-        LocalBranchesParser (Just curr) ns -> Just $ LocalBranches curr ns
-        _ -> Nothing
+        LocalBranchesParser (Just curr) ns -> Right $ LocalBranches curr ns
+        _ -> Left $ "Error parsing local branches: " <> s
 
 linesToParser :: [T.Text] -> LocalBranchesParser
 linesToParser = F.foldl' f (LocalBranchesParser Nothing [])
@@ -51,3 +53,9 @@ branchUpToDate = (==) "Already up to date.\n"
 -- | Determines if a remote branch is up to date.
 remoteUpToDate :: T.Text -> Bool
 remoteUpToDate = (==) "Everything up-to-date\n"
+
+-- | Maps a merge type to its command
+mergeTypeToCmd :: MergeType -> T.Text
+mergeTypeToCmd Upstream = "git merge @{u} --ff-only"
+mergeTypeToCmd Master = "git merge origin/master --ff-only"
+mergeTypeToCmd (Other (Name up)) = "git merge \"" <> up <> "\" --ff-only"

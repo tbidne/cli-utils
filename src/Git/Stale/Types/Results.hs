@@ -10,7 +10,10 @@
 -- and one for unmerged.
 module Git.Stale.Types.Results
   ( Results (..),
-    displayResults,
+    MergedDisp (..),
+    UnMergedDisp (..),
+    ResultsDisp (..),
+    toResultsDisp,
     toResults,
   )
 where
@@ -33,24 +36,19 @@ data Results
       }
   deriving (Show)
 
--- | Displays `Results`. Differs from `Show` in that it is formatted differently
--- and strips the `T.Text` /prefix/ from the branch names.
-displayResults :: T.Text -> Results -> T.Text
-displayResults prefix Results {mergedMap, unMergedMap} = T.concat str
+newtype MergedDisp = MergedDisp (T.Text, Int)
+
+newtype UnMergedDisp = UnMergedDisp (T.Text, Int)
+
+newtype ResultsDisp = ResultsDisp (MergedDisp, UnMergedDisp)
+
+-- | Transforms the 'Results' into a 'ResultsDisp' for display purposes.
+-- Strips out the 'prefix' from the branches, if it exists.
+toResultsDisp :: T.Text -> Results -> ResultsDisp
+toResultsDisp prefix Results {mergedMap, unMergedMap} = ResultsDisp (merged, unmerged)
   where
-    (m, s) = displayMap prefix mergedMap
-    (u, t) = displayMap prefix unMergedMap
-    str =
-      [ "MERGED: ",
-        T.pack (show s),
-        "\n------\n",
-        m,
-        "\n\n",
-        "UNMERGED: ",
-        T.pack (show t),
-        "\n--------\n",
-        u
-      ]
+    merged = MergedDisp $ displayMap prefix mergedMap
+    unmerged = UnMergedDisp $ displayMap prefix unMergedMap
 
 displayMap :: T.Text -> M.Map Author [Branch a] -> (T.Text, Int)
 displayMap prefix = M.foldrWithKey f ("", 0)

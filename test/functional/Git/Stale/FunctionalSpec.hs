@@ -5,6 +5,7 @@ module Git.Stale.FunctionalSpec where
 
 import App
 import Common.Utils
+import qualified Control.Monad.Logger as L
 import qualified Control.Monad.Reader as R
 import qualified Data.Time.Calendar as Cal
 import qualified Data.Time.Clock as Clock
@@ -25,7 +26,7 @@ spec = afterAll_ tearDown $ beforeAll_ setup $ do
       lines output `shouldSatisfy` verifyOutput
 
 runTest :: Env -> IO ()
-runTest env = R.runReaderT (runAppT runFindBranches) env
+runTest env = L.runStdoutLoggingT (R.runReaderT (runAppT runFindBranches) env)
 
 mkEnv :: IO Env
 mkEnv = do
@@ -72,7 +73,10 @@ allTrue _ = False
 toVerifier :: [String] -> Verifier
 toVerifier = foldr ((<>) . f) mempty
   where
-    f (matchAndStrip "ERRORS: " -> Just res) = Verifier ((res == "0"), False, False)
-    f (matchAndStrip "MERGED: " -> Just res) = Verifier (False, (res == "20"), False)
-    f (matchAndStrip "UNMERGED: " -> Just res) = Verifier (False, False, (res == "14"))
+    f (matchAndStrip "[Warn] \ESC[95mERRORS: " -> Just res) =
+      Verifier ((res == "0\ESC[0m"), False, False)
+    f (matchAndStrip "[Info] \ESC[92mMERGED: " -> Just res) =
+      Verifier (False, (res == "20\ESC[0m"), False)
+    f (matchAndStrip "[Info] \ESC[96mUNMERGED: " -> Just res) =
+      Verifier (False, False, (res == "14\ESC[0m"))
     f _ = mempty
