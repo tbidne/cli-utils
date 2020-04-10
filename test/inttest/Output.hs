@@ -1,8 +1,10 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Output where
 
+import Common.MonadLogger
 import qualified Data.Text as T
 
 data Output a = Output [T.Text] a
@@ -24,6 +26,9 @@ instance Applicative Output where
 instance Monad Output where
   (>>=) :: Output a -> (a -> Output b) -> Output b
   (Output rs x) >>= f = Output (rs <> ts) y where (Output ts y) = f x
+
+instance MonadLogger Output where
+  logTxt txt = Output [txt] ()
 
 putShowList :: Show a => [a] -> Output ()
 putShowList xs = Output (fmap (T.pack . show) xs) ()

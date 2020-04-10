@@ -5,7 +5,6 @@ where
 
 import App
 import Control.Concurrent.ParallelIO.Global
-import qualified Control.Monad.Logger as L
 import qualified Control.Monad.Reader as R
 import Data.Time.Calendar (Day)
 import Data.Time.Clock (getCurrentTime, utctDay)
@@ -43,7 +42,7 @@ run ::
 run app parseFn args =
   case parseFn args of
     Left err -> putStrLn err
-    Right env -> L.runStdoutLoggingT $ R.runReaderT (runAppT app) env
+    Right env -> R.runReaderT (runAppT app) env
 
 help :: String
 help =

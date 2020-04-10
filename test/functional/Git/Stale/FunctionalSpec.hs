@@ -5,7 +5,6 @@ module Git.Stale.FunctionalSpec where
 
 import App
 import Common.Utils
-import qualified Control.Monad.Logger as L
 import qualified Control.Monad.Reader as R
 import qualified Data.Time.Calendar as Cal
 import qualified Data.Time.Clock as Clock
@@ -26,7 +25,7 @@ spec = afterAll_ tearDown $ beforeAll_ setup $ do
       lines output `shouldSatisfy` verifyOutput
 
 runTest :: Env -> IO ()
-runTest env = L.runStdoutLoggingT (R.runReaderT (runAppT runFindBranches) env)
+runTest env = R.runReaderT (runAppT runFindBranches) env
 
 mkEnv :: IO Env
 mkEnv = do

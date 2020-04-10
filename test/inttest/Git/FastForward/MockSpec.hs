@@ -1,25 +1,29 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Git.FastForward.MockSpec where
+module Git.FastForward.MockSpec
+  ( spec,
+  )
+where
 
-import Control.Monad.Identity
-import Control.Monad.Logger
+import App
 import Control.Monad.Reader (runReaderT)
-import Git.FastForward.Core.MockUpdateBranches
+import Git.FastForward.Core.MockUpdateBranches ()
 import Git.FastForward.Core.MonadUpdateBranches
 import Git.FastForward.Parsing
 import Git.FastForward.Types.Env
+import qualified Data.Text as T
+import Output
 import Test.Hspec
 
 spec :: Spec
 spec = do
   describe "MockUpdateBranches Integration tests" $ do
     it "Mock run should process branches correctly" $ do
-      let (Identity (_, res)) = runMock
-      lineToLog <$> res `shouldSatisfy` verifyOutput
+      let (Output logs ()) = runMock
+      logs `shouldSatisfy` verifyOutput
 
-runMock :: Identity ((), [LogLine])
-runMock = runWriterLoggingT (runReaderT (runMockUpdateT runUpdateBranches) mkEnv)
+runMock :: Output ()
+runMock = runReaderT (runAppT runUpdateBranches) mkEnv
 
 args :: [String]
 args =
@@ -33,39 +37,36 @@ mkEnv = case parseArgs args of
   Left err -> error $ "Failure parsing args in integration test: " <> err
   Right env -> env
 
-lineToLog :: LogLine -> LogStr
-lineToLog (_, _, _, x) = x
-
-verifyOutput :: [LogStr] -> Bool
+verifyOutput :: [T.Text] -> Bool
 verifyOutput =
   (==)
-    [ "Fetching",
-      "",
+    [ logInfoStr "That's so fetch",
+      logInfoStr "",
       logInfoBlueStr "UPDATE SUMMARY",
       logInfoBlueStr "--------------",
       logInfoSuccessStr "Successes: [\"success2\",\"success1\"]",
       logInfoStr "No Change: [\"noChange2\",\"noChange1\"]",
       logWarnStr "Failures: [\"failure2\",\"failure1\"]\n",
-      "",
+      logInfoStr "",
       logInfoBlueStr "PUSH SUMMARY",
       logInfoBlueStr "------------",
       logInfoSuccessStr "Successes: [\"remote push2\",\"origin push1\"]",
       logInfoStr "No Change: []",
       logWarnStr "Failures: []\n",
-      "Checked out current"
+      logInfoStr "Checked out current"
     ]
 
-logInfoBlueStr :: LogStr -> LogStr
-logInfoBlueStr s = "\ESC[94m" <> s <> logEnd
+logInfoBlueStr :: T.Text -> T.Text
+logInfoBlueStr s = "\ESC[94m[Info] " <> s <> logEnd
 
-logInfoStr :: LogStr -> LogStr
-logInfoStr = id
+logInfoStr :: T.Text -> T.Text
+logInfoStr = (<>) "[Info] "
 
-logInfoSuccessStr :: LogStr -> LogStr
-logInfoSuccessStr s = "\ESC[92m" <> s <> logEnd
+logInfoSuccessStr :: T.Text -> T.Text
+logInfoSuccessStr s = "\ESC[92m[Info] " <> s <> logEnd
 
-logWarnStr :: LogStr -> LogStr
-logWarnStr s = "\ESC[95m" <> s <> logEnd
+logWarnStr :: T.Text -> T.Text
+logWarnStr s = "\ESC[95m[Warn] " <> s <> logEnd
 
-logEnd :: LogStr
+logEnd :: T.Text
 logEnd = "\ESC[0m"

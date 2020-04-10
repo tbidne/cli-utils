@@ -17,13 +17,13 @@ where
 
 import App
 import Common.IO
-import Common.Logging
-import qualified Control.Monad.Logger as ML
+import Common.MonadLogger
 import qualified Control.Monad.Reader as R
 import qualified Data.Text as T
 import Git.FastForward.Core.Internal
 import Git.FastForward.Types.Env
 import Git.FastForward.Types.LocalBranches
+import Git.FastForward.Types.MergeType
 import Git.FastForward.Types.UpdateResult
 import Git.Types.GitTypes
 import qualified System.Exit as Ex
@@ -32,55 +32,52 @@ import qualified System.Exit as Ex
 -- on a git filesystem.
 class Monad m => MonadUpdateBranches m where
   -- | Performs 'fetch'.
-  fetch :: m ()
+  fetch :: Maybe FilePath -> m ()
 
   -- | Retrieves all local branches.
-  getBranches :: m LocalBranches
+  getBranches :: Maybe FilePath -> m LocalBranches
 
   -- | Updates a branch by 'Name', returns the result.
-  updateBranch :: Name -> m UpdateResult
+  updateBranch :: Maybe FilePath -> MergeType -> Name -> m UpdateResult
 
   -- | Pushes branches, returns the results.
-  pushBranches :: m [UpdateResult]
+  pushBranches :: Maybe FilePath -> [Name] -> m [UpdateResult]
 
   -- | Checks out the passed 'CurrentBranch'.
-  checkoutCurrent :: CurrentBranch -> m ()
+  checkoutCurrent :: Maybe FilePath -> CurrentBranch -> m ()
 
--- | `MonadUpdateBranches` instance for (`AppT` m) over `R.MonadIO`. In general, we
--- do not care about error handling /except/ during 'updateBranch'. This is
+-- | `MonadUpdateBranches` instance for `IO`. In general, we do not care
+-- about error handling /except/ during 'updateBranch'. This is
 -- because a failure during 'updateBranch' is relatively common as we're
 -- being conservative by merging with "--ff-only", and we'd rather log it
 -- and continue trying to update other branches.
-instance R.MonadIO m => MonadUpdateBranches (AppT Env m) where
-  fetch :: AppT Env m ()
-  fetch = do
-    Env {path} <- R.ask
+instance MonadUpdateBranches IO where
+  fetch :: Maybe FilePath -> IO ()
+  fetch path = do
     logInfo "Fetching..."
-    res <- R.liftIO $ tryShExitCode "git fetch --prune" path
+    res <- tryShExitCode "git fetch --prune" path
     case res of
       Left t -> do
         logError t
-        R.liftIO Ex.exitFailure
+        Ex.exitFailure
       Right _ -> pure ()
 
-  getBranches :: AppT Env m LocalBranches
-  getBranches = do
-    Env {path} <- R.ask
+  getBranches :: Maybe FilePath -> IO LocalBranches
+  getBranches path = do
     logInfo "Parsing branches..."
-    res <- R.liftIO $ tryShExitCode "git branch" path
+    res <- tryShExitCode "git branch" path
     case res >>= textToLocalBranches of
       Left t -> do
         logError t
-        R.liftIO Ex.exitFailure
+        Ex.exitFailure
       Right x -> pure x
 
-  updateBranch :: Name -> AppT Env m UpdateResult
-  updateBranch nm@(Name name) = do
-    Env {mergeType, path} <- R.ask
+  updateBranch :: Maybe FilePath -> MergeType -> Name -> IO UpdateResult
+  updateBranch path mergeType nm@(Name name) = do
     let checkout = tryShExitCode ("git checkout \"" <> name <> "\"") path
         update = tryShExitCode (mergeTypeToCmd mergeType) path
     logInfo $ "Updating " <> name
-    res <- R.liftIO $ failFast checkout update
+    res <- failFast checkout update
     case res of
       Left t -> do
         logWarn t
@@ -89,22 +86,20 @@ instance R.MonadIO m => MonadUpdateBranches (AppT Env m) where
         | branchUpToDate o -> pure $ NoChange nm
         | otherwise -> pure $ Success nm
 
-  pushBranches :: AppT Env m [UpdateResult]
-  pushBranches = do
-    Env {path, push} <- R.ask
-    traverse (pushBranch path) push
+  pushBranches :: Maybe FilePath -> [Name] -> IO [UpdateResult]
+  pushBranches path branches = do
+    traverse (pushBranch path) branches
 
-  checkoutCurrent :: CurrentBranch -> AppT Env m ()
-  checkoutCurrent (Name name) = do
-    Env {path} <- R.ask
-    R.liftIO $ sh_ ("git checkout \"" <> name <> "\"") path
+  checkoutCurrent :: Maybe FilePath -> CurrentBranch -> IO ()
+  checkoutCurrent path (Name name) = do
+    sh_ ("git checkout \"" <> name <> "\"") path
 
-pushBranch :: R.MonadIO m => Maybe FilePath -> Name -> AppT Env m UpdateResult
+pushBranch :: Maybe FilePath -> Name -> IO UpdateResult
 pushBranch path nm@(Name name) = do
   logInfo $ "Pushing " <> name
   -- "git push" returns the "up to date..." string as stderr for
   -- some reason...
-  res <- R.liftIO $ tryShAndReturnStdErr ("git push " <> name) path
+  res <- tryShAndReturnStdErr ("git push " <> name) path
   case res of
     Left t -> do
       logWarn t
@@ -113,25 +108,41 @@ pushBranch path nm@(Name name) = do
       | remoteUpToDate o -> pure $ NoChange nm
       | otherwise -> pure $ Success nm
 
+instance MonadUpdateBranches m => MonadUpdateBranches (AppT Env m) where
+  fetch = R.lift . fetch
+  getBranches = R.lift . getBranches
+  updateBranch path mergeType = R.lift . updateBranch path mergeType
+  pushBranches path = R.lift . pushBranches path
+  checkoutCurrent path = R.lift . checkoutCurrent path
+
 -- | High level logic of `MonadUpdateBranches` usage. This function is the
 -- entrypoint for any `MonadUpdateBranches` instance.
-runUpdateBranches :: (ML.MonadLogger m, MonadUpdateBranches m) => m ()
+runUpdateBranches :: (R.MonadReader Env m, MonadLogger m, MonadUpdateBranches m) => m ()
 runUpdateBranches = do
-  fetch
-  LocalBranches {current, branches} <- getBranches
-  updated <- traverse updateBranch branches
+  Env {path, mergeType, push} <- R.ask
+  fetch path
+  LocalBranches {current, branches} <- getBranches path
+  updated <- traverse (updateBranch path mergeType) branches
+  logUpdate updated
+  pushed <- pushBranches path push
+  logPush pushed
+  checkoutCurrent path current
+
+logUpdate :: MonadLogger m => [UpdateResult] -> m ()
+logUpdate updated = do
   logInfo ""
   logInfoBlue "UPDATE SUMMARY"
   logInfoBlue "--------------"
   displaySplits $ splitResults updated
-  pushed <- pushBranches
+
+logPush :: MonadLogger m => [UpdateResult] -> m ()
+logPush updated = do
   logInfo ""
   logInfoBlue "PUSH SUMMARY"
   logInfoBlue "------------"
-  displaySplits $ splitResults pushed
-  checkoutCurrent current
+  displaySplits $ splitResults updated
 
-displaySplits :: ML.MonadLogger m => SplitResults -> m ()
+displaySplits :: MonadLogger m => SplitResults -> m ()
 displaySplits SplitResults {successes, noChanges, failures} = do
   logInfoSuccess $ "Successes: " <> T.pack (show successes)
   logInfo $ "No Change: " <> T.pack (show noChanges)
