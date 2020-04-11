@@ -3,7 +3,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Git.FastForward.ParsingSpec where
+module Git.FastForward.ParsingSpec
+  ( spec,
+  )
+where
 
 import Common.Utils
 import qualified Data.Text as T

@@ -1,6 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Git.Stale.Arbitraries where
+module Git.Stale.Arbitraries
+  ( ValidGrep (..),
+    ValidPath (..),
+    ValidLimit (..),
+    InvalidLimit (..),
+    ValidBranchType (..),
+    InvalidBranchType (..),
+    ValidRemoteName (..),
+    ValidMaster (..),
+    ValidArgs (..),
+    InvalidArgs (..),
+  )
+where
 
 import Git.Stale.Types.Arbitraries ()
 import Test.QuickCheck

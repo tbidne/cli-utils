@@ -1,4 +1,10 @@
-module Git.FastForward.Arbitraries where
+module Git.FastForward.Arbitraries
+  ( ValidPath (..),
+    ValidMergeType (..),
+    ValidArgs (..),
+    InvalidArgs (..),
+  )
+where
 
 import Test.QuickCheck
 

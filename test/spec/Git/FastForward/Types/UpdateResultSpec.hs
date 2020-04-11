@@ -1,6 +1,9 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Git.FastForward.Types.UpdateResultSpec where
+module Git.FastForward.Types.UpdateResultSpec
+  ( spec,
+  )
+where
 
 import Git.FastForward.Types.Arbitraries ()
 import Git.FastForward.Types.UpdateResult

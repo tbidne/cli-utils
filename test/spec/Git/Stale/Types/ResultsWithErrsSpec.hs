@@ -1,4 +1,7 @@
-module Git.Stale.Types.ResultsWithErrsSpec where
+module Git.Stale.Types.ResultsWithErrsSpec
+  ( spec,
+  )
+where
 
 import Data.Foldable (foldl')
 import qualified Data.Map.Strict as M

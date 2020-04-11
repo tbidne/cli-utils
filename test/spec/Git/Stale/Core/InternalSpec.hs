@@ -1,7 +1,10 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Git.Stale.Core.InternalSpec where
+module Git.Stale.Core.InternalSpec
+  ( spec,
+  )
+where
 
 import Data.Either (isRight)
 import qualified Data.Text as Txt

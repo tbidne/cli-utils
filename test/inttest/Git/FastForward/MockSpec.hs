@@ -7,11 +7,11 @@ where
 
 import App
 import Control.Monad.Reader (runReaderT)
+import qualified Data.Text as T
 import Git.FastForward.Core.MockUpdateBranches ()
 import Git.FastForward.Core.MonadUpdateBranches
 import Git.FastForward.Parsing
 import Git.FastForward.Types.Env
-import qualified Data.Text as T
 import Output
 import Test.Hspec
 

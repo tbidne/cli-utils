@@ -1,7 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Git.Stale.FunctionalSpec where
+module Git.Stale.FunctionalSpec
+  ( spec,
+  )
+where
 
 import App
 import Common.Utils

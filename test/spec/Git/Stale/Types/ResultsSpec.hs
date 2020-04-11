@@ -1,4 +1,7 @@
-module Git.Stale.Types.ResultsSpec where
+module Git.Stale.Types.ResultsSpec
+  ( spec,
+  )
+where
 
 import Data.Foldable (foldl')
 import qualified Data.Map.Strict as Map

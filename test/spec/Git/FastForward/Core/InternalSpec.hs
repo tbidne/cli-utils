@@ -1,6 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Git.FastForward.Core.InternalSpec where
+module Git.FastForward.Core.InternalSpec
+  ( spec,
+  )
+where
 
 import Git.FastForward.Core.Arbitraries
 import Git.FastForward.Core.Internal
