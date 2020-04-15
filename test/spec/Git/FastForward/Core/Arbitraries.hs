@@ -1,6 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Git.FastForward.Core.Arbitraries where
+module Git.FastForward.Core.Arbitraries
+  ( ValidLocalBranches (..),
+    BranchesNoStar (..),
+    StarredBranch (..),
+  )
+where
 
 import qualified Data.Text as T
 import Test.QuickCheck

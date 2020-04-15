@@ -1,11 +1,15 @@
-module Git.Stale.MockSpec where
+module Git.Stale.MockSpec
+  ( spec,
+  )
+where
 
+import App
 import Control.Monad.Reader (runReaderT)
 import qualified Data.Time.Calendar as Cal
+import Git.Stale.Core.MockFindBranches ()
 import Git.Stale.Core.MonadFindBranches
-import Git.Stale.Core.MockFindBranches
-import Git.Stale.Types.Env
 import Git.Stale.Parsing
+import Git.Stale.Types.Env
 import Output
 import Test.Hspec
 
@@ -26,12 +30,11 @@ spec = do
       length res `shouldBe` 0
 
 runMock :: String -> Output ()
-runMock t = runReaderT (runMockFindBranchesT runFindBranches) (envWithGrep t)
+runMock t = runReaderT (runAppT runFindBranches) (envWithGrep t)
 
 args :: String -> [String]
 args s =
-  [
-    "--grep=" <> s,
+  [ "--grep=" <> s,
     "--path=/share",
     "--limit=30",
     "--branch-type=remote",

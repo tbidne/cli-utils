@@ -1,4 +1,7 @@
-module Git.FastForward.Types.Arbitraries where
+module Git.FastForward.Types.Arbitraries
+  ( QC.Arbitrary (..),
+  )
+where
 
 import Git.FastForward.Types.UpdateResult
 import Git.Types.Arbitraries ()

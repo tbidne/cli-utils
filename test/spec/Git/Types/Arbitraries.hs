@@ -1,4 +1,7 @@
-module Git.Types.Arbitraries where
+module Git.Types.Arbitraries
+  ( Arbitrary (..),
+  )
+where
 
 import qualified Data.Text as T
 import Git.Types.GitTypes
