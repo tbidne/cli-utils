@@ -64,7 +64,8 @@ parseArgs :: Cal.Day -> [String] -> Either ParseErr Env
 parseArgs d args =
   case parseAll allParsers args of
     ParseAnd (PFailure (Help _)) -> Left $ Help help
-    ParseAnd (PFailure (Err arg)) -> Left $ Err arg
+    ParseAnd (PFailure (Err arg)) ->
+      Left $ Err $ "Could not parse `" <> arg <> "`. Try --help."
     ParseAnd (PSuccess acc) -> Right $ accToEnv d acc
 
 newtype AccLimit = AccLimit Nat deriving (Show)

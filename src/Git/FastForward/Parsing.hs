@@ -50,7 +50,8 @@ parseArgs :: [String] -> Either ParseErr Env
 parseArgs args =
   case parseAll allParsers args of
     ParseAnd (PFailure (Help _)) -> Left $ Help help
-    ParseAnd (PFailure (Err arg)) -> Left $ Err arg
+    ParseAnd (PFailure (Err arg)) ->
+      Left $ Err $ "Could not parse `" <> arg <> "`. Try --help."
     ParseAnd (PSuccess acc) -> Right $ accToEnv acc
 
 newtype AccMergeType = AccMergeType MergeType deriving (Show)

@@ -1,4 +1,5 @@
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE ExistentialQuantification #-}
+-- {-# LANGUAGE GADTs #-}
 
 -- |
 -- Module      : Common.Parsing
@@ -68,8 +69,10 @@ data Parser a acc
 
 -- | GADT that hides the 'a' on 'Parser' 'a' 'acc'. This way we can accept
 -- a heterogenous ['AnyParser' 'acc'] so we can try different parsers at once.
-data AnyParser acc where
-  AnyParser :: Parser a acc -> AnyParser acc
+--data AnyParser acc where
+--  AnyParser :: Parser a acc -> AnyParser acc
+
+data AnyParser acc = forall a. AnyParser (Parser a acc)
 
 -- | Entrypoint for parsing arguments ['String'] into 'acc'. Returns
 --

@@ -20,7 +20,10 @@ description:         Please see the README on GitHub at <https://github.com/tbid
 
 dependencies:
 - base >= 4.7 && < 5
+- async
+- clock
 - containers
+- monad-loops
 - mtl
 - parallel-io
 - pretty-terminal
