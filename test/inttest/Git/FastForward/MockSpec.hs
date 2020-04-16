@@ -34,7 +34,7 @@ args =
 
 mkEnv :: Env
 mkEnv = case parseArgs args of
-  Left err -> error $ "Failure parsing args in integration test: " <> err
+  Left err -> error $ "Failure parsing args in integration test: " <> show err
   Right env -> env
 
 verifyOutput :: [T.Text] -> Bool

@@ -44,7 +44,7 @@ args s =
 
 envWithGrep :: String -> Env
 envWithGrep s = case parseArgs mkDay (args s) of
-  Left err -> error $ "Failure parsing args in int test: " <> err
+  Left err -> error $ "Failure parsing args in int test: " <> show err
   Right env -> env
 
 mkDay :: Cal.Day

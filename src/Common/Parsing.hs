@@ -8,7 +8,9 @@
 module Common.Parsing
   ( AnyParser (..),
     Parser (..),
+    ParseAnd (..),
     ParseErr (..),
+    ParseStatus (..),
     parseAll,
   )
 where
@@ -20,19 +22,32 @@ data ParseErr
   = -- | Indicates that there was an error when trying to parse 'String'.
     Err String
   | -- | Indicates the argument "--help" was passed.
-    Help
+    Help String
+  deriving (Show)
 
-data ParseAttempt acc
-  = PFailure acc
+data ParseStatus acc
+  = PFailure ParseErr
   | PSuccess acc
+  deriving (Show)
 
-instance Semigroup (ParseAttempt acc) where
-  (PFailure _) <> (PSuccess y) = PSuccess y
-  p <> _ = p
+newtype ParseOr acc = ParseOr (ParseStatus acc) deriving (Show)
 
-fromParseAttempt :: ParseAttempt a -> a
-fromParseAttempt (PFailure x) = x
-fromParseAttempt (PSuccess x) = x
+instance Semigroup (ParseOr acc) where
+  (ParseOr (PFailure _)) <> r = r
+  l <> _ = l
+
+newtype ParseAnd acc = ParseAnd (ParseStatus acc) deriving (Show)
+
+instance Semigroup acc => Semigroup (ParseAnd acc) where
+  (ParseAnd (PFailure l)) <> _ = ParseAnd $ PFailure l
+  _ <> (ParseAnd (PFailure r)) = ParseAnd $ PFailure r
+  (ParseAnd (PSuccess l)) <> (ParseAnd (PSuccess r)) = ParseAnd $ PSuccess $ l <> r
+
+instance Monoid acc => Monoid (ParseAnd acc) where
+  mempty = ParseAnd (PSuccess mempty)
+
+parseOrToAnd :: ParseOr acc -> ParseAnd acc
+parseOrToAnd (ParseOr x) = ParseAnd x
 
 -- | Wraps functions that:
 --
@@ -75,37 +90,33 @@ data AnyParser acc where
 --   \[
 --      \mathrm{parseAll}(P)(S) = \mathrm{Right\,acc} \iff \forall s \in S, \exists p \in P \mathrm{\;such\,that\;} p(s) = 1
 --   \]
-parseAll :: [AnyParser acc] -> [String] -> acc -> Either ParseErr acc
-parseAll parsers args acc = foldr f (Right acc) args
+parseAll :: Monoid acc => [AnyParser acc] -> [String] -> ParseAnd acc
+parseAll parsers = foldr f mempty
   where
-    f _ (Left s) = Left s
-    f arg (Right acc') = tryParsers parsers acc' arg
+    f arg acc = parseOrToAnd (tryParsers parsers arg) <> acc
 
-tryParsers :: [AnyParser acc] -> acc -> String -> Either ParseErr acc
-tryParsers _ _ "--h" = Left Help
-tryParsers _ _ "--help" = Left Help
-tryParsers parsers acc arg =
-  case foldr f (PFailure acc) parsers of
-    PSuccess acc' -> Right acc'
-    PFailure _ -> Left (Err arg)
+tryParsers :: Monoid acc => [AnyParser acc] -> String -> ParseOr acc
+tryParsers _ "--h" = ParseOr $ PFailure $ Help ""
+tryParsers _ "--help" = ParseOr $ PFailure $ Help ""
+tryParsers parsers arg = foldr f (ParseOr (PFailure (Err arg))) parsers
   where
-    f (AnyParser p) attempt = attempt <> tryParser p arg (fromParseAttempt attempt)
+    f (AnyParser p) attempt = tryParser p arg <> attempt
 
-tryParser :: Parser a acc -> String -> acc -> ParseAttempt acc
-tryParser (ExactParser (parseFn, updateFn)) arg acc =
-  parseAndUpdate parseFn updateFn arg acc
-tryParser (PrefixParser (prefix, parseFn, updateFn)) arg acc =
+tryParser :: Monoid acc => Parser a acc -> String -> ParseOr acc
+tryParser (ExactParser (parseFn, updateFn)) arg =
+  parseAndUpdate parseFn updateFn arg
+tryParser (PrefixParser (prefix, parseFn, updateFn)) arg =
   case arg `startsWith` prefix of
-    Just rest -> parseAndUpdate parseFn updateFn rest acc
-    Nothing -> PFailure acc
+    Just rest -> parseAndUpdate parseFn updateFn rest
+    Nothing -> ParseOr $ PFailure $ Err arg
 
 parseAndUpdate ::
+  Monoid acc =>
   (String -> Maybe a) ->
   (acc -> a -> acc) ->
   String ->
-  acc ->
-  ParseAttempt acc
-parseAndUpdate parseFn updateFn arg acc =
+  ParseOr acc
+parseAndUpdate parseFn updateFn arg =
   case parseFn arg of
-    Just parsed -> PSuccess $ updateFn acc parsed
-    Nothing -> PFailure acc
+    Just parsed -> ParseOr $ PSuccess $ updateFn mempty parsed
+    Nothing -> ParseOr $ PFailure $ Err arg

@@ -8,6 +8,7 @@ module Git.FastForward.ParsingSpec
   )
 where
 
+import Common.Parsing
 import Common.Utils
 import qualified Data.Text as T
 import Git.FastForward.Arbitraries
@@ -26,7 +27,7 @@ spec = do
     prop "Correctly parses valid args" parsesArgs
     prop "Invalid args do not parse" invalidArgsDies
 
-verifyDefaults :: Either String Env -> Bool
+verifyDefaults :: Either ParseErr Env -> Bool
 verifyDefaults =
   \case
     Left _ -> False

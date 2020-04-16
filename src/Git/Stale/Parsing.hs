@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 -- |
@@ -11,11 +12,13 @@ module Git.Stale.Parsing
 where
 
 import Common.Parsing
-import Data.Maybe
+import Control.Applicative ((<|>))
+import qualified Data.Maybe as May
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as Cal
 import Git.Stale.Types.Env
 import Git.Stale.Types.Nat
+import qualified System.IO as IO
 import qualified Text.Read as R
 
 -- | Maps `Cal.Day` and parsed [`String`] args into `Right` `Env`, returning
@@ -57,100 +60,167 @@ import qualified Text.Read as R
 --  -h, --help
 --       Returns instructions as `Left` `String`.
 -- @
-parseArgs :: Cal.Day -> [String] -> Either String Env
+parseArgs :: Cal.Day -> [String] -> Either ParseErr Env
 parseArgs d args =
-  case parseAll allParsers args (defaultEnv d) of
-    Left Help -> Left help
-    Left (Err arg) -> Left $ "Could not parse `" <> arg <> "`. Try --help."
-    Right env -> Right env
+  case parseAll allParsers args of
+    ParseAnd (PFailure (Help _)) -> Left $ Help help
+    ParseAnd (PFailure (Err arg)) -> Left $ Err arg
+    ParseAnd (PSuccess acc) -> Right $ accToEnv d acc
 
-defaultEnv :: Cal.Day -> Env
-defaultEnv =
-  Env
-    Nothing
-    Nothing
-    (fromJust (mkNat 30))
-    Remote
-    "origin/"
-    "origin/master"
+newtype AccLimit = AccLimit Nat deriving (Show)
 
-allParsers :: [AnyParser Env]
+instance Semigroup AccLimit where
+  (AccLimit l) <> r
+    | (unNat l == 30) = r
+    | otherwise = (AccLimit l)
+
+instance Monoid AccLimit where
+  mempty = AccLimit $ May.fromJust $ mkNat 30
+
+newtype AccBranchType = AccBranchType BranchType deriving (Show)
+
+instance Semigroup AccBranchType where
+  (AccBranchType Remote) <> r = r
+  l <> _ = l
+
+instance Monoid AccBranchType where
+  mempty = AccBranchType Remote
+
+newtype AccRemoteName = AccRemoteName T.Text deriving (Show)
+
+instance Semigroup AccRemoteName where
+  (AccRemoteName "origin/") <> r = r
+  l <> _ = l
+
+instance Monoid AccRemoteName where
+  mempty = AccRemoteName "origin/"
+
+newtype AccMaster = AccMaster T.Text deriving (Show)
+
+instance Semigroup AccMaster where
+  (AccMaster "origin/master") <> r = r
+  l <> _ = l
+
+instance Monoid AccMaster where
+  mempty = AccMaster "origin/master"
+
+data Acc
+  = Acc
+      { accGrep :: Maybe T.Text,
+        accPath :: Maybe IO.FilePath,
+        accLimit :: AccLimit,
+        accBranchType :: AccBranchType,
+        accRemoteName :: AccRemoteName,
+        accMaster :: AccMaster
+      }
+
+instance Semigroup Acc where
+  Acc
+    { accGrep = g,
+      accPath = p,
+      accLimit = l,
+      accBranchType = b,
+      accRemoteName = r,
+      accMaster = m
+    }
+    <> Acc
+      { accGrep = g',
+        accPath = p',
+        accLimit = l',
+        accBranchType = b',
+        accRemoteName = r',
+        accMaster = m'
+      } =
+      Acc (g <|> g') (p <|> p') (l <> l') (b <> b') (r <> r') (m <> m')
+
+instance Monoid Acc where
+  mempty = Acc mempty mempty mempty mempty mempty mempty
+
+accToEnv :: Cal.Day -> Acc -> Env
+accToEnv
+  d
+  ( Acc
+      { accGrep,
+        accPath,
+        accLimit = (AccLimit l),
+        accBranchType = (AccBranchType b),
+        accRemoteName = (AccRemoteName r),
+        accMaster = (AccMaster m)
+      }
+    ) =
+    Env
+      { grepStr = accGrep,
+        path = accPath,
+        limit = l,
+        branchType = b,
+        remoteName = r,
+        master = m,
+        today = d
+      }
+
+allParsers :: [AnyParser Acc]
 allParsers =
   [ grepParser,
     pathParser,
     limitParser,
     branchTypeParser,
-    branchAllFlagParser,
-    branchRemoteFlagParser,
-    branchLocalFlagParser,
+    branchFlagParser,
     remoteNameParser,
     masterParser
   ]
 
-grepParser :: AnyParser Env
+grepParser :: AnyParser Acc
 grepParser = AnyParser $ PrefixParser ("--grep=", parser, updater)
   where
     parser "" = Just Nothing
     parser s = Just $ Just $ T.pack s
-    updater env g = env {grepStr = g}
+    updater acc g = acc {accGrep = g}
 
-pathParser :: AnyParser Env
+pathParser :: AnyParser Acc
 pathParser = AnyParser $ PrefixParser ("--path=", parser, updater)
   where
     parser "" = Just Nothing
     parser s = Just $ Just s
-    updater env p = env {path = p}
+    updater acc p = acc {accPath = p}
 
-limitParser :: AnyParser Env
+limitParser :: AnyParser Acc
 limitParser = AnyParser $ PrefixParser ("--limit=", parser, updater)
   where
     parser "" = Nothing
-    parser s = R.readMaybe s >>= mkNat
-    updater env l = env {limit = l}
+    parser s = fmap AccLimit (R.readMaybe s >>= mkNat)
+    updater acc l = acc {accLimit = l}
 
-branchTypeParser :: AnyParser Env
+branchTypeParser :: AnyParser Acc
 branchTypeParser = AnyParser $ PrefixParser ("--branch-type=", parser, updater)
   where
-    parser "all" = Just All
-    parser "remote" = Just Remote
-    parser "local" = Just Local
+    parser "all" = Just $ AccBranchType All
+    parser "remote" = Just $ AccBranchType Remote
+    parser "local" = Just $ AccBranchType Local
     parser _ = Nothing
-    updater env b = env {branchType = b}
+    updater acc b = acc {accBranchType = b}
 
-branchAllFlagParser :: AnyParser Env
-branchAllFlagParser = AnyParser $ ExactParser (parser, updater)
+branchFlagParser :: AnyParser Acc
+branchFlagParser = AnyParser $ ExactParser (parser, updater)
   where
-    parser "-a" = Just All
+    parser "-a" = Just $ AccBranchType All
+    parser "-r" = Just $ AccBranchType Remote
+    parser "-l" = Just $ AccBranchType Local
     parser _ = Nothing
-    updater env b = env {branchType = b}
+    updater acc b = acc {accBranchType = b}
 
-branchRemoteFlagParser :: AnyParser Env
-branchRemoteFlagParser = AnyParser $ ExactParser (parser, updater)
-  where
-    parser "-r" = Just Remote
-    parser _ = Nothing
-    updater env b = env {branchType = b}
-
-branchLocalFlagParser :: AnyParser Env
-branchLocalFlagParser = AnyParser $ ExactParser (parser, updater)
-  where
-    parser "-l" = Just Local
-    parser _ = Nothing
-    updater env b = env {branchType = b}
-
-remoteNameParser :: AnyParser Env
+remoteNameParser :: AnyParser Acc
 remoteNameParser = AnyParser $ PrefixParser ("--remote=", parser, updater)
   where
-    parser "" = Just ""
-    parser s = Just $ T.pack (s <> "/")
-    updater env r = env {remoteName = r}
+    parser "" = Just $ AccRemoteName ""
+    parser s = Just $ AccRemoteName $ T.pack (s <> "/")
+    updater acc r = acc {accRemoteName = r}
 
-masterParser :: AnyParser Env
+masterParser :: AnyParser Acc
 masterParser = AnyParser $ PrefixParser ("--master=", parser, updater)
   where
-    parser "" = Just ""
-    parser s = Just $ T.pack s
-    updater env m = env {master = m}
+    parser "" = Just $ AccMaster ""
+    parser s = Just $ AccMaster $ T.pack s
+    updater acc m = acc {accMaster = m}
 
 help :: String
 help =
