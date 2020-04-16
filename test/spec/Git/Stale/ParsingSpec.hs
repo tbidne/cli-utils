@@ -8,6 +8,7 @@ module Git.Stale.ParsingSpec
   )
 where
 
+import Common.Parsing
 import Common.Utils
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as Cal
@@ -29,7 +30,7 @@ spec = do
     prop "Invalid branch type does not parse" invalidBranchTypeDies
     prop "Invalid args do not parse" invalidArgsDies
 
-verifyDefaults :: Cal.Day -> Either String Env -> Bool
+verifyDefaults :: Cal.Day -> Either ParseErr Env -> Bool
 verifyDefaults day =
   \case
     Left _ -> False

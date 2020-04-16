@@ -1,11 +1,16 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main
   ( main,
   )
 where
 
 import App
+import Common.MonadLogger
+import Common.Parsing
 import Control.Concurrent.ParallelIO.Global
 import qualified Control.Monad.Reader as R
+import qualified Data.Text as T
 import Data.Time.Calendar (Day)
 import Data.Time.Clock (getCurrentTime, utctDay)
 import Git.FastForward.Core.MonadUpdateBranches
@@ -24,24 +29,24 @@ main = do
   parseCmdAndRun args
 
 parseCmdAndRun :: [String] -> IO ()
-parseCmdAndRun [] = putStrLn "No command. See --help for more info"
+parseCmdAndRun [] = logError "No command. See --help for more info"
 parseCmdAndRun (x : xs)
-  | x `elem` ["fast-forward", "ff"] = run runUpdateBranches FF.parseArgs xs
+  | x `elem` ["fast-forward", "ff"] = run runUpdateBranches (FF.parseArgs xs)
   | x `elem` ["find-stale", "fs"] = do
     d <- currDay
-    run runFindBranches (Stale.parseArgs d) xs
+    run runFindBranches (Stale.parseArgs d xs)
     stopGlobalPool
   | x `elem` ["--help", "-h"] = putStrLn help
-  | otherwise = putStrLn "Bad command. See --help for more info"
+  | otherwise = logError "Bad command. See --help for more info"
 
 run ::
   AppT env IO () ->
-  ([String] -> Either String env) ->
-  [String] ->
+  Either ParseErr env ->
   IO ()
-run app parseFn args =
-  case parseFn args of
-    Left err -> putStrLn err
+run app eitherEnv =
+  case eitherEnv of
+    Left (Help h) -> putStrLn h
+    Left (Err arg) -> logError $ "Could not parse `" <> T.pack arg <> "`. Try --help."
     Right env -> R.runReaderT (runAppT app) env
 
 help :: String

@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 -- |
@@ -11,6 +12,7 @@ module Git.FastForward.Parsing
 where
 
 import Common.Parsing
+import Control.Applicative ((<|>))
 import qualified Data.Text as T
 import Git.FastForward.Types.Env
 import Git.FastForward.Types.MergeType
@@ -44,65 +46,80 @@ import Git.Types.GitTypes
 --   -h, --help
 --       Returns instructions as `Left` `String`.
 -- @
-parseArgs :: [String] -> Either String Env
+parseArgs :: [String] -> Either ParseErr Env
 parseArgs args =
-  case parseAll allParsers args defaultEnv of
-    Left Help -> Left help
-    Left (Err arg) -> Left $ "Could not parse `" <> arg <> "`. Try --help."
-    Right env -> Right env
+  case parseAll allParsers args of
+    ParseAnd (PFailure (Help _)) -> Left $ Help help
+    ParseAnd (PFailure (Err arg)) -> Left $ Err arg
+    ParseAnd (PSuccess acc) -> Right $ accToEnv acc
 
-defaultEnv :: Env
-defaultEnv =
-  Env
-    Nothing
-    Upstream
-    []
+newtype AccMergeType = AccMergeType MergeType deriving (Show)
 
-allParsers :: [AnyParser Env]
+instance Semigroup AccMergeType where
+  (AccMergeType Upstream) <> r = r
+  l <> _ = l
+
+instance Monoid AccMergeType where
+  mempty = AccMergeType Upstream
+
+data Acc
+  = Acc
+      { accPath :: Maybe FilePath,
+        accMergeType :: AccMergeType,
+        accPush :: [Name]
+      }
+  deriving (Show)
+
+instance Semigroup Acc where
+  Acc {accPath = a, accMergeType = m, accPush = n}
+    <> Acc {accPath = a', accMergeType = m', accPush = n'} =
+      Acc (a <|> a') (m <> m') (n <> n')
+
+instance Monoid Acc where
+  mempty = Acc mempty mempty mempty
+
+accToEnv :: Acc -> Env
+accToEnv Acc {accPath, accMergeType = (AccMergeType m), accPush} =
+  Env {path = accPath, mergeType = m, push = accPush}
+
+allParsers :: [AnyParser Acc]
 allParsers =
   [ pathParser,
     mergeTypeParser,
-    mergeUpstreamFlagParser,
-    mergeMasterFlagParser,
+    mergeFlagParser,
     pushBranchesParser
   ]
 
-pathParser :: AnyParser Env
+pathParser :: AnyParser Acc
 pathParser = AnyParser $ PrefixParser ("--path=", parser, updater)
   where
     parser "" = Just Nothing
     parser s = Just $ Just s
-    updater env p = env {path = p}
+    updater acc p = acc {accPath = p}
 
-mergeTypeParser :: AnyParser Env
+mergeTypeParser :: AnyParser Acc
 mergeTypeParser = AnyParser $ PrefixParser ("--merge=", parser, updater)
   where
     parser "" = Nothing
-    parser "upstream" = Just Upstream
-    parser "master" = Just Master
-    parser o = Just $ Other $ Name $ T.pack o
-    updater env m = env {mergeType = m}
+    parser "upstream" = Just $ AccMergeType Upstream
+    parser "master" = Just $ AccMergeType Master
+    parser o = Just $ AccMergeType $ Other $ Name $ T.pack o
+    updater acc m = acc {accMergeType = m}
 
-mergeUpstreamFlagParser :: AnyParser Env
-mergeUpstreamFlagParser = AnyParser $ ExactParser (parser, updater)
+mergeFlagParser :: AnyParser Acc
+mergeFlagParser = AnyParser $ ExactParser (parser, updater)
   where
-    parser "-u" = Just Upstream
+    parser "-u" = Just $ AccMergeType Upstream
+    parser "-m" = Just $ AccMergeType Master
     parser _ = Nothing
-    updater env m = env {mergeType = m}
+    updater acc m = acc {accMergeType = m}
 
-mergeMasterFlagParser :: AnyParser Env
-mergeMasterFlagParser = AnyParser $ ExactParser (parser, updater)
-  where
-    parser "-m" = Just Master
-    parser _ = Nothing
-    updater env m = env {mergeType = m}
-
-pushBranchesParser :: AnyParser Env
+pushBranchesParser :: AnyParser Acc
 pushBranchesParser = AnyParser $ PrefixParser ("--push=", parser, updater)
   where
     parser "" = Nothing
     parser s = Just $ Name . T.strip <$> T.splitOn "," (T.pack s)
-    updater env ps = env {push = ps}
+    updater acc ps = acc {accPush = ps}
 
 help :: String
 help =
