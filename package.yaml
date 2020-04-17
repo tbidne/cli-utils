@@ -1,5 +1,5 @@
 name:                git-utils
-version:             3.0.0
+version:             4.0.0
 github:              "tbidne/git-utils"
 license:             BSD3
 author:              "Thomas Bidne"

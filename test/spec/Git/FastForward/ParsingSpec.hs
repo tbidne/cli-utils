@@ -8,7 +8,7 @@ module Git.FastForward.ParsingSpec
   )
 where
 
-import Common.Parsing
+import Common.Parsing.Core
 import Common.Utils
 import qualified Data.Text as T
 import Git.FastForward.Arbitraries

@@ -11,7 +11,7 @@ module Git.FastForward.Parsing
   )
 where
 
-import Common.Parsing
+import Common.Parsing.Core
 import Control.Applicative ((<|>))
 import qualified Data.Text as T
 import Git.FastForward.Types.Env

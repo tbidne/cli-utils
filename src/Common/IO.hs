@@ -16,6 +16,7 @@ module Common.IO
   )
 where
 
+import Common.Types.NonNegative
 import Common.Utils
 import qualified Control.Exception as Ex
 import Data.Functor (($>))
@@ -83,7 +84,7 @@ tryShExitCode cmd path = do
 
 -- | Version of 'tryShExitCode' that also returns (t, stdout/stderr), where
 -- /t/ is the time the command took in seconds.
-tryTimeSh :: T.Text -> Maybe FilePath -> IO (Either (Int, T.Text) (Int, T.Text))
+tryTimeSh :: T.Text -> Maybe FilePath -> IO (Either (NonNegative, T.Text) (NonNegative, T.Text))
 tryTimeSh cmd path = do
   start <- C.getTime C.Monotonic
   res <- tryShExitCode cmd path

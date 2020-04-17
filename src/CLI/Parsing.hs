@@ -8,7 +8,7 @@ module CLI.Parsing
 where
 
 import CLI.Types.Env
-import Common.Parsing
+import Common.Parsing.Core
 import Control.Applicative ((<|>))
 import qualified Control.Applicative as A
 import qualified Control.Exception as Ex

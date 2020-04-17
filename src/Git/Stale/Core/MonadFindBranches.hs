@@ -30,7 +30,7 @@ import Git.Stale.Types.Branch
 import Git.Stale.Types.Env
 import Git.Stale.Types.Error
 import Git.Stale.Types.Filtered
-import Git.Stale.Types.Nat
+import Common.Types.NonNegative
 import Git.Stale.Types.Results
 import Git.Stale.Types.ResultsWithErrs
 import Git.Types.GitTypes
@@ -48,7 +48,7 @@ class Monad m => MonadFindBranches m where
   branchNamesByGrep :: Maybe FilePath -> BranchType -> Maybe T.Text -> m [Handler m Name]
 
   -- | Maps [`Name`] to [`NameAuthDay`], filtering out non-stale branches.
-  getStaleLogs :: Maybe FilePath -> Nat -> Cal.Day -> [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
+  getStaleLogs :: Maybe FilePath -> NonNegative -> Cal.Day -> [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
 
   -- | Maps [`NameAuthDay`] to [`AnyBranch`].
   toBranches :: Maybe FilePath -> T.Text -> Filtered (Handler m NameAuthDay) -> m [Handler m AnyBranch]
@@ -87,7 +87,7 @@ instance MonadFindBranches IO where
     res <- sh cmd path
     logIfErr $ pure $ toNames' res
 
-  getStaleLogs :: Maybe FilePath -> Nat -> Cal.Day -> [ErrOr Name] -> IO (Filtered (ErrOr NameAuthDay))
+  getStaleLogs :: Maybe FilePath -> NonNegative -> Cal.Day -> [ErrOr Name] -> IO (Filtered (ErrOr NameAuthDay))
   getStaleLogs path limit today ns = do
     let staleFilter' = mkFiltered $ staleNonErr limit today
     logs <- Par.parallelE (fmap (nameToLog path) ns)

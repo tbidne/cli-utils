@@ -10,7 +10,7 @@ import App
 import CLI.MonadCLI
 import CLI.Parsing as CLI
 import Common.MonadLogger
-import Common.Parsing
+import Common.Parsing.Core
 import Control.Concurrent.ParallelIO.Global
 import qualified Control.Monad.Reader as R
 import qualified Data.Text as T

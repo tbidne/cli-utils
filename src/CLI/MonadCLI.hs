@@ -71,22 +71,6 @@ counter asyn = do
 unfinished :: A.Async a -> IO Bool
 unfinished = A.poll >=> pure . not . May.isJust
 
-formatSeconds :: Int -> T.Text
-formatSeconds seconds =
-  let (m, s) = divWithRem seconds 60
-      pluralize i t
-        | i == 1 = t
-        | otherwise = t <> "s"
-   in
-      T.concat
-        [ showToText m,
-          pluralize m " minute",
-          " and ",
-          showToText s,
-          pluralize s " second",
-          "  "
-        ]
-
 translateCommands :: Map.Map T.Text T.Text -> [T.Text] -> [T.Text]
 translateCommands mp = foldMap (lineToCommands mp)
 
