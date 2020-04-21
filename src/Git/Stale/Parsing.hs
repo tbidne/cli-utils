@@ -68,7 +68,7 @@ parseArgs d args =
       Left $ Err $ "Could not parse `" <> arg <> "`. Try --help."
     ParseAnd (PSuccess acc) -> Right $ accToEnv d acc
 
-newtype AccLimit = AccLimit NonNegative deriving (Show)
+newtype AccLimit = AccLimit (NonNegative Int) deriving (Show)
 
 instance Semigroup AccLimit where
   (AccLimit l) <> r
@@ -76,7 +76,7 @@ instance Semigroup AccLimit where
     | otherwise = (AccLimit l)
 
 instance Monoid AccLimit where
-  mempty = AccLimit $ May.fromJust $ iToNonNegative 30
+  mempty = AccLimit $ May.fromJust $ toNonNegative 30
 
 newtype AccBranchType = AccBranchType BranchType deriving (Show)
 
@@ -188,7 +188,7 @@ limitParser :: AnyParser Acc
 limitParser = AnyParser $ PrefixParser ("--limit=", parser, updater)
   where
     parser "" = Nothing
-    parser s = fmap AccLimit (R.readMaybe s >>= iToNonNegative)
+    parser s = fmap AccLimit (R.readMaybe s >>= toNonNegative)
     updater acc l = acc {accLimit = l}
 
 branchTypeParser :: AnyParser Acc

@@ -11,7 +11,7 @@ module Common.Types.Positive
 where
 
 -- | Represents a positive, non-zero `Integer`.
-newtype Positive = Positive {getPositive :: Integer}
+newtype Positive a = Positive {getPositive :: a}
   deriving (Eq, Show)
 
 -- | Constructs `Maybe` `Positive` as
@@ -21,11 +21,11 @@ newtype Positive = Positive {getPositive :: Integer}
 --       \mathrm{Nothing}, &\mathrm{otherwise}
 --     \end{cases}
 --   \]
-toPositive :: Integral a => a -> Maybe Positive
+toPositive :: Integral a => a -> Maybe (Positive a)
 toPositive x
-  | x > 0 = Just $ Positive $ fromIntegral x
+  | x > 0 = Just $ Positive x
   | otherwise = Nothing
 
 -- | Monomorphic version of 'toPositive' for convenience.
-iToPositive :: Integer -> Maybe Positive
+iToPositive :: Integer -> Maybe (Positive Integer)
 iToPositive = toPositive

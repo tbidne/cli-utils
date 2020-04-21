@@ -54,8 +54,8 @@ badDateStrFails (NameAuthDateErr nad@(_, _, t)) = case parseDay nad of
     ts = Txt.splitOn "-" t
     goodRead xs = E.isRight $ traverse safeRead xs
 
-vStale :: NonNegative -> C.Day -> NameAuthDay -> Bool
-vStale lim day nad@(_, _, d) = (C.diffDays day d > (getNonNegative lim)) == isStale
+vStale :: NonNegative Int -> C.Day -> NameAuthDay -> Bool
+vStale lim day nad@(_, _, d) = (C.diffDays day d > (fromIntegral (getNonNegative lim))) == isStale
   where
     isStale = stale lim day nad
 

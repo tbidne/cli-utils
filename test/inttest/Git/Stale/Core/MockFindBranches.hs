@@ -28,7 +28,7 @@ instance MonadFindBranches Output where
           Just s -> filter (\(Name n) -> s `T.isInfixOf` n)
     pure $ maybeFilter allBranches
 
-  getStaleLogs :: Maybe FilePath -> NonNegative -> Cal.Day -> [Name] -> Output (Filtered NameAuthDay)
+  getStaleLogs :: Maybe FilePath -> NonNegative Int -> Cal.Day -> [Name] -> Output (Filtered NameAuthDay)
   getStaleLogs _ _ _ ns = do
     let removeStale ((Name n), _, _) = not $ "stale" `T.isInfixOf` n
         toLog nm@(Name n) = (nm, Author n, error "MockFindBranches -> getStaleLogs: day not defined")

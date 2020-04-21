@@ -11,7 +11,7 @@ module Common.Types.NonNegative
 where
 
 -- | Represents a non-negative `Integer`.
-newtype NonNegative = NonNegative {getNonNegative :: Integer}
+newtype NonNegative a = NonNegative {getNonNegative :: a}
   deriving (Eq, Show)
 
 -- | Constructs `Maybe` `NonNegative` as
@@ -21,11 +21,11 @@ newtype NonNegative = NonNegative {getNonNegative :: Integer}
 --       \mathrm{Nothing}, &\mathrm{otherwise}
 --     \end{cases}
 --   \]
-toNonNegative :: Integral a => a -> Maybe NonNegative
+toNonNegative :: Integral a => a -> Maybe (NonNegative a)
 toNonNegative x
-  | x >= 0 = Just $ NonNegative $ fromIntegral x
+  | x >= 0 = Just $ NonNegative x
   | otherwise = Nothing
 
 -- | Monomorphic version of 'toNonNegative' for convenience.
-iToNonNegative :: Integer -> Maybe NonNegative
+iToNonNegative :: Integer -> Maybe (NonNegative Integer)
 iToNonNegative = toNonNegative

@@ -28,9 +28,9 @@ spec = do
     it "diffTime should return absolute time diff" $ do
       let s1 = Clock.fromNanoSecs 5_000_000_000
       let s2 = Clock.fromNanoSecs 10_000_000_000
-      diffTime s1 s2 `shouldSatisfy` ((==) 5) . getNonNegative
-      diffTime s2 s1 `shouldSatisfy` ((==) 5) . getNonNegative
-      diffTime s1 s1 `shouldSatisfy` ((==) 0) . getNonNegative
+      diffTime s1 s2 `shouldSatisfy` ((==) 5) . (getNonNegative :: NonNegative Int -> Int)
+      diffTime s2 s1 `shouldSatisfy` ((==) 5) . (getNonNegative :: NonNegative Int -> Int)
+      diffTime s1 s1 `shouldSatisfy` ((==) 0) . (getNonNegative :: NonNegative Int -> Int)
     prop "divWithRem n d, d <= n should be (e, r) s.t. de + r = n" vDivWithRem
     it "formatSeconds should format the seconds" $ do
       formatSeconds (May.fromJust (iToNonNegative 0))
@@ -68,7 +68,8 @@ instance Q.Arbitrary ValidStartsWith where
     rest <- Q.arbitrary
     pure $ ValidStartsWith (prefix, prefix <> rest)
 
-newtype NatAndPosNonZero = NatAndPosNonZero (NonNegative, Positive) deriving (Show)
+newtype NatAndPosNonZero = NatAndPosNonZero (NonNegative Int, Positive Int)
+  deriving (Show)
 
 instance Q.Arbitrary NatAndPosNonZero where
   arbitrary = do

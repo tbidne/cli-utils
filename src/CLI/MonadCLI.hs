@@ -3,6 +3,7 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module CLI.MonadCLI
   ( MonadCLI (..),
@@ -14,6 +15,7 @@ import App
 import CLI.Types.Env
 import Common.IO
 import Common.MonadLogger
+import Common.Types.NonNegative
 import Common.Utils
 import qualified Control.Concurrent.Async as A
 import Control.Monad ((>=>))
@@ -34,7 +36,7 @@ instance MonadCLI IO where
     actionAsync <- A.async $ A.mapConcurrently_ runCommand commands
     counter actionAsync
     end <- C.getTime C.Monotonic
-    let totalTime = diffTime start end
+    let totalTime = diffTime start end :: NonNegative Integer
     clearLine
     logInfoBlue "Finished!"
     logInfoBlue $ "Total time elapsed: " <> formatSeconds totalTime
@@ -51,7 +53,7 @@ runCLI = do
 runCommand :: T.Text -> IO ()
 runCommand cmd = do
   res <- tryTimeSh cmd Nothing
-  (seconds, logFn, msg) <- case res of
+  (seconds :: NonNegative Integer, logFn, msg) <- case res of
     Left (t, err) -> pure (t, logError, err)
     Right (t, _) -> pure (t, logInfoSuccess, "Successfully ran `" <> cmd <> "`")
   clearLine
@@ -64,7 +66,7 @@ counter asyn = do
   L.whileM_ (unfinished asyn) $ do
     sh_ "sleep 1" Nothing
     elapsed <- C.getTime C.Monotonic
-    let diff = diffTime start elapsed
+    let diff = diffTime start elapsed :: NonNegative Integer
     resetCR
     logNoLine $ "Running time: " <> formatSeconds diff
 

@@ -84,7 +84,11 @@ tryShExitCode cmd path = do
 
 -- | Version of 'tryShExitCode' that also returns (t, stdout/stderr), where
 -- /t/ is the time the command took in seconds.
-tryTimeSh :: T.Text -> Maybe FilePath -> IO (Either (NonNegative, T.Text) (NonNegative, T.Text))
+tryTimeSh ::
+  Integral a =>
+  T.Text ->
+  Maybe FilePath ->
+  IO (Either (NonNegative a, T.Text) (NonNegative a, T.Text))
 tryTimeSh cmd path = do
   start <- C.getTime C.Monotonic
   res <- tryShExitCode cmd path

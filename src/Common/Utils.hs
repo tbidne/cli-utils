@@ -61,11 +61,11 @@ matchAndStrip :: Eq a => [a] -> [a] -> Maybe [a]
 matchAndStrip = flip startsWith
 
 -- | For given \(x, y\), returns the absolute difference \(|x - y|\).
-diffTime :: C.TimeSpec -> C.TimeSpec -> NonNegative
+diffTime :: Integral a => C.TimeSpec -> C.TimeSpec -> NonNegative a
 diffTime t1 t2 =
   let diff = fromIntegral $ C.sec $ C.diffTimeSpec t1 t2
    in -- Safe because 'C.diffTimeSpec' guaranteed to be non-zero
-      May.fromJust $ iToNonNegative diff
+      May.fromJust $ toNonNegative diff
 
 -- | For \(n \ge 0, d > 0\), returns non-negative \((e, r)\) such that
 --
@@ -75,18 +75,18 @@ diffTime t1 t2 =
 --      r < n \\
 --    \end{align}
 -- \]
-divWithRem :: Integral a => NonNegative -> Positive -> (a, a)
+divWithRem :: Integral a => NonNegative a -> Positive a -> (a, a)
 divWithRem n d = (n' `div` d', n' `rem` d')
   where
-    n' = fromIntegral $ getNonNegative n
-    d' = fromIntegral $ getPositive d
+    n' = getNonNegative n
+    d' = getPositive d
 
 -- | For \(n \ge 0\) seconds, returns a 'T.Text' description of the minutes
 -- and seconds.
-formatSeconds :: NonNegative -> T.Text
+formatSeconds :: (Show a, Integral a) => NonNegative a -> T.Text
 formatSeconds seconds =
-  let d = May.fromJust $ iToPositive 60
-      (m, s) = divWithRem seconds d :: (Integer, Integer)
+  let d = May.fromJust $ toPositive 60
+      (m, s) = divWithRem seconds d
       pluralize i t
         | i == 1 = t
         | otherwise = t <> "s"

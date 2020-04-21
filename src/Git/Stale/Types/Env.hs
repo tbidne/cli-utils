@@ -39,7 +39,7 @@ data Env
         -- `Nothing` otherwise.
         path :: Maybe IO.FilePath,
         -- | A non-negative integer descrbing stale threshold in days.
-        limit :: NonNegative,
+        limit :: NonNegative Int,
         -- | The type of branches to search.
         branchType :: BranchType,
         -- | The name of the remote.

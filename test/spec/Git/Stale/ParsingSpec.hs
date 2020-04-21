@@ -84,7 +84,7 @@ verifyPath (matchAndStrip "--path=" -> Just s) =
     Just t -> s == t
 verifyPath _ = error "Bad path passed to test"
 
-verifyLimit :: String -> NonNegative -> Bool
+verifyLimit :: String -> NonNegative Int -> Bool
 verifyLimit (matchAndStrip "--limit=" -> Just s) = ((s ==) . show . getNonNegative)
 verifyLimit _ = error "Bad limit passed to test"
 
