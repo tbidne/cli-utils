@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE FlexibleInstances #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- Module      : Common.MonadLogger</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-8"></span><span class="hs-comment">-- Provides logging typeclass and functions.</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Common.MonadLogger</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier">MonadLogger</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><a href="Common.MonadLogger.html#clearLine"><span class="hs-identifier">clearLine</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Common.MonadLogger.html#logEmpty"><span class="hs-identifier">logEmpty</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="annot"><a href="Common.MonadLogger.html#resetCR"><span class="hs-identifier">resetCR</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>    </span><span class="annot"><a href="Common.MonadLogger.html#logError"><span class="hs-identifier">logError</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>    </span><span class="annot"><a href="Common.MonadLogger.html#logDebug"><span class="hs-identifier">logDebug</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><a href="Common.MonadLogger.html#logInfo"><span class="hs-identifier">logInfo</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>    </span><span class="annot"><a href="Common.MonadLogger.html#logInfoBlue"><span class="hs-identifier">logInfoBlue</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-18"></span><span>    </span><span class="annot"><a href="Common.MonadLogger.html#logInfoCyan"><span class="hs-identifier">logInfoCyan</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>    </span><span class="annot"><a href="Common.MonadLogger.html#logInfoSuccess"><span class="hs-identifier">logInfoSuccess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><a href="Common.MonadLogger.html#logWarn"><span class="hs-identifier">logWarn</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="App.html"><span class="hs-identifier">App</span></a></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Trans</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">MTL</span></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">System.Console.Pretty</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">P</span></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">System.IO</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IO</span></span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- | Represents a monad that can log 'T.Text'.</span><span>
+</span><span id="line-31"></span><span class="hs-keyword">class</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679104315"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span id="MonadLogger"><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-var">MonadLogger</span></a></span></span><span> </span><span id="local-6989586621679104315"><span class="annot"><a href="#local-6989586621679104315"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-comment">-- | Logs without a newline character.</span><span>
+</span><span id="line-33"></span><span>  </span><span id="logNoLine"><span class="annot"><a href="Common.MonadLogger.html#logNoLine"><span class="hs-identifier hs-type">logNoLine</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104315"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-comment">-- | Logs with a newline character.</span><span>
+</span><span id="line-36"></span><span>  </span><span id="logLine"><span class="annot"><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-type">logLine</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104315"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-37"></span><span>  </span><span id="local-6989586621679104271"><span class="annot"><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-var hs-var">logLine</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logNoLine"><span class="hs-identifier hs-var">logNoLine</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; m ()) -&gt; (Text -&gt; Text) -&gt; Text -&gt; m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(&lt;&gt;)</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\n&quot;</span></span></span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-40"></span><span>  </span><span id="local-6989586621679104265"><span class="annot"><span class="annottext">logNoLine :: Text -&gt; IO ()
+</span><a href="#local-6989586621679104265"><span class="hs-identifier hs-var hs-var hs-var hs-var">logNoLine</span></a></span></span><span> </span><span id="local-6989586621679104264"><span class="annot"><span class="annottext">txt :: Text
+</span><a href="#local-6989586621679104264"><span class="hs-identifier hs-var">txt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStr</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; String
+</span><span class="hs-identifier hs-var">T.unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679104264"><span class="hs-identifier hs-var">txt</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; IO () -&gt; IO ()
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">Handle -&gt; IO ()
+</span><span class="hs-identifier hs-var">IO.hFlush</span></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><span class="hs-identifier hs-var">IO.stdout</span></span><span>
+</span><span id="line-41"></span><span>  </span><span id="local-6989586621679104259"><span class="annot"><span class="annottext">logLine :: Text -&gt; IO ()
+</span><a href="#local-6989586621679104259"><span class="hs-identifier hs-var hs-var hs-var hs-var">logLine</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; IO ()) -&gt; (Text -&gt; String) -&gt; Text -&gt; IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; String
+</span><span class="hs-identifier hs-var">T.unpack</span></span><span>
+</span><span id="line-42"></span><span>
+</span><span id="line-43"></span><span id="local-6989586621679104256"><span id="local-6989586621679104257"><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104257"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="App.html#AppT"><span class="hs-identifier hs-type">AppT</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104256"><span class="hs-identifier hs-type">env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104257"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-44"></span><span>  </span><span id="local-6989586621679104252"><span class="annot"><span class="annottext">logNoLine :: Text -&gt; AppT env m ()
+</span><a href="#local-6989586621679104252"><span class="hs-identifier hs-var hs-var hs-var hs-var">logNoLine</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m () -&gt; AppT env m ()
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
+(MonadTrans t, Monad m) =&gt;
+m a -&gt; t m a
+</span><span class="hs-identifier hs-var">MTL.lift</span></span><span> </span><span class="annot"><span class="annottext">(m () -&gt; AppT env m ()) -&gt; (Text -&gt; m ()) -&gt; Text -&gt; AppT env m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logNoLine"><span class="hs-identifier hs-var">logNoLine</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span id="local-6989586621679104250"><span class="annot"><span class="annottext">logLine :: Text -&gt; AppT env m ()
+</span><a href="#local-6989586621679104250"><span class="hs-identifier hs-var hs-var hs-var hs-var">logLine</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m () -&gt; AppT env m ()
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
+(MonadTrans t, Monad m) =&gt;
+m a -&gt; t m a
+</span><span class="hs-identifier hs-var">MTL.lift</span></span><span> </span><span class="annot"><span class="annottext">(m () -&gt; AppT env m ()) -&gt; (Text -&gt; m ()) -&gt; Text -&gt; AppT env m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-var">logLine</span></a></span></span></span><span>
+</span><span id="line-46"></span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- | 'resetCR' then `logLine` with 60 spaces.</span><span>
+</span><span id="line-48"></span><span id="local-6989586621679104249"><span class="annot"><a href="Common.MonadLogger.html#clearLine"><span class="hs-identifier hs-type">clearLine</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104249"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104249"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-49"></span><span id="clearLine"><span class="annot"><span class="annottext">clearLine :: m ()
+</span><a href="Common.MonadLogger.html#clearLine"><span class="hs-identifier hs-var hs-var">clearLine</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-50"></span><span>  </span><span class="annot"><span class="annottext">m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; m ()
+</span><a href="Common.MonadLogger.html#resetCR"><span class="hs-identifier hs-var">resetCR</span></a></span><span>
+</span><span id="line-51"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-var">logLine</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;                                                            &quot;</span></span><span>
+</span><span id="line-52"></span><span>
+</span><span id="line-53"></span><span class="hs-comment">-- | 'logLine' with the empty string.</span><span>
+</span><span id="line-54"></span><span id="local-6989586621679104248"><span class="annot"><a href="Common.MonadLogger.html#logEmpty"><span class="hs-identifier hs-type">logEmpty</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104248"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104248"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-55"></span><span id="logEmpty"><span class="annot"><span class="annottext">logEmpty :: m ()
+</span><a href="Common.MonadLogger.html#logEmpty"><span class="hs-identifier hs-var hs-var">logEmpty</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-var">logLine</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-56"></span><span>
+</span><span id="line-57"></span><span class="hs-comment">-- | 'logNoLine' with a carriage return.</span><span>
+</span><span id="line-58"></span><span id="local-6989586621679104296"><span class="annot"><a href="Common.MonadLogger.html#resetCR"><span class="hs-identifier hs-type">resetCR</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104296"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104296"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-59"></span><span id="resetCR"><span class="annot"><span class="annottext">resetCR :: m ()
+</span><a href="Common.MonadLogger.html#resetCR"><span class="hs-identifier hs-var hs-var">resetCR</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logNoLine"><span class="hs-identifier hs-var">logNoLine</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;\r&quot;</span></span><span>
+</span><span id="line-60"></span><span>
+</span><span id="line-61"></span><span class="hs-comment">-- | Debug formatted 'logLine'.</span><span>
+</span><span id="line-62"></span><span id="local-6989586621679104247"><span class="annot"><a href="Common.MonadLogger.html#logDebug"><span class="hs-identifier hs-type">logDebug</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104247"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104247"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-63"></span><span id="logDebug"><span class="annot"><span class="annottext">logDebug :: Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logDebug"><span class="hs-identifier hs-var hs-var">logDebug</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-var">logLine</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; m ()) -&gt; (Text -&gt; Text) -&gt; Text -&gt; m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(&lt;&gt;)</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[Debug] &quot;</span></span><span>
+</span><span id="line-64"></span><span>
+</span><span id="line-65"></span><span class="hs-comment">-- | Info formatted 'logLine'.</span><span>
+</span><span id="line-66"></span><span id="local-6989586621679104246"><span class="annot"><a href="Common.MonadLogger.html#logInfo"><span class="hs-identifier hs-type">logInfo</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104246"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104246"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-67"></span><span id="logInfo"><span class="annot"><span class="annottext">logInfo :: Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logInfo"><span class="hs-identifier hs-var hs-var">logInfo</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-var">logLine</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; m ()) -&gt; (Text -&gt; Text) -&gt; Text -&gt; m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(&lt;&gt;)</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[Info] &quot;</span></span><span>
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span class="hs-comment">-- | Blue Info formatted 'logLine'.</span><span>
+</span><span id="line-70"></span><span id="local-6989586621679104245"><span class="annot"><a href="Common.MonadLogger.html#logInfoBlue"><span class="hs-identifier hs-type">logInfoBlue</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104245"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104245"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-71"></span><span id="logInfoBlue"><span class="annot"><span class="annottext">logInfoBlue :: Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logInfoBlue"><span class="hs-identifier hs-var hs-var">logInfoBlue</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-var">logLine</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; m ()) -&gt; (Text -&gt; Text) -&gt; Text -&gt; m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Color -&gt; Text -&gt; Text
+forall a. Pretty a =&gt; Color -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">P.color</span></span><span> </span><span class="annot"><span class="annottext">Color
+</span><span class="hs-identifier hs-var">P.Blue</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Text) -&gt; (Text -&gt; Text) -&gt; Text -&gt; Text
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(&lt;&gt;)</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[Info] &quot;</span></span><span>
+</span><span id="line-72"></span><span>
+</span><span id="line-73"></span><span class="hs-comment">-- | Cyan Info formatted 'logLine'.</span><span>
+</span><span id="line-74"></span><span id="local-6989586621679104242"><span class="annot"><a href="Common.MonadLogger.html#logInfoCyan"><span class="hs-identifier hs-type">logInfoCyan</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104242"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104242"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-75"></span><span id="logInfoCyan"><span class="annot"><span class="annottext">logInfoCyan :: Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logInfoCyan"><span class="hs-identifier hs-var hs-var">logInfoCyan</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-var">logLine</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; m ()) -&gt; (Text -&gt; Text) -&gt; Text -&gt; m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Color -&gt; Text -&gt; Text
+forall a. Pretty a =&gt; Color -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">P.color</span></span><span> </span><span class="annot"><span class="annottext">Color
+</span><span class="hs-identifier hs-var">P.Cyan</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Text) -&gt; (Text -&gt; Text) -&gt; Text -&gt; Text
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(&lt;&gt;)</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[Info] &quot;</span></span><span>
+</span><span id="line-76"></span><span>
+</span><span id="line-77"></span><span class="hs-comment">-- | Success Info formatted 'logLine'.</span><span>
+</span><span id="line-78"></span><span id="local-6989586621679104240"><span class="annot"><a href="Common.MonadLogger.html#logInfoSuccess"><span class="hs-identifier hs-type">logInfoSuccess</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104240"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104240"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-79"></span><span id="logInfoSuccess"><span class="annot"><span class="annottext">logInfoSuccess :: Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logInfoSuccess"><span class="hs-identifier hs-var hs-var">logInfoSuccess</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-var">logLine</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; m ()) -&gt; (Text -&gt; Text) -&gt; Text -&gt; m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Color -&gt; Text -&gt; Text
+forall a. Pretty a =&gt; Color -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">P.color</span></span><span> </span><span class="annot"><span class="annottext">Color
+</span><span class="hs-identifier hs-var">P.Green</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Text) -&gt; (Text -&gt; Text) -&gt; Text -&gt; Text
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(&lt;&gt;)</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[Info] &quot;</span></span><span>
+</span><span id="line-80"></span><span>
+</span><span id="line-81"></span><span class="hs-comment">-- | Warn formatted 'logLine'.</span><span>
+</span><span id="line-82"></span><span id="local-6989586621679104238"><span class="annot"><a href="Common.MonadLogger.html#logWarn"><span class="hs-identifier hs-type">logWarn</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104238"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104238"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-83"></span><span id="logWarn"><span class="annot"><span class="annottext">logWarn :: Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logWarn"><span class="hs-identifier hs-var hs-var">logWarn</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-var">logLine</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; m ()) -&gt; (Text -&gt; Text) -&gt; Text -&gt; m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Color -&gt; Text -&gt; Text
+forall a. Pretty a =&gt; Color -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">P.color</span></span><span> </span><span class="annot"><span class="annottext">Color
+</span><span class="hs-identifier hs-var">P.Magenta</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Text) -&gt; (Text -&gt; Text) -&gt; Text -&gt; Text
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(&lt;&gt;)</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[Warn] &quot;</span></span><span>
+</span><span id="line-84"></span><span>
+</span><span id="line-85"></span><span class="hs-comment">-- | Error formatted 'logLine'.</span><span>
+</span><span id="line-86"></span><span id="local-6989586621679104236"><span class="annot"><a href="Common.MonadLogger.html#logError"><span class="hs-identifier hs-type">logError</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104236"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104236"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-87"></span><span id="logError"><span class="annot"><span class="annottext">logError :: Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logError"><span class="hs-identifier hs-var hs-var">logError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; m ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logLine"><span class="hs-identifier hs-var">logLine</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; m ()) -&gt; (Text -&gt; Text) -&gt; Text -&gt; m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Color -&gt; Text -&gt; Text
+forall a. Pretty a =&gt; Color -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">P.color</span></span><span> </span><span class="annot"><span class="annottext">Color
+</span><span class="hs-identifier hs-var">P.Red</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Text) -&gt; (Text -&gt; Text) -&gt; Text -&gt; Text
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(&lt;&gt;)</span></span><span> </span><span class="annot"><span class="hs-string">&quot;[Error] &quot;</span></span><span>
+</span><span id="line-88"></span></pre></body></html>

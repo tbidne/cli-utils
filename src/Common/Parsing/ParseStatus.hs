@@ -10,6 +10,7 @@ where
 
 import Common.Parsing.ParseErr
 
+-- | Describes the outcome of a parse attempt into an accumulator @acc@.
 data ParseStatus acc
   = PFailure ParseErr
   | PSuccess acc

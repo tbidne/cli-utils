@@ -55,7 +55,7 @@ trySh cmd path = Ex.try (sh cmd path)
 -- Performing git push on a branch that is already up-to-date is an example
 -- that "succeeds", but the output we care about ("Everything up-to-date") is
 -- inexplicably sent to stderr instead of stdout. This function is meant for
--- these situations, where we still want the usual `trySh_` semantics, but want
+-- these situations, where we still want the usual `trySh` semantics, but want
 -- to paradoxically return stderr on success.
 tryShAndReturnStdErr :: T.Text -> Maybe FilePath -> IO (Either T.Text T.Text)
 tryShAndReturnStdErr cmd path = do

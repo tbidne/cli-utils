@@ -22,7 +22,7 @@ import qualified System.IO as IO
 import qualified Text.Read as R
 
 -- | Maps `Cal.Day` and parsed [`String`] args into `Right` `Env`, returning
--- any errors as `Left` `String`. All arguments are optional
+-- any errors as `Left` `ParseErr`. All arguments are optional
 -- (i.e. an empty list is valid), but if any are provided then they must
 -- be valid or an error will be returned. Valid arguments are:
 --

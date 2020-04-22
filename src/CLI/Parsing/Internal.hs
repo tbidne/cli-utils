@@ -2,6 +2,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ViewPatterns #-}
 
+-- |
+-- Module      : CLI.Parsing.Internal
+-- License     : BSD3
+-- Maintainer  : tbidne@gmail.com
+-- Internal module for CLI parsing.
 module CLI.Parsing.Internal
   ( Acc (..),
     mapStrToEnv,
@@ -16,9 +21,14 @@ import qualified Control.Applicative as A
 import qualified Data.Map as M
 import qualified Data.Text as T
 
+-- | Parses arguments into @'ParseAnd' acc@.
 pureParseArgs :: [String] -> ParseAnd Acc
 pureParseArgs = parseAll allParsers
 
+-- | Transforms a list of commands and 'String' into 'Right' 'Env'.
+-- Each non-empty, non-comment (comments start with #) line in the
+-- map string are expected to have the form @key=val@. If any parse
+-- errors are encountered then 'Left' 'ParseErr' is returned.
 mapStrToEnv :: [T.Text] -> String -> Either ParseErr Env
 mapStrToEnv commands contents =
   let eitherMap = linesToMap (T.lines (T.pack contents))
@@ -30,7 +40,7 @@ linesToMap = foldr f (Right M.empty)
     f "" mp = mp
     f (T.stripPrefix "#" -> Just _) mp = mp
     f line mp = A.liftA2 insertPair (parseLine line) mp
-    insertPair (key, cmd) mp = (M.insert key cmd mp)
+    insertPair (key, cmd) mp = M.insert key cmd mp
 
 parseLine :: T.Text -> Either ParseErr (T.Text, T.Text)
 parseLine l =
@@ -40,9 +50,12 @@ parseLine l =
     [key, cmd] -> Right (key, cmd)
     _ -> Left $ Err $ "Could not parse line `" <> T.unpack l <> "` from legend file"
 
+-- | Monoid accumulator for CLI.
 data Acc
   = Acc
-      { legendPath :: Maybe FilePath,
+      { -- | Path to the legend file.
+        legendPath :: Maybe FilePath,
+        -- | List of commands to run.
         cmds :: [T.Text]
       }
   deriving (Show)

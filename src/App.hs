@@ -15,6 +15,7 @@ where
 
 import qualified Control.Monad.Reader as R
 
+-- | Main component used in this application.
 newtype AppT e m a = AppT {runAppT :: R.ReaderT e m a}
 
 instance Functor m => Functor (AppT e m) where
@@ -38,6 +39,7 @@ instance Monad m => R.MonadReader e (AppT e m) where
   local = R.local
   reader = R.reader
 
+-- | Transforms an 'AppT' e m a.
 mapAppT ::
   (R.ReaderT e m a -> R.ReaderT e n b) ->
   AppT e m a ->

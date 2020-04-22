@@ -26,29 +26,29 @@
 </span><span id="line-26"></span><span class="hs-comment">-- otherwise.</span><span>
 </span><span id="line-27"></span><span class="annot"><a href="Git.FastForward.Core.Internal.html#textToLocalBranches"><span class="hs-identifier hs-type">textToLocalBranches</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#LocalBranches"><span class="hs-identifier hs-type">LocalBranches</span></a></span><span>
 </span><span id="line-28"></span><span id="textToLocalBranches"><span class="annot"><span class="annottext">textToLocalBranches :: Text -&gt; Either Text LocalBranches
-</span><a href="Git.FastForward.Core.Internal.html#textToLocalBranches"><span class="hs-identifier hs-var hs-var">textToLocalBranches</span></a></span></span><span> </span><span id="local-6989586621679097776"><span class="annot"><span class="annottext">s :: Text
-</span><a href="#local-6989586621679097776"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-29"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679097775"><span class="annot"><span class="annottext">ls :: [Text]
-</span><a href="#local-6989586621679097775"><span class="hs-identifier hs-var hs-var">ls</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; [Text]
+</span><a href="Git.FastForward.Core.Internal.html#textToLocalBranches"><span class="hs-identifier hs-var hs-var">textToLocalBranches</span></a></span></span><span> </span><span id="local-6989586621679106398"><span class="annot"><span class="annottext">s :: Text
+</span><a href="#local-6989586621679106398"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679106397"><span class="annot"><span class="annottext">ls :: [Text]
+</span><a href="#local-6989586621679106397"><span class="hs-identifier hs-var hs-var">ls</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; [Text]
 </span><span class="hs-identifier hs-var">T.lines</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679097776"><span class="hs-identifier hs-var">s</span></a></span><span>
-</span><span id="line-30"></span><span>      </span><span id="local-6989586621679097773"><span class="annot"><span class="annottext">res :: LocalBranchesParser
-</span><a href="#local-6989586621679097773"><span class="hs-identifier hs-var hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; LocalBranchesParser
+</span><a href="#local-6989586621679106398"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-30"></span><span>      </span><span id="local-6989586621679106395"><span class="annot"><span class="annottext">res :: LocalBranchesParser
+</span><a href="#local-6989586621679106395"><span class="hs-identifier hs-var hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; LocalBranchesParser
 </span><a href="Git.FastForward.Core.Internal.html#linesToParser"><span class="hs-identifier hs-var">linesToParser</span></a></span><span> </span><span class="annot"><span class="annottext">[Text]
-</span><a href="#local-6989586621679097775"><span class="hs-identifier hs-var">ls</span></a></span><span>
+</span><a href="#local-6989586621679106397"><span class="hs-identifier hs-var">ls</span></a></span><span>
 </span><span id="line-31"></span><span>   </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">LocalBranchesParser
-</span><a href="#local-6989586621679097773"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-32"></span><span>        </span><span class="annot"><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-type">LocalBranchesParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679097771"><span class="annot"><span class="annottext">curr :: CurrentBranch
-</span><a href="#local-6989586621679097771"><span class="hs-identifier hs-var">curr</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679097770"><span class="annot"><span class="annottext">ns :: [CurrentBranch]
-</span><a href="#local-6989586621679097770"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LocalBranches -&gt; Either Text LocalBranches
+</span><a href="#local-6989586621679106395"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-32"></span><span>        </span><span class="annot"><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-type">LocalBranchesParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679106393"><span class="annot"><span class="annottext">curr :: CurrentBranch
+</span><a href="#local-6989586621679106393"><span class="hs-identifier hs-var">curr</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679106392"><span class="annot"><span class="annottext">ns :: [CurrentBranch]
+</span><a href="#local-6989586621679106392"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LocalBranches -&gt; Either Text LocalBranches
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(LocalBranches -&gt; Either Text LocalBranches)
 -&gt; LocalBranches -&gt; Either Text LocalBranches
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; [CurrentBranch] -&gt; LocalBranches
 </span><a href="Git.FastForward.Types.LocalBranches.html#LocalBranches"><span class="hs-identifier hs-var">LocalBranches</span></a></span><span> </span><span class="annot"><span class="annottext">CurrentBranch
-</span><a href="#local-6989586621679097771"><span class="hs-identifier hs-var">curr</span></a></span><span> </span><span class="annot"><span class="annottext">[CurrentBranch]
-</span><a href="#local-6989586621679097770"><span class="hs-identifier hs-var">ns</span></a></span><span>
+</span><a href="#local-6989586621679106393"><span class="hs-identifier hs-var">curr</span></a></span><span> </span><span class="annot"><span class="annottext">[CurrentBranch]
+</span><a href="#local-6989586621679106392"><span class="hs-identifier hs-var">ns</span></a></span><span>
 </span><span id="line-33"></span><span>        </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Either Text LocalBranches
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Either Text LocalBranches)
@@ -57,7 +57,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Error parsing local branches: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679097776"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><a href="#local-6989586621679106398"><span class="hs-identifier hs-var">s</span></a></span><span>
 </span><span id="line-34"></span><span>
 </span><span id="line-35"></span><span class="annot"><a href="Git.FastForward.Core.Internal.html#linesToParser"><span class="hs-identifier hs-type">linesToParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-type">LocalBranchesParser</span></a></span><span>
 </span><span id="line-36"></span><span id="linesToParser"><span class="annot"><span class="annottext">linesToParser :: [Text] -&gt; LocalBranchesParser
@@ -67,47 +67,47 @@ forall (t :: * -&gt; *) b a.
 Foldable t =&gt;
 (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
 </span><span class="hs-identifier hs-var">F.foldl'</span></span><span> </span><span class="annot"><span class="annottext">LocalBranchesParser -&gt; Text -&gt; LocalBranchesParser
-</span><a href="#local-6989586621679097767"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe CurrentBranch -&gt; [CurrentBranch] -&gt; LocalBranchesParser
+</span><a href="#local-6989586621679106389"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe CurrentBranch -&gt; [CurrentBranch] -&gt; LocalBranchesParser
 </span><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-var">LocalBranchesParser</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe CurrentBranch
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span>
 </span><span id="line-37"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-38"></span><span>    </span><span id="local-6989586621679097767"><span class="annot"><span class="annottext">f :: LocalBranchesParser -&gt; Text -&gt; LocalBranchesParser
-</span><a href="#local-6989586621679097767"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-type">LocalBranchesParser</span></a></span><span> </span><span id="local-6989586621679097766"><span class="annot"><span class="annottext">curr :: Maybe CurrentBranch
-</span><a href="#local-6989586621679097766"><span class="hs-identifier hs-var">curr</span></a></span></span><span> </span><span id="local-6989586621679097765"><span class="annot"><span class="annottext">ns :: [CurrentBranch]
-</span><a href="#local-6989586621679097765"><span class="hs-identifier hs-var">ns</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679097764"><span class="annot"><span class="annottext">txt :: Text
-</span><a href="#local-6989586621679097764"><span class="hs-identifier hs-var">txt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-38"></span><span>    </span><span id="local-6989586621679106389"><span class="annot"><span class="annottext">f :: LocalBranchesParser -&gt; Text -&gt; LocalBranchesParser
+</span><a href="#local-6989586621679106389"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-type">LocalBranchesParser</span></a></span><span> </span><span id="local-6989586621679106388"><span class="annot"><span class="annottext">curr :: Maybe CurrentBranch
+</span><a href="#local-6989586621679106388"><span class="hs-identifier hs-var">curr</span></a></span></span><span> </span><span id="local-6989586621679106387"><span class="annot"><span class="annottext">ns :: [CurrentBranch]
+</span><a href="#local-6989586621679106387"><span class="hs-identifier hs-var">ns</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679106386"><span class="annot"><span class="annottext">txt :: Text
+</span><a href="#local-6989586621679106386"><span class="hs-identifier hs-var">txt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-39"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Either CurrentBranch CurrentBranch
 </span><a href="Git.FastForward.Core.Internal.html#starredBranch"><span class="hs-identifier hs-var">starredBranch</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679097764"><span class="hs-identifier hs-var">txt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-40"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679097762"><span class="annot"><span class="annottext">curr' :: CurrentBranch
-</span><a href="#local-6989586621679097762"><span class="hs-identifier hs-var">curr'</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe CurrentBranch -&gt; [CurrentBranch] -&gt; LocalBranchesParser
+</span><a href="#local-6989586621679106386"><span class="hs-identifier hs-var">txt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-40"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679106384"><span class="annot"><span class="annottext">curr' :: CurrentBranch
+</span><a href="#local-6989586621679106384"><span class="hs-identifier hs-var">curr'</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe CurrentBranch -&gt; [CurrentBranch] -&gt; LocalBranchesParser
 </span><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-var">LocalBranchesParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CurrentBranch -&gt; Maybe CurrentBranch
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">CurrentBranch
-</span><a href="#local-6989586621679097762"><span class="hs-identifier hs-var">curr'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CurrentBranch
-</span><a href="#local-6989586621679097762"><span class="hs-identifier hs-var">curr'</span></a></span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; [CurrentBranch] -&gt; [CurrentBranch]
+</span><a href="#local-6989586621679106384"><span class="hs-identifier hs-var">curr'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CurrentBranch
+</span><a href="#local-6989586621679106384"><span class="hs-identifier hs-var">curr'</span></a></span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; [CurrentBranch] -&gt; [CurrentBranch]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[CurrentBranch]
-</span><a href="#local-6989586621679097765"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-41"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679097761"><span class="annot"><span class="annottext">other :: CurrentBranch
-</span><a href="#local-6989586621679097761"><span class="hs-identifier hs-var">other</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe CurrentBranch -&gt; [CurrentBranch] -&gt; LocalBranchesParser
+</span><a href="#local-6989586621679106387"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679106383"><span class="annot"><span class="annottext">other :: CurrentBranch
+</span><a href="#local-6989586621679106383"><span class="hs-identifier hs-var">other</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe CurrentBranch -&gt; [CurrentBranch] -&gt; LocalBranchesParser
 </span><a href="Git.FastForward.Core.Internal.html#LocalBranchesParser"><span class="hs-identifier hs-var">LocalBranchesParser</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe CurrentBranch
-</span><a href="#local-6989586621679097766"><span class="hs-identifier hs-var">curr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CurrentBranch
-</span><a href="#local-6989586621679097761"><span class="hs-identifier hs-var">other</span></a></span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; [CurrentBranch] -&gt; [CurrentBranch]
+</span><a href="#local-6989586621679106388"><span class="hs-identifier hs-var">curr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CurrentBranch
+</span><a href="#local-6989586621679106383"><span class="hs-identifier hs-var">other</span></a></span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; [CurrentBranch] -&gt; [CurrentBranch]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[CurrentBranch]
-</span><a href="#local-6989586621679097765"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679106387"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-42"></span><span>
 </span><span id="line-43"></span><span class="annot"><a href="Git.FastForward.Core.Internal.html#starredBranch"><span class="hs-identifier hs-type">starredBranch</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.LocalBranches.html#CurrentBranch"><span class="hs-identifier hs-type">CurrentBranch</span></a></span><span>
 </span><span id="line-44"></span><span id="starredBranch"><span class="annot"><span class="annottext">starredBranch :: Text -&gt; Either CurrentBranch CurrentBranch
-</span><a href="Git.FastForward.Core.Internal.html#starredBranch"><span class="hs-identifier hs-var hs-var">starredBranch</span></a></span></span><span> </span><span id="local-6989586621679097760"><span class="annot"><span class="annottext">b :: Text
-</span><a href="#local-6989586621679097760"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Git.FastForward.Core.Internal.html#starredBranch"><span class="hs-identifier hs-var hs-var">starredBranch</span></a></span></span><span> </span><span id="local-6989586621679106382"><span class="annot"><span class="annottext">b :: Text
+</span><a href="#local-6989586621679106382"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-45"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; [Text]
 </span><span class="hs-identifier hs-var">T.splitOn</span></span><span> </span><span class="annot"><span class="hs-string">&quot;* &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679097760"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-46"></span><span>    </span><span class="hs-special">[</span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span id="local-6989586621679097758"><span class="annot"><span class="annottext">curr :: Text
-</span><a href="#local-6989586621679097758"><span class="hs-identifier hs-var">curr</span></a></span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; Either CurrentBranch CurrentBranch
+</span><a href="#local-6989586621679106382"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-46"></span><span>    </span><span class="hs-special">[</span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span id="local-6989586621679106380"><span class="annot"><span class="annottext">curr :: Text
+</span><a href="#local-6989586621679106380"><span class="hs-identifier hs-var">curr</span></a></span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; Either CurrentBranch CurrentBranch
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(CurrentBranch -&gt; Either CurrentBranch CurrentBranch)
 -&gt; CurrentBranch -&gt; Either CurrentBranch CurrentBranch
@@ -117,7 +117,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text
 </span><span class="hs-identifier hs-var">T.strip</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679097758"><span class="hs-identifier hs-var">curr</span></a></span><span>
+</span><a href="#local-6989586621679106380"><span class="hs-identifier hs-var">curr</span></a></span><span>
 </span><span id="line-47"></span><span>    </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">CurrentBranch -&gt; Either CurrentBranch CurrentBranch
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">(CurrentBranch -&gt; Either CurrentBranch CurrentBranch)
@@ -128,7 +128,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text
 </span><span class="hs-identifier hs-var">T.strip</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679097760"><span class="hs-identifier hs-var">b</span></a></span><span>
+</span><a href="#local-6989586621679106382"><span class="hs-identifier hs-var">b</span></a></span><span>
 </span><span id="line-48"></span><span>
 </span><span id="line-49"></span><span class="hs-comment">-- | Determines if a local branch is up to date.</span><span>
 </span><span id="line-50"></span><span class="annot"><a href="Git.FastForward.Core.Internal.html#branchUpToDate"><span class="hs-identifier hs-type">branchUpToDate</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
@@ -149,11 +149,11 @@ forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span id="line-59"></span><span id="mergeTypeToCmd"><span class="annot"><span class="annottext">mergeTypeToCmd :: MergeType -&gt; Text
 </span><a href="Git.FastForward.Core.Internal.html#mergeTypeToCmd"><span class="hs-identifier hs-var hs-var">mergeTypeToCmd</span></a></span></span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#Upstream"><span class="hs-identifier hs-type">Upstream</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;git merge @{u} --ff-only&quot;</span></span><span>
 </span><span id="line-60"></span><span class="annot"><a href="Git.FastForward.Core.Internal.html#mergeTypeToCmd"><span class="hs-identifier hs-var">mergeTypeToCmd</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#Master"><span class="hs-identifier hs-type">Master</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;git merge origin/master --ff-only&quot;</span></span><span>
-</span><span id="line-61"></span><span class="annot"><a href="Git.FastForward.Core.Internal.html#mergeTypeToCmd"><span class="hs-identifier hs-var">mergeTypeToCmd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#Other"><span class="hs-identifier hs-type">Other</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679097752"><span class="annot"><span class="annottext">up :: Text
-</span><a href="#local-6989586621679097752"><span class="hs-identifier hs-var">up</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;git merge \&quot;&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><span id="line-61"></span><span class="annot"><a href="Git.FastForward.Core.Internal.html#mergeTypeToCmd"><span class="hs-identifier hs-var">mergeTypeToCmd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#Other"><span class="hs-identifier hs-type">Other</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679106374"><span class="annot"><span class="annottext">up :: Text
+</span><a href="#local-6989586621679106374"><span class="hs-identifier hs-var">up</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;git merge \&quot;&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679097752"><span class="hs-identifier hs-var">up</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><a href="#local-6989586621679106374"><span class="hs-identifier hs-var">up</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\&quot; --ff-only&quot;</span></span><span>
 </span><span id="line-62"></span></pre></body></html>

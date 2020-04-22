@@ -20,8 +20,8 @@ import Common.Utils
 
 -- | Wraps functions that:
 --
---   1. Attempts to parse a String into an 'a'.
---   2. Updates 'acc' with 'a'.
+--   1. Attempts to parse a String into an @a@.
+--   2. Updates @acc@ with @a@.
 --
 --   That is,
 --
@@ -35,22 +35,22 @@ data Parser a acc
   | -- | Includes a prefix for parsing e.g. "--arg=val".
     PrefixParser (String, String -> Maybe a, acc -> a -> acc)
 
--- | Existentially quantifies the 'a' in 'Parser' 'a' 'acc'. This way we
--- can accept a heterogenous ['AnyParser' 'acc'] so we can try different
+-- | Existentially quantifies the @a@ in 'Parser' @a@ @acc@. This way we
+-- can accept a heterogenous ['AnyParser' @acc@] so we can try different
 -- parsers at once.
 data AnyParser acc = forall a. AnyParser (Parser a acc)
 
--- | Entrypoint for parsing arguments ['String'] into 'acc'. We impose a
+-- | Entrypoint for parsing arguments ['String'] into @acc@. We impose a
 -- monoid requirement on the accumulator to take advantage of laziness.
 -- Returns
 --
 -- @
 --    - 'Left' ('Err' 'String'): /some/ 'String' could not be parsed by /any/ parser.
 --    - 'Left' 'Help': "--help" was found
---    - 'Right' 'acc': /every/ 'String' was parsed successfully by /some/ parser.
+--    - 'Right' @acc@: /every/ 'String' was parsed successfully by /some/ parser.
 -- @
 --
--- In symbols, let /P/ = ['AnyParser' 'acc'], /S/ = ['String'] and define
+-- In symbols, let /P/ = ['AnyParser' @acc@], /S/ = ['String'] and define
 --   \[
 --     p(s) = \begin{cases}
 --       1, &p\text{ parsed } s \text{ successfully.} \\

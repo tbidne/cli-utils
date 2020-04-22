@@ -46,7 +46,7 @@ startsWith (x : xs) (y : ys)
   | x == y = startsWith xs ys
   | otherwise = Nothing
 
--- | Flipped version of 'startsWith'. Useful with 'ViewPatterns',
+-- | Flipped version of 'startsWith'. Useful with @ViewPatterns@,
 -- e.g.
 --
 -- @
@@ -104,5 +104,6 @@ formatSeconds seconds =
 monoBimap :: BF.Bifunctor f => (a -> b) -> f a a -> f b b
 monoBimap g = BF.bimap g g
 
+-- | Transforms a showable to 'T.Text'.
 showToText :: Show a => a -> T.Text
 showToText = T.pack . show

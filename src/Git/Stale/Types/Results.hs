@@ -24,26 +24,27 @@ import qualified Data.Text as T
 import Git.Stale.Types.Branch
 import Git.Types.GitTypes
 
-type BranchMap a = M.Map Author [Branch a]
-
--- | Wrapper for holding `M.Map` `Author` [`Branch` a] data.
+-- | Wrapper for holding @`M.Map` `Author` [`Branch` a]@ data.
 data Results
   = Results
-      { -- | `M.Map` `Author` [`Branch` `Merged`]
-        mergedMap :: BranchMap 'Merged,
-        -- | `M.Map` `Author` [`Branch` `UnMerged`]
-        unMergedMap :: BranchMap 'UnMerged
+      { -- | Holds the results for merged branches
+        mergedMap :: M.Map Author [Branch 'Merged],
+        -- | Holds the results for unmerged branches
+        unMergedMap :: M.Map Author [Branch 'UnMerged]
       }
   deriving (Show)
 
+-- | Newtype wrapper for merged branches over (display string, num branches).
 newtype MergedDisp = MergedDisp (T.Text, Int)
 
+-- | Newtype wrapper for unmerged branches over (display string, num branches).
 newtype UnMergedDisp = UnMergedDisp (T.Text, Int)
 
+-- | Newtype wrapper over ('MergedDisp', 'UnMergedDisp').
 newtype ResultsDisp = ResultsDisp (MergedDisp, UnMergedDisp)
 
 -- | Transforms the 'Results' into a 'ResultsDisp' for display purposes.
--- Strips out the 'prefix' from the branches, if it exists.
+-- Strips out the @prefix@ from the branches, if it exists.
 toResultsDisp :: T.Text -> Results -> ResultsDisp
 toResultsDisp prefix Results {mergedMap, unMergedMap} = ResultsDisp (merged, unmerged)
   where

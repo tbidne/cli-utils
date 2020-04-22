@@ -1,5 +1,10 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
+-- |
+-- Module      : CLI.Parsing
+-- License     : BSD3
+-- Maintainer  : tbidne@gmail.com
+-- Handles parsing of ['String'] args into 'Env'.
 module CLI.Parsing
   ( parseArgs,
   )
@@ -11,6 +16,20 @@ import Common.Parsing.Core
 import qualified Control.Exception as Ex
 import qualified Data.Map.Strict as M
 
+-- | Maps parsed ['String'] args into 'IO' 'Right' 'Env', returning
+-- any errors as `Left` `String`. All arguments are optional
+-- (i.e. an empty list is valid), but if any are provided then they must
+-- be valid or an error will be returned. Valid arguments are:
+--
+-- @
+--   --legend=\<string>\
+--       Path to the legend file.
+--
+--   \<string\>
+--       Any other string is considered a command. If the command has
+--       whitespace then it must be quoted or it will be considered
+--       a separate command.
+-- @
 parseArgs :: [String] -> IO (Either ParseErr Env)
 parseArgs args = do
   case pureParseArgs args of

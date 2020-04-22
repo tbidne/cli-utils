@@ -9,23 +9,16 @@ module Git.Stale.Types.Filtered
   )
 where
 
--- | Intermediate type to ensure `Core.MonadFindBranches.getStaleLogs`
--- filters stale logs.
-newtype Filtered a = Filtered {unFiltered :: [a]}
+-- | Type-safe way to guarantee a list has been filtered.
+newtype Filtered a
+  = Filtered
+      { -- | Unwraps a 'Filtered'.
+        unFiltered :: [a]
+      }
 
 instance Show a => Show (Filtered a) where
   show = show . unFiltered
 
-instance Functor Filtered where
-  fmap f (Filtered xs) = Filtered (fmap f xs)
-
-instance Applicative Filtered where
-  pure x = Filtered (pure x)
-  (Filtered fs) <*> (Filtered xs) = Filtered (fs <*> xs)
-
-instance Monad Filtered where
-  (Filtered xs) >>= f = Filtered (xs >>= (unFiltered . f))
-
--- | Constructs `Filtered` 'a' based on filter function.
+-- | Constructs 'Filtered' based on filter function.
 mkFiltered :: (a -> Bool) -> [a] -> Filtered a
 mkFiltered f = Filtered . filter f

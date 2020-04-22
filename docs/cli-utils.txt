@@ -3,24 +3,374 @@
 
 
 -- | Please see the README on GitHub at
---   <a>https://github.com/tbidne/git-utils#readme</a>
-@package git-utils
-@version 3.0.0
+--   <a>https://github.com/tbidne/cli-utils#readme</a>
+@package cli-utils
+@version 4.0.0
 
 
 -- | Provides the main component used in this application.
 module App
+
+-- | Main component used in this application.
 newtype AppT e m a
-AppT :: ReaderT e (LoggingT m) a -> AppT e m a
-[runAppT] :: AppT e m a -> ReaderT e (LoggingT m) a
-mapAppT :: (ReaderT e (LoggingT m) a -> ReaderT e (LoggingT n) b) -> AppT e m a -> AppT e n b
+AppT :: ReaderT e m a -> AppT e m a
+[runAppT] :: AppT e m a -> ReaderT e m a
+
+-- | Transforms an <a>AppT</a> e m a.
+mapAppT :: (ReaderT e m a -> ReaderT e n b) -> AppT e m a -> AppT e n b
 instance GHC.Base.Functor m => GHC.Base.Functor (App.AppT e m)
 instance GHC.Base.Applicative f => GHC.Base.Applicative (App.AppT e f)
 instance GHC.Base.Monad m => GHC.Base.Monad (App.AppT e m)
 instance Control.Monad.Trans.Class.MonadTrans (App.AppT e)
 instance Control.Monad.IO.Class.MonadIO m => Control.Monad.IO.Class.MonadIO (App.AppT e m)
 instance GHC.Base.Monad m => Control.Monad.Reader.Class.MonadReader e (App.AppT e m)
-instance Control.Monad.IO.Class.MonadIO m => Control.Monad.Logger.MonadLogger (App.AppT e m)
+
+
+-- | Provides a function that parses command keys into their values.
+module CLI.Internal
+
+-- | Returns a list of <a>Text</a> commands, potentially transforming a
+--   given string via the <a>Map</a> legend.
+--   
+--   For a string &lt;math&gt;, we split &lt;math&gt; by commas then
+--   recursively search on each &lt;math&gt;. We stop and return
+--   &lt;math&gt; when it does not exist as a key in the map.
+--   
+--   For example,
+--   
+--   <pre>
+--   m = { "cmd1": "one", "cmd2": "two", "all": "cmd1,cmd2,other" }
+--   translateCommands m ["all", "blah"] == ["one", "two", "other", "blah"]
+--   </pre>
+translateCommands :: Map Text Text -> [Text] -> [Text]
+
+
+-- | Provides core <a>Env</a> types used with CLI.
+module CLI.Types.Env
+
+-- | Provides a list of commands and legend map.
+data Env
+Env :: Map Text Text -> [Text] -> Env
+[legend] :: Env -> Map Text Text
+[commands] :: Env -> [Text]
+instance GHC.Show.Show CLI.Types.Env.Env
+
+
+-- | Provides logging typeclass and functions.
+module Common.MonadLogger
+
+-- | Represents a monad that can log <a>Text</a>.
+class Monad m => MonadLogger m
+
+-- | Logs without a newline character.
+logNoLine :: MonadLogger m => Text -> m ()
+
+-- | Logs with a newline character.
+logLine :: MonadLogger m => Text -> m ()
+
+-- | <a>resetCR</a> then <a>logLine</a> with 60 spaces.
+clearLine :: MonadLogger m => m ()
+
+-- | <a>logLine</a> with the empty string.
+logEmpty :: MonadLogger m => m ()
+
+-- | <a>logNoLine</a> with a carriage return.
+resetCR :: MonadLogger m => m ()
+
+-- | Error formatted <a>logLine</a>.
+logError :: MonadLogger m => Text -> m ()
+
+-- | Debug formatted <a>logLine</a>.
+logDebug :: MonadLogger m => Text -> m ()
+
+-- | Info formatted <a>logLine</a>.
+logInfo :: MonadLogger m => Text -> m ()
+
+-- | Blue Info formatted <a>logLine</a>.
+logInfoBlue :: MonadLogger m => Text -> m ()
+
+-- | Cyan Info formatted <a>logLine</a>.
+logInfoCyan :: MonadLogger m => Text -> m ()
+
+-- | Success Info formatted <a>logLine</a>.
+logInfoSuccess :: MonadLogger m => Text -> m ()
+
+-- | Warn formatted <a>logLine</a>.
+logWarn :: MonadLogger m => Text -> m ()
+instance Common.MonadLogger.MonadLogger GHC.Types.IO
+instance Common.MonadLogger.MonadLogger m => Common.MonadLogger.MonadLogger (App.AppT env m)
+
+
+-- | Provides the <a>ParseErr</a> monoid.
+module Common.Parsing.ParseErr
+
+-- | <a>ParseErr</a> describes an error encountered while parsing. Errors
+--   are either a request for <a>Help</a> or some general error.
+--   
+--   The algebra for <a>ParseErr</a> satisfies
+--   
+--   <pre>
+--   1. Identity: <a>Err</a> ""
+--   2. <a>Help</a> is an ideal: <a>Help</a> x &lt;&gt; <a>Err</a> y == <a>Help</a> x == <a>Err</a> y &lt;&gt; <a>Help</a> x
+--   3. Left-biased: l &lt;&gt; r == l, when it doesn't violate 1 or 2.
+--   </pre>
+--   
+--   Strictly speaking property 2 is stronger than saying <a>Help</a> is an
+--   ideal. More precisely, the action by <a>Err</a> on <a>Help</a> in
+--   <a>ParseErr</a> is trivial.
+data ParseErr
+Err :: String -> ParseErr
+Help :: String -> ParseErr
+instance GHC.Show.Show Common.Parsing.ParseErr.ParseErr
+instance GHC.Classes.Eq Common.Parsing.ParseErr.ParseErr
+instance GHC.Base.Semigroup Common.Parsing.ParseErr.ParseErr
+instance GHC.Base.Monoid Common.Parsing.ParseErr.ParseErr
+
+
+module Common.Parsing.ParseStatus
+
+-- | Describes the outcome of a parse attempt into an accumulator
+--   <tt>acc</tt>.
+data ParseStatus acc
+PFailure :: ParseErr -> ParseStatus acc
+PSuccess :: acc -> ParseStatus acc
+instance GHC.Show.Show acc => GHC.Show.Show (Common.Parsing.ParseStatus.ParseStatus acc)
+instance GHC.Classes.Eq acc => GHC.Classes.Eq (Common.Parsing.ParseStatus.ParseStatus acc)
+
+
+-- | Provides the <a>ParseOr</a> monoid.
+module Common.Parsing.ParseOr
+
+-- | <a>ParseOr</a> Induces an "Or" monoidal structure on
+--   <a>ParseStatus</a>. That is,
+--   
+--   <pre>
+--   (<a>PFailure</a> p1) &lt;&gt; ... &lt;&gt; (<a>PFailure</a> pn) = <a>PFailure</a> (p1 &lt;&gt; ... &lt;&gt; pn)
+--   (<a>PFailure</a> p1) &lt;&gt; ... &lt;&gt; (<a>PFailure</a> pj) &lt;&gt; (<a>PSuccess</a> pk) ... = <a>PSuccess</a> pk
+--   </pre>
+--   
+--   The algebra for <a>ParseOr</a> satisfies
+--   
+--   <pre>
+--   1. Identity: <a>ParseOr</a> (<a>PFailure</a> (<a>Err</a> ""))
+--   2. <a>PSuccess</a> is an ideal: <a>PSuccess</a> x &lt;&gt; <a>PFailure</a> y == <a>PSuccess</a> x == <a>PFailure</a> y &lt;&gt; <a>PSuccess</a> x
+--   3. Left-biased: l &lt;&gt; r == l, when it doesn't violate 1 or 2.
+--   </pre>
+--   
+--   Strictly speaking property 2 is stronger than saying <a>PSuccess</a>
+--   is an ideal. More precisely, the action by <a>PFailure</a> on
+--   <a>PSuccess</a> in <a>ParseOr</a> is trivial.
+newtype ParseOr acc
+ParseOr :: ParseStatus acc -> ParseOr acc
+instance GHC.Show.Show acc => GHC.Show.Show (Common.Parsing.ParseOr.ParseOr acc)
+instance GHC.Classes.Eq acc => GHC.Classes.Eq (Common.Parsing.ParseOr.ParseOr acc)
+instance GHC.Base.Semigroup (Common.Parsing.ParseOr.ParseOr acc)
+instance GHC.Base.Monoid (Common.Parsing.ParseOr.ParseOr acc)
+
+
+-- | Provides the <a>ParseAnd</a> monoid.
+module Common.Parsing.ParseAnd
+
+-- | <a>ParseAnd</a> induces an "And" monoidal structure on <tt>Monoid acc
+--   =&gt; <a>ParseStatus</a> acc</tt>. That is,
+--   
+--   <pre>
+--   (<a>PSuccess</a> p1) &lt;&gt; ... &lt;&gt; (<a>PSuccess</a> pn) = <a>PSuccess</a> (p1 &lt;&gt; ... &lt;&gt; pn)
+--   (<a>PSuccess</a> p1) &lt;&gt; ... &lt;&gt; (<a>PSuccess</a> pj) &lt;&gt; (<a>PFailure</a> pk) ... = <a>PFailure</a> pk
+--   </pre>
+--   
+--   The algebra for <a>ParseAnd</a> satisfies
+--   
+--   <pre>
+--   1. Identity: <a>ParseAnd</a> (<a>PSuccess</a> mempty)
+--   2. <a>PFailure</a> is an ideal: <a>PFailure</a> x &lt;&gt; <a>PSuccess</a> y == <a>PFailure</a> x == <a>PSuccess</a> y &lt;&gt; <a>PFailure</a> x
+--   3. Left-biased: l &lt;&gt; r == l, when it doesn't violate 1 or 2.
+--   </pre>
+--   
+--   Strictly speaking property 2 is stronger than saying <a>PFailure</a>
+--   is an ideal. More precisely, the action by <a>PSuccess</a> on
+--   <a>PFailure</a> in <a>ParseAnd</a> is trivial.
+newtype ParseAnd acc
+ParseAnd :: ParseStatus acc -> ParseAnd acc
+instance GHC.Show.Show acc => GHC.Show.Show (Common.Parsing.ParseAnd.ParseAnd acc)
+instance GHC.Classes.Eq acc => GHC.Classes.Eq (Common.Parsing.ParseAnd.ParseAnd acc)
+instance GHC.Base.Semigroup acc => GHC.Base.Semigroup (Common.Parsing.ParseAnd.ParseAnd acc)
+instance GHC.Base.Monoid acc => GHC.Base.Monoid (Common.Parsing.ParseAnd.ParseAnd acc)
+
+
+module Common.Types.NonNegative
+
+-- | Represents a non-negative <a>Integer</a>.
+data NonNegative a
+
+-- | Monomorphic version of <a>toNonNegative</a> for convenience.
+iToNonNegative :: Integer -> Maybe (NonNegative Integer)
+
+-- | Constructs <a>Maybe</a> <a>NonNegative</a> as &lt;math&gt;
+toNonNegative :: Integral a => a -> Maybe (NonNegative a)
+
+-- | Unwraps a <a>NonNegative</a>.
+getNonNegative :: NonNegative a -> a
+instance GHC.Show.Show a => GHC.Show.Show (Common.Types.NonNegative.NonNegative a)
+instance GHC.Classes.Eq a => GHC.Classes.Eq (Common.Types.NonNegative.NonNegative a)
+
+
+module Common.Types.Positive
+
+-- | Represents a positive, non-zero <a>Integer</a>.
+data Positive a
+
+-- | Monomorphic version of <a>toPositive</a> for convenience.
+iToPositive :: Integer -> Maybe (Positive Integer)
+
+-- | Constructs <a>Maybe</a> <a>Positive</a> as &lt;math&gt;
+toPositive :: Integral a => a -> Maybe (Positive a)
+
+-- | Unwraps a <a>Positive</a>.
+getPositive :: Positive a -> a
+instance GHC.Show.Show a => GHC.Show.Show (Common.Types.Positive.Positive a)
+instance GHC.Classes.Eq a => GHC.Classes.Eq (Common.Types.Positive.Positive a)
+
+
+-- | Exports utility functions
+module Common.Utils
+
+-- | For given &lt;math&gt;, returns the absolute difference &lt;math&gt;.
+diffTime :: Integral a => TimeSpec -> TimeSpec -> NonNegative a
+
+-- | For &lt;math&gt;, returns non-negative &lt;math&gt; such that
+--   
+--   &lt;math&gt;
+divWithRem :: Integral a => NonNegative a -> Positive a -> (a, a)
+
+-- | For &lt;math&gt; seconds, returns a <a>Text</a> description of the
+--   minutes and seconds.
+formatSeconds :: (Show a, Integral a) => NonNegative a -> Text
+
+-- | Flipped version of <a>startsWith</a>. Useful with
+--   <tt>ViewPatterns</tt>, e.g.
+--   
+--   <pre>
+--   :set -XViewPatterns
+--   
+--   parseArg :: <a>String</a> -&gt; <a>Either</a> <a>String</a> SomeType
+--   parseArg (matchAndStrip "--val=" -&gt; <a>Just</a> rest) = parseVal rest
+--   parseArg (matchAndStrip "--other=" -&gt; <a>Just</a> rest) = parseOther rest
+--   parseArg _ = <a>Left</a> "did not match!"
+--   </pre>
+matchAndStrip :: Eq a => [a] -> [a] -> Maybe [a]
+
+-- | Convenience function for mapping the same function over a monomorphic
+--   bifunctor.
+monoBimap :: Bifunctor f => (a -> b) -> f a a -> f b b
+
+-- | Transforms a showable to <a>Text</a>.
+showToText :: Show a => a -> Text
+
+-- | Determines if the second parameter is a prefix of the first, returns
+--   the rest if so. That is,
+--   
+--   &lt;math&gt;
+--   
+--   Can be called infix, e.g.
+--   
+--   <pre>
+--   "hello world" `<a>startsWith</a>` "hello" --&gt; <a>Just</a> " world"
+--   </pre>
+startsWith :: Eq a => [a] -> [a] -> Maybe [a]
+
+
+-- | Provides functions for parsing <a>String</a> arguments.
+module Common.Parsing.Core
+
+-- | Existentially quantifies the <tt>a</tt> in <a>Parser</a> <tt>a</tt>
+--   <tt>acc</tt>. This way we can accept a heterogenous [<a>AnyParser</a>
+--   <tt>acc</tt>] so we can try different parsers at once.
+data AnyParser acc
+AnyParser :: Parser a acc -> AnyParser acc
+
+-- | Wraps functions that:
+--   
+--   <ol>
+--   <li>Attempts to parse a String into an <tt>a</tt>.</li>
+--   <li>Updates <tt>acc</tt> with <tt>a</tt>.</li>
+--   </ol>
+--   
+--   That is,
+--   
+--   <pre>
+--   parseFn :: <a>String</a> -&gt; <a>Maybe</a> a
+--   updateFn :: acc -&gt; a -&gt; acc
+--   </pre>
+data Parser a acc
+
+-- | Parses an exact argument e.g. "-flag".
+ExactParser :: (String -> Maybe a, acc -> a -> acc) -> Parser a acc
+
+-- | Includes a prefix for parsing e.g. "--arg=val".
+PrefixParser :: (String, String -> Maybe a, acc -> a -> acc) -> Parser a acc
+
+-- | Entrypoint for parsing arguments [<a>String</a>] into <tt>acc</tt>. We
+--   impose a monoid requirement on the accumulator to take advantage of
+--   laziness. Returns
+--   
+--   <pre>
+--   - <a>Left</a> (<a>Err</a> <a>String</a>): <i>some</i> <a>String</a> could not be parsed by <i>any</i> parser.
+--   - <a>Left</a> <a>Help</a>: "--help" was found
+--   - <a>Right</a> <tt>acc</tt>: <i>every</i> <a>String</a> was parsed successfully by <i>some</i> parser.
+--   </pre>
+--   
+--   In symbols, let <i>P</i> = [<a>AnyParser</a> <tt>acc</tt>], <i>S</i> =
+--   [<a>String</a>] and define &lt;math&gt; Then, &lt;math&gt;
+parseAll :: Monoid acc => [AnyParser acc] -> [String] -> ParseAnd acc
+
+
+-- | Internal module for CLI parsing.
+module CLI.Parsing.Internal
+
+-- | Monoid accumulator for CLI.
+data Acc
+Acc :: Maybe FilePath -> [Text] -> Acc
+
+-- | Path to the legend file.
+[legendPath] :: Acc -> Maybe FilePath
+
+-- | List of commands to run.
+[cmds] :: Acc -> [Text]
+
+-- | Transforms a list of commands and <a>String</a> into <a>Right</a>
+--   <a>Env</a>. Each non-empty, non-comment (comments start with #) line
+--   in the map string are expected to have the form <tt>key=val</tt>. If
+--   any parse errors are encountered then <a>Left</a> <a>ParseErr</a> is
+--   returned.
+mapStrToEnv :: [Text] -> String -> Either ParseErr Env
+
+-- | Parses arguments into <tt><a>ParseAnd</a> acc</tt>.
+pureParseArgs :: [String] -> ParseAnd Acc
+instance GHC.Show.Show CLI.Parsing.Internal.Acc
+instance GHC.Base.Semigroup CLI.Parsing.Internal.Acc
+instance GHC.Base.Monoid CLI.Parsing.Internal.Acc
+
+
+-- | Handles parsing of [<a>String</a>] args into <a>Env</a>.
+module CLI.Parsing
+
+-- | Maps parsed [<a>String</a>] args into <a>IO</a> <a>Right</a>
+--   <a>Env</a>, returning any errors as <a>Left</a> <a>String</a>. All
+--   arguments are optional (i.e. an empty list is valid), but if any are
+--   provided then they must be valid or an error will be returned. Valid
+--   arguments are:
+--   
+--   <pre>
+--   --legend=&lt;string&gt;
+--       Path to the legend file.
+--   
+--   &lt;string&gt;
+--       Any other string is considered a command. If the command has
+--       whitespace then it must be quoted or it will be considered
+--       a separate command.
+--   </pre>
+parseArgs :: [String] -> IO (Either ParseErr Env)
 
 
 -- | Exports common <a>IO</a> functions.
@@ -44,7 +394,7 @@ trySh :: Text -> Maybe FilePath -> IO (Either SomeException Text)
 --   up-to-date is an example that "succeeds", but the output we care about
 --   ("Everything up-to-date") is inexplicably sent to stderr instead of
 --   stdout. This function is meant for these situations, where we still
---   want the usual <tt>trySh_</tt> semantics, but want to paradoxically
+--   want the usual <a>trySh</a> semantics, but want to paradoxically
 --   return stderr on success.
 tryShAndReturnStdErr :: Text -> Maybe FilePath -> IO (Either Text Text)
 
@@ -52,144 +402,26 @@ tryShAndReturnStdErr :: Text -> Maybe FilePath -> IO (Either Text Text)
 --   otherwise.
 tryShExitCode :: Text -> Maybe FilePath -> IO (Either Text Text)
 
-module Common.Logging
-logError :: MonadLogger m => Text -> m ()
-logDebug :: MonadLogger m => Text -> m ()
-logInfo :: MonadLogger m => Text -> m ()
-logInfoBlue :: MonadLogger m => Text -> m ()
-logInfoCyan :: MonadLogger m => Text -> m ()
-logInfoSuccess :: MonadLogger m => Text -> m ()
-logWarn :: MonadLogger m => Text -> m ()
+-- | Version of <a>tryShExitCode</a> that also returns (t, stdout/stderr),
+--   where <i>t</i> is the time the command took in seconds.
+tryTimeSh :: Integral a => Text -> Maybe FilePath -> IO (Either (NonNegative a, Text) (NonNegative a, Text))
 
 
--- | Exports utility functions
-module Common.Utils
+-- | The MonadCLI class.
+module CLI.MonadCLI
 
--- | Flipped version of <a>startsWith</a>. Useful with
---   <tt>ViewPatterns</tt>, e.g.
---   
---   <pre>
---   :set -XViewPatterns
---   
---   parseArg :: <a>String</a> -&gt; <a>Either</a> <a>String</a> SomeType
---   parseArg (matchAndStrip "--val=" -&gt; <a>Just</a> rest) = parseVal rest
---   parseArg (matchAndStrip "--other=" -&gt; <a>Just</a> rest) = parseOther rest
---   parseArg _ = <a>Left</a> "did not match!"
---   </pre>
-matchAndStrip :: Eq a => [a] -> [a] -> Maybe [a]
+-- | The <a>MonadCLI</a> class is used to describe running a list of
+--   <a>Text</a> commands.
+class Monad m => MonadCLI m
 
--- | Determines if the second parameter is a prefix of the first, returns
---   the rest if so. That is,
---   
---   &lt;math&gt;
---   
---   Can be called infix, e.g.
---   
---   <pre>
---   "hello world" `<a>startsWith</a>` "hello" --&gt; <a>Just</a> " world"
---   </pre>
-startsWith :: Eq a => [a] -> [a] -> Maybe [a]
+-- | Runs the list of commands.
+runCommands :: MonadCLI m => [Text] -> m ()
 
-
--- | Provides functions for parsing <a>String</a> arguments.
-module Common.Parsing
-
--- | GADT that hides the <tt>a</tt> on <a>Parser</a> <tt>a</tt>
---   <tt>acc</tt>. This way we can accept a heterogenous [<a>AnyParser</a>
---   <tt>acc</tt>] so we can try different parsers at once.
-data AnyParser acc
-[AnyParser] :: Parser a acc -> AnyParser acc
-
--- | Wraps functions that:
---   
---   <ol>
---   <li>Attempts to parse a String into an <tt>a</tt>.</li>
---   <li>Updates <tt>acc</tt> with <tt>a</tt>.</li>
---   </ol>
---   
---   That is,
---   
---   <pre>
---   parseFn :: <a>String</a> -&gt; <a>Maybe</a> a
---   updateFn :: acc -&gt; a -&gt; acc
---   </pre>
-data Parser a acc
-
--- | Parses an exact argument e.g. "-flag".
-ExactParser :: (String -> Maybe a, acc -> a -> acc) -> Parser a acc
-
--- | Includes a prefix for parsing e.g. "--arg=val".
-PrefixParser :: (String, String -> Maybe a, acc -> a -> acc) -> Parser a acc
-
--- | Describes anything other than a successful parse.
-data ParseErr
-
--- | Indicates that there was an error when trying to parse <a>String</a>.
-Err :: String -> ParseErr
-
--- | Indicates the argument "--help" was passed.
-Help :: ParseErr
-
--- | Entrypoint for parsing arguments [<a>String</a>] into <tt>acc</tt>.
---   Returns
---   
---   <pre>
---   - <a>Left</a> (<a>Err</a> <a>String</a>): <i>some</i> <a>String</a> could not be parsed by <i>any</i> parser.
---   - <a>Left</a> <a>Help</a>: "--help" was found
---   - <a>Right</a> <tt>acc</tt>: <i>every</i> <a>String</a> was parsed successfully by <i>some</i> parser.
---   </pre>
---   
---   In symbols, let <i>P</i> = [<a>AnyParser</a> <tt>acc</tt>], <i>S</i> =
---   [<a>String</a>] and define &lt;math&gt; Then, &lt;math&gt;
-parseAll :: [AnyParser acc] -> [String] -> acc -> Either ParseErr acc
-instance GHC.Base.Semigroup (Common.Parsing.ParseAttempt acc)
-
-
--- | Provides <a>Err</a> type for describing any errors encountered.
-module Git.Stale.Types.Error
-
--- | Wraps <a>Text</a> to describe an error. <tt>Git</tt>* errors describe
---   errors encountered by the underlying <a>MonadFindBranches</a> monad.
---   Others describe pure errors encountered during parsing data returned
---   by the monad.
-data Err
-ParseLog :: Text -> Err
-ParseDate :: Text -> Err
-ParseName :: Text -> Err
-ParseMerge :: Text -> Err
-ReadInt :: Text -> Err
-GitBranches :: Text -> Err
-GitLog :: Text -> Err
-
--- | Alias for convenience.
-type ErrOr a = Either Err a
-instance GHC.Show.Show Git.Stale.Types.Error.Err
-
-
-module Git.Stale.Types.Filtered
-
--- | Intermediate type to ensure <a>getStaleLogs</a> filters stale logs.
-data Filtered a
-
--- | Constructs <a>Filtered</a> <tt>a</tt> based on filter function.
-mkFiltered :: (a -> Bool) -> [a] -> Filtered a
-unFiltered :: Filtered a -> [a]
-instance GHC.Show.Show a => GHC.Show.Show (Git.Stale.Types.Filtered.Filtered a)
-instance GHC.Base.Functor Git.Stale.Types.Filtered.Filtered
-instance GHC.Base.Applicative Git.Stale.Types.Filtered.Filtered
-instance GHC.Base.Monad Git.Stale.Types.Filtered.Filtered
-
-
-module Git.Stale.Types.Nat
-
--- | Represents a non-negative <a>Integer</a>.
-data Nat
-
--- | Constructs <a>Maybe</a> <a>Nat</a> as &lt;math&gt;
-mkNat :: Integer -> Maybe Nat
-unNat :: Nat -> Integer
-instance GHC.Show.Show Git.Stale.Types.Nat.Nat
-instance GHC.Classes.Eq Git.Stale.Types.Nat.Nat
+-- | High level logic of <a>MonadCLI</a> usage. This function is the
+--   entrypoint for any <a>MonadCLI</a> instance.
+runCLI :: (MonadReader Env m, MonadCLI m) => m ()
+instance CLI.MonadCLI.MonadCLI GHC.Types.IO
+instance CLI.MonadCLI.MonadCLI m => CLI.MonadCLI.MonadCLI (App.AppT CLI.Types.Env.Env m)
 
 
 -- | Provides <a>Env</a> type.
@@ -203,7 +435,7 @@ Local :: BranchType
 
 -- | The Env type to be used with Reader.
 data Env
-Env :: Maybe Text -> Maybe FilePath -> Nat -> BranchType -> Text -> Text -> Day -> Env
+Env :: Maybe Text -> Maybe FilePath -> NonNegative Int -> BranchType -> Text -> Text -> Day -> Env
 
 -- | A <a>String</a> to filter branch names on. <a>Just</a> <i>s</i> if
 --   non-empty, <a>Nothing</a> otherwise.
@@ -214,7 +446,7 @@ Env :: Maybe Text -> Maybe FilePath -> Nat -> BranchType -> Text -> Text -> Day 
 [path] :: Env -> Maybe FilePath
 
 -- | A non-negative integer descrbing stale threshold in days.
-[limit] :: Env -> Nat
+[limit] :: Env -> NonNegative Int
 
 -- | The type of branches to search.
 [branchType] :: Env -> BranchType
@@ -240,7 +472,7 @@ instance GHC.Classes.Eq Git.Stale.Types.Env.BranchType
 module Git.Stale.Parsing
 
 -- | Maps <a>Day</a> and parsed [<a>String</a>] args into <a>Right</a>
---   <a>Env</a>, returning any errors as <a>Left</a> <a>String</a>. All
+--   <a>Env</a>, returning any errors as <a>Left</a> <a>ParseErr</a>. All
 --   arguments are optional (i.e. an empty list is valid), but if any are
 --   provided then they must be valid or an error will be returned. Valid
 --   arguments are:
@@ -279,7 +511,55 @@ module Git.Stale.Parsing
 --   -h, --help
 --        Returns instructions as <a>Left</a> <a>String</a>.
 --   </pre>
-parseArgs :: Day -> [String] -> Either String Env
+parseArgs :: Day -> [String] -> Either ParseErr Env
+instance GHC.Show.Show Git.Stale.Parsing.AccMaster
+instance GHC.Show.Show Git.Stale.Parsing.AccRemoteName
+instance GHC.Show.Show Git.Stale.Parsing.AccBranchType
+instance GHC.Show.Show Git.Stale.Parsing.AccLimit
+instance GHC.Base.Semigroup Git.Stale.Parsing.Acc
+instance GHC.Base.Monoid Git.Stale.Parsing.Acc
+instance GHC.Base.Semigroup Git.Stale.Parsing.AccMaster
+instance GHC.Base.Monoid Git.Stale.Parsing.AccMaster
+instance GHC.Base.Semigroup Git.Stale.Parsing.AccRemoteName
+instance GHC.Base.Monoid Git.Stale.Parsing.AccRemoteName
+instance GHC.Base.Semigroup Git.Stale.Parsing.AccBranchType
+instance GHC.Base.Monoid Git.Stale.Parsing.AccBranchType
+instance GHC.Base.Semigroup Git.Stale.Parsing.AccLimit
+instance GHC.Base.Monoid Git.Stale.Parsing.AccLimit
+
+
+-- | Provides <a>Err</a> type for describing any errors encountered.
+module Git.Stale.Types.Error
+
+-- | Wraps <a>Text</a> to describe an error. <tt>Git*</tt> errors describe
+--   errors encountered by the underlying <a>MonadFindBranches</a> monad.
+--   Others describe pure errors encountered during parsing data returned
+--   by the monad.
+data Err
+ParseLog :: Text -> Err
+ParseDate :: Text -> Err
+ParseName :: Text -> Err
+ParseMerge :: Text -> Err
+ReadInt :: Text -> Err
+GitBranches :: Text -> Err
+GitLog :: Text -> Err
+
+-- | Alias for convenience.
+type ErrOr a = Either Err a
+instance GHC.Show.Show Git.Stale.Types.Error.Err
+
+
+module Git.Stale.Types.Filtered
+
+-- | Type-safe way to guarantee a list has been filtered.
+data Filtered a
+
+-- | Constructs <a>Filtered</a> based on filter function.
+mkFiltered :: (a -> Bool) -> [a] -> Filtered a
+
+-- | Unwraps a <a>Filtered</a>.
+unFiltered :: Filtered a -> [a]
+instance GHC.Show.Show a => GHC.Show.Show (Git.Stale.Types.Filtered.Filtered a)
 
 
 -- | Provides types to describe data returned by the Git actions
@@ -313,7 +593,7 @@ instance GHC.Classes.Eq Git.Types.GitTypes.Name
 module Git.Stale.Types.Branch
 
 -- | Hides <a>BranchStatus</a> type parameter, used for processing
---   <a>Branch</a> <tt>a</tt> in heterogeneous collections.
+--   <tt><a>Branch</a> a</tt> in heterogeneous collections.
 data AnyBranch
 [MergedBranch] :: Branch 'Merged -> AnyBranch
 [UnMergedBranch] :: Branch 'UnMerged -> AnyBranch
@@ -327,13 +607,13 @@ data BranchStatus
 data Branch (a :: BranchStatus)
 [MkBranch] :: Name -> Author -> Day -> Branch a
 
--- | Maps each [<a>Branch</a> <tt>a</tt>] to its <a>Text</a> <a>Name</a>
+-- | Maps each <tt>[<a>Branch</a> a]</tt> to its <a>Text</a> <a>Name</a>
 --   and concatenates results. Attempts to strip out an irrelevant prefix
 --   it may have (i.e. <a>remoteName</a>).
 branchesToName :: Text -> [Branch a] -> Text
 
--- | Constructs an <a>AnyBranch</a> wrapper around a <a>Branch</a>
---   <tt>a</tt> where a is <a>Merged</a> if passed <a>True</a>,
+-- | Constructs an <a>AnyBranch</a> wrapper around a <tt><a>Branch</a>
+--   a</tt> where <tt>a</tt> is <a>Merged</a> if passed <a>True</a>,
 --   <a>UnMerged</a> otherwise.
 mkAnyBranch :: Name -> Author -> Day -> Bool -> AnyBranch
 instance GHC.Show.Show Git.Stale.Types.Branch.AnyBranch
@@ -344,19 +624,28 @@ instance GHC.Show.Show (Git.Stale.Types.Branch.Branch a)
 --   branches and one for unmerged.
 module Git.Stale.Types.Results
 
--- | Wrapper for holding <a>Map</a> <a>Author</a> [<a>Branch</a> a] data.
+-- | Wrapper for holding <tt><a>Map</a> <a>Author</a> [<a>Branch</a>
+--   a]</tt> data.
 data Results
-Results :: BranchMap 'Merged -> BranchMap 'UnMerged -> Results
+Results :: Map Author [Branch 'Merged] -> Map Author [Branch 'UnMerged] -> Results
 
--- | <a>Map</a> <a>Author</a> [<a>Branch</a> <a>Merged</a>]
-[mergedMap] :: Results -> BranchMap 'Merged
+-- | Holds the results for merged branches
+[mergedMap] :: Results -> Map Author [Branch 'Merged]
 
--- | <a>Map</a> <a>Author</a> [<a>Branch</a> <a>UnMerged</a>]
-[unMergedMap] :: Results -> BranchMap 'UnMerged
+-- | Holds the results for unmerged branches
+[unMergedMap] :: Results -> Map Author [Branch 'UnMerged]
+
+-- | Newtype wrapper for merged branches over (display string, num
+--   branches).
 newtype MergedDisp
 MergedDisp :: (Text, Int) -> MergedDisp
+
+-- | Newtype wrapper for unmerged branches over (display string, num
+--   branches).
 newtype UnMergedDisp
 UnMergedDisp :: (Text, Int) -> UnMergedDisp
+
+-- | Newtype wrapper over (<a>MergedDisp</a>, <a>UnMergedDisp</a>).
 newtype ResultsDisp
 ResultsDisp :: (MergedDisp, UnMergedDisp) -> ResultsDisp
 
@@ -375,6 +664,8 @@ instance GHC.Show.Show Git.Stale.Types.Results.Results
 -- | Provides a <a>ResultsWithErrs</a> type that wraps <a>Results</a> along
 --   with a list of errors.
 module Git.Stale.Types.ResultsWithErrs
+
+-- | Newtype wrapper for errors over (display string, num branches).
 newtype ErrDisp
 ErrDisp :: (Text, Int) -> ErrDisp
 
@@ -387,6 +678,8 @@ ResultsWithErrs :: [Err] -> Results -> ResultsWithErrs
 
 -- | The <a>Results</a>.
 [results] :: ResultsWithErrs -> Results
+
+-- | Newtype wrapper over (<a>ErrDisp</a>, <a>ResultsDisp</a>).
 newtype ResultsWithErrsDisp
 ResultsWithErrsDisp :: (ErrDisp, ResultsDisp) -> ResultsWithErrsDisp
 
@@ -430,12 +723,12 @@ safeRead :: Text -> ErrOr Int
 --   <pre>
 --   stale lim day (_, _, d) &lt;=&gt; day - d &gt;= lim
 --   </pre>
-stale :: Nat -> Day -> NameAuthDay -> Bool
+stale :: NonNegative Int -> Day -> NameAuthDay -> Bool
 
 -- | For <a>Right</a> <a>NameAuthDay</a>, behaves the same as <a>stale</a>.
 --   But for <a>Left</a> <a>Err</a> it is always true, since we do not want
 --   to filter out errors.
-staleNonErr :: Nat -> Day -> ErrOr NameAuthDay -> Bool
+staleNonErr :: NonNegative Int -> Day -> ErrOr NameAuthDay -> Bool
 
 -- | Strips whitespace and potential git prefix (i.e. remotes/). Works for
 --   strings with no prefix and those that have the prefix exactly once,
@@ -492,25 +785,26 @@ class Monad m => MonadFindBranches m where {
 }
 
 -- | Returns a [<a>Name</a>] representing git branches.
-branchNamesByGrep :: MonadFindBranches m => m [Handler m Name]
+branchNamesByGrep :: MonadFindBranches m => Maybe FilePath -> BranchType -> Maybe Text -> m [Handler m Name]
 
 -- | Maps [<a>Name</a>] to [<a>NameAuthDay</a>], filtering out non-stale
 --   branches.
-getStaleLogs :: MonadFindBranches m => [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
+getStaleLogs :: MonadFindBranches m => Maybe FilePath -> NonNegative Int -> Day -> [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
 
 -- | Maps [<a>NameAuthDay</a>] to [<a>AnyBranch</a>].
-toBranches :: MonadFindBranches m => Filtered (Handler m NameAuthDay) -> m [Handler m AnyBranch]
+toBranches :: MonadFindBranches m => Maybe FilePath -> Text -> Filtered (Handler m NameAuthDay) -> m [Handler m AnyBranch]
 
 -- | Collects [<a>AnyBranch</a>] into <a>FinalResults</a>.
 collectResults :: MonadFindBranches m => [Handler m AnyBranch] -> m (FinalResults m)
 
 -- | Displays results.
-display :: MonadFindBranches m => FinalResults m -> m ()
+display :: MonadFindBranches m => Text -> FinalResults m -> m ()
 
 -- | High level logic of <a>MonadFindBranches</a> usage. This function is
 --   the entrypoint for any <a>MonadFindBranches</a> instance.
-runFindBranches :: MonadFindBranches m => m ()
-instance Control.Monad.IO.Class.MonadIO m => Git.Stale.Core.MonadFindBranches.MonadFindBranches (App.AppT Git.Stale.Types.Env.Env m)
+runFindBranches :: (MonadReader Env m, MonadFindBranches m) => m ()
+instance Git.Stale.Core.MonadFindBranches.MonadFindBranches GHC.Types.IO
+instance Git.Stale.Core.MonadFindBranches.MonadFindBranches m => Git.Stale.Core.MonadFindBranches.MonadFindBranches (App.AppT Git.Stale.Types.Env.Env m)
 
 
 -- | Provides functions and types for descrbing the result of an update
@@ -567,7 +861,7 @@ module Git.FastForward.Types.LocalBranches
 -- | Alias for <a>Name</a>.
 type CurrentBranch = Name
 
--- | Describes the local branches in a <tt>git</tt> directory.
+-- | Describes the local branches in a git directory.
 data LocalBranches
 LocalBranches :: CurrentBranch -> [Name] -> LocalBranches
 
@@ -603,7 +897,7 @@ instance GHC.Show.Show Git.FastForward.Types.Env.Env
 module Git.FastForward.Parsing
 
 -- | Maps parsed [<a>String</a>] args into <a>Right</a> <a>Env</a>,
---   returning any errors as <a>Left</a> <a>String</a>. All arguments are
+--   returning any errors as <a>Left</a> <a>ParseErr</a>. All arguments are
 --   optional (i.e. an empty list is valid), but if any are provided then
 --   they must be valid or an error will be returned. Valid arguments are:
 --   
@@ -630,7 +924,13 @@ module Git.FastForward.Parsing
 --   -h, --help
 --       Returns instructions as <a>Left</a> <a>String</a>.
 --   </pre>
-parseArgs :: [String] -> Either String Env
+parseArgs :: [String] -> Either ParseErr Env
+instance GHC.Show.Show Git.FastForward.Parsing.Acc
+instance GHC.Show.Show Git.FastForward.Parsing.AccMergeType
+instance GHC.Base.Semigroup Git.FastForward.Parsing.Acc
+instance GHC.Base.Monoid Git.FastForward.Parsing.Acc
+instance GHC.Base.Semigroup Git.FastForward.Parsing.AccMergeType
+instance GHC.Base.Monoid Git.FastForward.Parsing.AccMergeType
 
 
 -- | Exports utility functions.
@@ -659,21 +959,22 @@ module Git.FastForward.Core.MonadUpdateBranches
 class Monad m => MonadUpdateBranches m
 
 -- | Performs <a>fetch</a>.
-fetch :: MonadUpdateBranches m => m ()
+fetch :: MonadUpdateBranches m => Maybe FilePath -> m ()
 
 -- | Retrieves all local branches.
-getBranches :: MonadUpdateBranches m => m LocalBranches
+getBranches :: MonadUpdateBranches m => Maybe FilePath -> m LocalBranches
 
 -- | Updates a branch by <a>Name</a>, returns the result.
-updateBranch :: MonadUpdateBranches m => Name -> m UpdateResult
+updateBranch :: MonadUpdateBranches m => Maybe FilePath -> MergeType -> Name -> m UpdateResult
 
 -- | Pushes branches, returns the results.
-pushBranches :: MonadUpdateBranches m => m [UpdateResult]
+pushBranches :: MonadUpdateBranches m => Maybe FilePath -> [Name] -> m [UpdateResult]
 
 -- | Checks out the passed <a>CurrentBranch</a>.
-checkoutCurrent :: MonadUpdateBranches m => CurrentBranch -> m ()
+checkoutCurrent :: MonadUpdateBranches m => Maybe FilePath -> CurrentBranch -> m ()
 
 -- | High level logic of <a>MonadUpdateBranches</a> usage. This function is
 --   the entrypoint for any <a>MonadUpdateBranches</a> instance.
-runUpdateBranches :: (MonadLogger m, MonadUpdateBranches m) => m ()
-instance Control.Monad.IO.Class.MonadIO m => Git.FastForward.Core.MonadUpdateBranches.MonadUpdateBranches (App.AppT Git.FastForward.Types.Env.Env m)
+runUpdateBranches :: (MonadReader Env m, MonadLogger m, MonadUpdateBranches m) => m ()
+instance Git.FastForward.Core.MonadUpdateBranches.MonadUpdateBranches GHC.Types.IO
+instance Git.FastForward.Core.MonadUpdateBranches.MonadUpdateBranches m => Git.FastForward.Core.MonadUpdateBranches.MonadUpdateBranches (App.AppT Git.FastForward.Types.Env.Env m)

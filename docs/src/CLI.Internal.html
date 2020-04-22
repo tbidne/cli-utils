@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Module      : CLI.Internal</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- Provides a function that parses command keys into their values.</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">CLI.Internal</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="CLI.Internal.html#translateCommands"><span class="hs-identifier">translateCommands</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Map</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Map</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-comment">-- | Returns a list of 'T.Text' commands, potentially transforming a</span><span>
+</span><span id="line-17"></span><span class="hs-comment">-- given string via the `Map.Map` legend.</span><span>
+</span><span id="line-18"></span><span class="hs-comment">--</span><span>
+</span><span id="line-19"></span><span class="hs-comment">-- For a string \(s = s_1,\ldots,s_n\), we split \(s\) by commas then recursively</span><span>
+</span><span id="line-20"></span><span class="hs-comment">-- search on each \(s_i\). We stop and return \(s_i\) when it does not exist</span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- as a key in the map.</span><span>
+</span><span id="line-22"></span><span class="hs-comment">--</span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- For example,</span><span>
+</span><span id="line-24"></span><span class="hs-comment">--</span><span>
+</span><span id="line-25"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-26"></span><span class="hs-comment">--   m = { &quot;cmd1&quot;: &quot;one&quot;, &quot;cmd2&quot;: &quot;two&quot;, &quot;all&quot;: &quot;cmd1,cmd2,other&quot; }</span><span>
+</span><span id="line-27"></span><span class="hs-comment">--   translateCommands m [&quot;all&quot;, &quot;blah&quot;] == [&quot;one&quot;, &quot;two&quot;, &quot;other&quot;, &quot;blah&quot;]</span><span>
+</span><span id="line-28"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-29"></span><span class="annot"><a href="CLI.Internal.html#translateCommands"><span class="hs-identifier hs-type">translateCommands</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span>
+</span><span id="line-30"></span><span id="translateCommands"><span class="annot"><span class="annottext">translateCommands :: Map Text Text -&gt; [Text] -&gt; [Text]
+</span><a href="CLI.Internal.html#translateCommands"><span class="hs-identifier hs-var hs-var">translateCommands</span></a></span></span><span> </span><span id="local-6989586621679104207"><span class="annot"><span class="annottext">mp :: Map Text Text
+</span><a href="#local-6989586621679104207"><span class="hs-identifier hs-var">mp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Text -&gt; [Text]) -&gt; [Text] -&gt; [Text]
+forall (t :: * -&gt; *) m a.
+(Foldable t, Monoid m) =&gt;
+(a -&gt; m) -&gt; t a -&gt; m
+</span><span class="hs-identifier hs-var">foldMap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map Text Text -&gt; Text -&gt; [Text]
+</span><a href="CLI.Internal.html#lineToCommands"><span class="hs-identifier hs-var">lineToCommands</span></a></span><span> </span><span class="annot"><span class="annottext">Map Text Text
+</span><a href="#local-6989586621679104207"><span class="hs-identifier hs-var">mp</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="annot"><a href="CLI.Internal.html#lineToCommands"><span class="hs-identifier hs-type">lineToCommands</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span>
+</span><span id="line-33"></span><span id="lineToCommands"><span class="annot"><span class="annottext">lineToCommands :: Map Text Text -&gt; Text -&gt; [Text]
+</span><a href="CLI.Internal.html#lineToCommands"><span class="hs-identifier hs-var hs-var">lineToCommands</span></a></span></span><span> </span><span id="local-6989586621679104204"><span class="annot"><span class="annottext">mp :: Map Text Text
+</span><a href="#local-6989586621679104204"><span class="hs-identifier hs-var">mp</span></a></span></span><span> </span><span id="local-6989586621679104203"><span class="annot"><span class="annottext">line :: Text
+</span><a href="#local-6989586621679104203"><span class="hs-identifier hs-var">line</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; [Text]
+</span><span class="hs-identifier hs-var">T.splitOn</span></span><span> </span><span class="annot"><span class="hs-string">&quot;,&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679104203"><span class="hs-identifier hs-var">line</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-35"></span><span>    </span><span class="hs-special">[</span><span id="local-6989586621679104201"><span class="annot"><span class="annottext">l :: Text
+</span><a href="#local-6989586621679104201"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-36"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Map Text Text -&gt; Maybe Text
+forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Map.lookup</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679104201"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Map Text Text
+</span><a href="#local-6989586621679104204"><span class="hs-identifier hs-var">mp</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-37"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679104199"><span class="annot"><span class="annottext">c :: Text
+</span><a href="#local-6989586621679104199"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Map Text Text -&gt; Text -&gt; [Text]
+</span><a href="CLI.Internal.html#lineToCommands"><span class="hs-identifier hs-var">lineToCommands</span></a></span><span> </span><span class="annot"><span class="annottext">Map Text Text
+</span><a href="#local-6989586621679104204"><span class="hs-identifier hs-var">mp</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679104199"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><span id="line-38"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679104201"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-39"></span><span>    </span><span id="local-6989586621679104198"><span class="annot"><span class="annottext">xs :: [Text]
+</span><a href="#local-6989586621679104198"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[Text]
+</span><a href="#local-6989586621679104198"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; (Text -&gt; [Text]) -&gt; [Text]
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="annot"><span class="annottext">Map Text Text -&gt; Text -&gt; [Text]
+</span><a href="CLI.Internal.html#lineToCommands"><span class="hs-identifier hs-var">lineToCommands</span></a></span><span> </span><span class="annot"><span class="annottext">Map Text Text
+</span><a href="#local-6989586621679104204"><span class="hs-identifier hs-var">mp</span></a></span><span>
+</span><span id="line-40"></span></pre></body></html>
