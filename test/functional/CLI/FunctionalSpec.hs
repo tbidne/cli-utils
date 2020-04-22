@@ -26,7 +26,7 @@ spec = afterAll_ tearDown $ beforeAll_ setup $ do
       T.lines (T.pack output) `shouldSatisfy` allFound . foldMap sToVerifier
 
 allFound :: Verifier -> Bool
-allFound (Verifier True True True True True True True) = True
+allFound (Verifier True True True True True True) = True
 allFound _ = False
 
 sToVerifier :: T.Text -> Verifier
@@ -36,8 +36,7 @@ sToVerifier s
   | T.isPrefixOf cmdEcho1 s = mempty {foundOne = True}
   | T.isPrefixOf cmdEchoLong s = mempty {foundLong = True}
   | T.isPrefixOf cmdBad s = mempty {foundBad = True}
-  -- verify these occur at least once
-  | T.isPrefixOf timeCounter s = mempty {foundTimeCounter = True}
+  -- verify this occurs at least once
   | T.isPrefixOf timeCmd s = mempty {foundTimeCmd = True}
   -- verify final counter
   | T.isPrefixOf totalTime s = mempty {foundTotalTime = True}
@@ -75,13 +74,12 @@ data Verifier
         foundOne :: Bool,
         foundLong :: Bool,
         foundBad :: Bool,
-        foundTimeCounter :: Bool,
         foundTimeCmd :: Bool,
         foundTotalTime :: Bool
       }
 
 instance Semigroup Verifier where
-  (Verifier a b c d e f g) <> (Verifier a' b' c' d' e' f' g') =
+  (Verifier a b c d e f) <> (Verifier a' b' c' d' e' f') =
     Verifier
       (a || a')
       (b || b')
@@ -89,10 +87,9 @@ instance Semigroup Verifier where
       (d || d')
       (e || e')
       (f || f')
-      (g || g')
 
 instance Monoid Verifier where
-  mempty = Verifier False False False False False False False
+  mempty = Verifier False False False False False False
 
 cmdBad :: T.Text
 cmdBad = errPrefix <> "Error running `some nonsense`"
@@ -105,9 +102,6 @@ cmdEcho1 = infoSuccessPrefix <> "Successfully ran `sleep 1 && echo 1`"
 
 cmdEchoLong :: T.Text
 cmdEchoLong = infoSuccessPrefix <> "Successfully ran `sleep 2 && echo long`"
-
-timeCounter :: T.Text
-timeCounter = "\rRunning time: "
 
 timeCmd :: T.Text
 timeCmd = infoSuccessPrefix <> "Time elapsed: "

@@ -122,7 +122,7 @@ instance Arbitrary ValidMapLines where
     pure $ ValidMapLines (numUnique, fmap snd xs)
 
   shrink (ValidMapLines (_, [])) = []
-  shrink (ValidMapLines (i, (x:xs))) =
+  shrink (ValidMapLines (i, (x : xs))) =
     [ValidMapLines (1, [x]), ValidMapLines (i `seq` i - 1, xs)]
 
 newtype InvalidMapLine = InvalidMapLine String deriving (Show)
@@ -133,6 +133,7 @@ instance Arbitrary InvalidMapLine where
       nonEmpty x
         && (not . singleEquals) x
         && (not . startsPound) x
+        && notNewLine x
     pure $ InvalidMapLine s
 
 newtype InvalidMapLines = InvalidMapLines [String] deriving (Show)
@@ -161,3 +162,6 @@ singleEquals xs = f xs False
 
 nonEmpty :: String -> Bool
 nonEmpty = (/=) ""
+
+notNewLine :: String -> Bool
+notNewLine = (/=) "\n"
