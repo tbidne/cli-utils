@@ -225,7 +225,7 @@ masterParser = AnyParser $ PrefixParser ("--master=", parser, updater)
 
 help :: String
 help =
-  "\nUsage: git-utils find-stale [OPTIONS]\n\n"
+  "\nUsage: cli-utils find-stale [OPTIONS]\n\n"
     <> "Displays stale branches.\n\nOptions:\n"
     <> "  --grep=<string>\t\tFilters branch names based on <string>.\n\n"
     <> "  --path=<string>\t\tDirectory path, defaults to current directory.\n\n"

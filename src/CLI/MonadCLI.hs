@@ -71,4 +71,4 @@ counter asyn = do
     logNoLine $ "Running time: " <> formatSeconds diff
 
 unfinished :: A.Async a -> IO Bool
-unfinished = A.poll >=> pure . not . May.isJust
+unfinished = A.poll >=> pure . May.isNothing

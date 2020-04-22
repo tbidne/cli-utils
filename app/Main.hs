@@ -55,7 +55,8 @@ run app =
 
 help :: String
 help =
-  "\nUsage: git-utils [CMD] [OPTIONS]\n\n"
-    <> "Wrapper for executing Git actions.\n\nCommands:\n"
-    <> " fast-forward, ff\tFast-forwards all local branches.\n\n"
-    <> " find-stale, fs\t\tFinds stale branches.\n\n"
+  "\nUsage: cli-utils [CMD] [OPTIONS]\n\n"
+    <> "Wrapper for executing CLI actions.\n\nCommands:\n"
+    <> " run-sh, rs\t\tRuns shell commands asynchronously.\n\n"
+    <> " fast-forward, ff\tFast-forwards all local Git branches.\n\n"
+    <> " find-stale, fs\t\tFinds Git stale branches.\n\n"

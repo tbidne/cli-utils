@@ -1,7 +1,7 @@
 #!/bin/bash
 
-mkdir ./test-git
-cd test-git/
+mkdir ./git
+cd ./git/
 
 if [ -n "$CI" ]
 then
