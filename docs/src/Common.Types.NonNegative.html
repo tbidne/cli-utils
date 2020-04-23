@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- |</span><span>
+</span><span id="line-2"></span><span class="hs-comment">-- Module      : Common.Types.NonNegative</span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Common.Types.NonNegative</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Common.Types.NonNegative.html#NonNegative"><span class="hs-identifier">NonNegative</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>    </span><span class="annot"><a href="Common.Types.NonNegative.html#iToNonNegative"><span class="hs-identifier">iToNonNegative</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Common.Types.NonNegative.html#toNonNegative"><span class="hs-identifier">toNonNegative</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>    </span><span class="annot"><a href="Common.Types.NonNegative.html#getNonNegative"><span class="hs-identifier">getNonNegative</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-comment">-- | Represents a non-negative `Integer`.</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">newtype</span><span> </span><span id="NonNegative"><span class="annot"><a href="Common.Types.NonNegative.html#NonNegative"><span class="hs-identifier hs-var">NonNegative</span></a></span></span><span> </span><span id="local-6989586621679104521"><span class="annot"><a href="#local-6989586621679104521"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="NonNegative"><span class="annot"><a href="Common.Types.NonNegative.html#NonNegative"><span class="hs-identifier hs-var">NonNegative</span></a></span></span><span>
+</span><span id="line-16"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="hs-comment">-- | Unwraps a 'NonNegative'.</span><span>
+</span><span id="line-17"></span><span>        </span><span id="getNonNegative"><span class="annot"><span class="annottext">NonNegative a -&gt; a
+</span><a href="Common.Types.NonNegative.html#getNonNegative"><span class="hs-identifier hs-var hs-var">getNonNegative</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679104521"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-18"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679104512"><span id="local-6989586621679104514"><span class="annot"><span class="annottext">NonNegative a -&gt; NonNegative a -&gt; Bool
+(NonNegative a -&gt; NonNegative a -&gt; Bool)
+-&gt; (NonNegative a -&gt; NonNegative a -&gt; Bool) -&gt; Eq (NonNegative a)
+forall a. Eq a =&gt; NonNegative a -&gt; NonNegative a -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: NonNegative a -&gt; NonNegative a -&gt; Bool
+$c/= :: forall a. Eq a =&gt; NonNegative a -&gt; NonNegative a -&gt; Bool
+== :: NonNegative a -&gt; NonNegative a -&gt; Bool
+$c== :: forall a. Eq a =&gt; NonNegative a -&gt; NonNegative a -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679104505"><span id="local-6989586621679104507"><span id="local-6989586621679104509"><span class="annot"><span class="annottext">Int -&gt; NonNegative a -&gt; ShowS
+[NonNegative a] -&gt; ShowS
+NonNegative a -&gt; String
+(Int -&gt; NonNegative a -&gt; ShowS)
+-&gt; (NonNegative a -&gt; String)
+-&gt; ([NonNegative a] -&gt; ShowS)
+-&gt; Show (NonNegative a)
+forall a. Show a =&gt; Int -&gt; NonNegative a -&gt; ShowS
+forall a. Show a =&gt; [NonNegative a] -&gt; ShowS
+forall a. Show a =&gt; NonNegative a -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [NonNegative a] -&gt; ShowS
+$cshowList :: forall a. Show a =&gt; [NonNegative a] -&gt; ShowS
+show :: NonNegative a -&gt; String
+$cshow :: forall a. Show a =&gt; NonNegative a -&gt; String
+showsPrec :: Int -&gt; NonNegative a -&gt; ShowS
+$cshowsPrec :: forall a. Show a =&gt; Int -&gt; NonNegative a -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- | Constructs `Maybe` `NonNegative` as</span><span>
+</span><span id="line-22"></span><span class="hs-comment">--   \[</span><span>
+</span><span id="line-23"></span><span class="hs-comment">--     \mathrm{toNonNegative}(x) = \begin{cases}</span><span>
+</span><span id="line-24"></span><span class="hs-comment">--       \mathrm{Just}\ x, &amp;x &gt;= 0 \\</span><span>
+</span><span id="line-25"></span><span class="hs-comment">--       \mathrm{Nothing}, &amp;\mathrm{otherwise}</span><span>
+</span><span id="line-26"></span><span class="hs-comment">--     \end{cases}</span><span>
+</span><span id="line-27"></span><span class="hs-comment">--   \]</span><span>
+</span><span id="line-28"></span><span id="local-6989586621679104520"><span class="annot"><a href="Common.Types.NonNegative.html#toNonNegative"><span class="hs-identifier hs-type">toNonNegative</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integral</span></span><span> </span><span class="annot"><a href="#local-6989586621679104520"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679104520"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Types.NonNegative.html#NonNegative"><span class="hs-identifier hs-type">NonNegative</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104520"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-29"></span><span id="toNonNegative"><span class="annot"><span class="annottext">toNonNegative :: a -&gt; Maybe (NonNegative a)
+</span><a href="Common.Types.NonNegative.html#toNonNegative"><span class="hs-identifier hs-var hs-var">toNonNegative</span></a></span></span><span> </span><span id="local-6989586621679104503"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679104503"><span class="hs-identifier hs-var">x</span></a></span></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679104503"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;=</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NonNegative a -&gt; Maybe (NonNegative a)
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(NonNegative a -&gt; Maybe (NonNegative a))
+-&gt; NonNegative a -&gt; Maybe (NonNegative a)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; NonNegative a
+forall a. a -&gt; NonNegative a
+</span><a href="Common.Types.NonNegative.html#NonNegative"><span class="hs-identifier hs-var">NonNegative</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679104503"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe (NonNegative a)
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- | Monomorphic version of 'toNonNegative' for convenience.</span><span>
+</span><span id="line-34"></span><span class="annot"><a href="Common.Types.NonNegative.html#iToNonNegative"><span class="hs-identifier hs-type">iToNonNegative</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Types.NonNegative.html#NonNegative"><span class="hs-identifier hs-type">NonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span id="iToNonNegative"><span class="annot"><span class="annottext">iToNonNegative :: Integer -&gt; Maybe (NonNegative Integer)
+</span><a href="Common.Types.NonNegative.html#iToNonNegative"><span class="hs-identifier hs-var hs-var">iToNonNegative</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Maybe (NonNegative Integer)
+forall a. Integral a =&gt; a -&gt; Maybe (NonNegative a)
+</span><a href="Common.Types.NonNegative.html#toNonNegative"><span class="hs-identifier hs-var">toNonNegative</span></a></span><span>
+</span><span id="line-36"></span></pre></body></html>

@@ -11,7 +11,11 @@ module Common.Types.Positive
 where
 
 -- | Represents a positive, non-zero `Integer`.
-newtype Positive a = Positive {getPositive :: a}
+newtype Positive a
+  = Positive
+      { -- | Unwraps a 'Positive'.
+        getPositive :: a
+      }
   deriving (Eq, Show)
 
 -- | Constructs `Maybe` `Positive` as

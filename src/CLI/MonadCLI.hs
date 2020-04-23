@@ -5,6 +5,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+-- |
+-- Module      : CLI.MonadCLI
+-- License     : BSD3
+-- Maintainer  : tbidne@gmail.com
+-- The MonadCLI class.
 module CLI.MonadCLI
   ( MonadCLI (..),
     runCLI,
@@ -12,12 +17,12 @@ module CLI.MonadCLI
 where
 
 import App
+import CLI.Internal
 import CLI.Types.Env
 import Common.IO
 import Common.MonadLogger
 import Common.Types.NonNegative
 import Common.Utils
-import CLI.Internal
 import qualified Control.Concurrent.Async as A
 import Control.Monad ((>=>))
 import qualified Control.Monad.Loops as L
@@ -26,9 +31,14 @@ import qualified Data.Maybe as May
 import qualified Data.Text as T
 import qualified System.Clock as C
 
+-- | The 'MonadCLI' class is used to describe running a list
+-- of 'T.Text' commands.
 class Monad m => MonadCLI m where
+  -- | Runs the list of commands.
   runCommands :: [T.Text] -> m ()
 
+-- | `MonadCLI` instance for `IO`. Runs each command concurrently,
+-- timing each one, and printing the outcome as success/failure.
 instance MonadCLI IO where
   runCommands :: [T.Text] -> IO ()
   runCommands commands = do
@@ -44,6 +54,8 @@ instance MonadCLI IO where
 instance MonadCLI m => MonadCLI (AppT Env m) where
   runCommands = R.lift . runCommands
 
+-- | High level logic of `MonadCLI` usage. This function is the
+-- entrypoint for any `MonadCLI` instance.
 runCLI :: (R.MonadReader Env m, MonadCLI m) => m ()
 runCLI = do
   Env {legend, commands} <- R.ask

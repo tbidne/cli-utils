@@ -11,7 +11,11 @@ module Common.Types.NonNegative
 where
 
 -- | Represents a non-negative `Integer`.
-newtype NonNegative a = NonNegative {getNonNegative :: a}
+newtype NonNegative a
+  = NonNegative
+      { -- | Unwraps a 'NonNegative'.
+        getNonNegative :: a
+      }
   deriving (Eq, Show)
 
 -- | Constructs `Maybe` `NonNegative` as

@@ -17,14 +17,14 @@
 </span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Time.Calendar</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">C</span></span><span>
 </span><span id="line-18"></span><span>
 </span><span id="line-19"></span><span class="hs-comment">-- | Branch Name.</span><span>
-</span><span id="line-20"></span><span class="hs-keyword">newtype</span><span> </span><span id="Name"><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-var">Name</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Name"><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-var">Name</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679096987"><span id="local-6989586621679096989"><span class="annot"><span class="annottext">Name -&gt; Name -&gt; Bool
+</span><span id="line-20"></span><span class="hs-keyword">newtype</span><span> </span><span id="Name"><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-var">Name</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Name"><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-var">Name</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679105511"><span id="local-6989586621679105513"><span class="annot"><span class="annottext">Name -&gt; Name -&gt; Bool
 (Name -&gt; Name -&gt; Bool) -&gt; (Name -&gt; Name -&gt; Bool) -&gt; Eq Name
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 /= :: Name -&gt; Name -&gt; Bool
 $c/= :: Name -&gt; Name -&gt; Bool
 == :: Name -&gt; Name -&gt; Bool
 $c== :: Name -&gt; Name -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679096971"><span id="local-6989586621679096973"><span id="local-6989586621679096975"><span id="local-6989586621679096977"><span id="local-6989586621679096979"><span id="local-6989586621679096981"><span id="local-6989586621679096983"><span class="annot"><span class="annottext">Eq Name
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105495"><span id="local-6989586621679105497"><span id="local-6989586621679105499"><span id="local-6989586621679105501"><span id="local-6989586621679105503"><span id="local-6989586621679105505"><span id="local-6989586621679105507"><span class="annot"><span class="annottext">Eq Name
 Eq Name =&gt;
 (Name -&gt; Name -&gt; Ordering)
 -&gt; (Name -&gt; Name -&gt; Bool)
@@ -62,7 +62,7 @@ $c&lt; :: Name -&gt; Name -&gt; Bool
 compare :: Name -&gt; Name -&gt; Ordering
 $ccompare :: Name -&gt; Name -&gt; Ordering
 $cp1Ord :: Eq Name
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679096964"><span id="local-6989586621679096966"><span id="local-6989586621679096968"><span class="annot"><span class="annottext">Int -&gt; Name -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105488"><span id="local-6989586621679105490"><span id="local-6989586621679105492"><span class="annot"><span class="annottext">Int -&gt; Name -&gt; ShowS
 [Name] -&gt; ShowS
 Name -&gt; String
 (Int -&gt; Name -&gt; ShowS)
@@ -78,7 +78,7 @@ $cshowsPrec :: Int -&gt; Name -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-21"></span><span>
 </span><span id="line-22"></span><span class="hs-comment">-- | Branch Author.</span><span>
-</span><span id="line-23"></span><span class="hs-keyword">newtype</span><span> </span><span id="Author"><span class="annot"><a href="Git.Types.GitTypes.html#Author"><span class="hs-identifier hs-var">Author</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Author"><span class="annot"><a href="Git.Types.GitTypes.html#Author"><span class="hs-identifier hs-var">Author</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679096958"><span id="local-6989586621679096960"><span class="annot"><span class="annottext">Author -&gt; Author -&gt; Bool
+</span><span id="line-23"></span><span class="hs-keyword">newtype</span><span> </span><span id="Author"><span class="annot"><a href="Git.Types.GitTypes.html#Author"><span class="hs-identifier hs-var">Author</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Author"><span class="annot"><a href="Git.Types.GitTypes.html#Author"><span class="hs-identifier hs-var">Author</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679105482"><span id="local-6989586621679105484"><span class="annot"><span class="annottext">Author -&gt; Author -&gt; Bool
 (Author -&gt; Author -&gt; Bool)
 -&gt; (Author -&gt; Author -&gt; Bool) -&gt; Eq Author
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -86,7 +86,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: Author -&gt; Author -&gt; Bool
 == :: Author -&gt; Author -&gt; Bool
 $c== :: Author -&gt; Author -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679096943"><span id="local-6989586621679096945"><span id="local-6989586621679096947"><span id="local-6989586621679096949"><span id="local-6989586621679096951"><span id="local-6989586621679096953"><span id="local-6989586621679096955"><span class="annot"><span class="annottext">Eq Author
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105467"><span id="local-6989586621679105469"><span id="local-6989586621679105471"><span id="local-6989586621679105473"><span id="local-6989586621679105475"><span id="local-6989586621679105477"><span id="local-6989586621679105479"><span class="annot"><span class="annottext">Eq Author
 Eq Author =&gt;
 (Author -&gt; Author -&gt; Ordering)
 -&gt; (Author -&gt; Author -&gt; Bool)
@@ -124,7 +124,7 @@ $c&lt; :: Author -&gt; Author -&gt; Bool
 compare :: Author -&gt; Author -&gt; Ordering
 $ccompare :: Author -&gt; Author -&gt; Ordering
 $cp1Ord :: Eq Author
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679096937"><span id="local-6989586621679096939"><span id="local-6989586621679096941"><span class="annot"><span class="annottext">Int -&gt; Author -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105461"><span id="local-6989586621679105463"><span id="local-6989586621679105465"><span class="annot"><span class="annottext">Int -&gt; Author -&gt; ShowS
 [Author] -&gt; ShowS
 Author -&gt; String
 (Int -&gt; Author -&gt; ShowS)

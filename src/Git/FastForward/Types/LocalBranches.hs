@@ -14,7 +14,7 @@ import Git.Types.GitTypes
 -- | Alias for 'Name'.
 type CurrentBranch = Name
 
--- | Describes the local branches in a 'git' directory.
+-- | Describes the local branches in a git directory.
 data LocalBranches
   = LocalBranches
       { -- | The current branch, saved so that we can check it out after

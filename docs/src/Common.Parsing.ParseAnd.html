@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- |</span><span>
+</span><span id="line-2"></span><span class="hs-comment">-- Module      : Common.Parsing.ParseAnd</span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- Provides the 'ParseAnd' monoid.</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Common.Parsing.ParseAnd</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-8"></span><span>    </span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Common.Parsing.ParseStatus.html"><span class="hs-identifier">Common.Parsing.ParseStatus</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.Parsing.ParseStatus.html"><span class="hs-identifier">Common.Parsing.ParseStatus</span></a></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- | 'ParseAnd' induces an \&quot;And\&quot; monoidal structure on @Monoid acc =&gt; 'ParseStatus' acc@.</span><span>
+</span><span id="line-15"></span><span class="hs-comment">-- That is,</span><span>
+</span><span id="line-16"></span><span class="hs-comment">--</span><span>
+</span><span id="line-17"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-18"></span><span class="hs-comment">--   ('PSuccess' p1) &lt;&gt; ... &lt;&gt; ('PSuccess' pn) = 'PSuccess' (p1 &lt;&gt; ... &lt;&gt; pn)</span><span>
+</span><span id="line-19"></span><span class="hs-comment">--   ('PSuccess' p1) &lt;&gt; ... &lt;&gt; ('PSuccess' pj) &lt;&gt; ('PFailure' pk) ... = 'PFailure' pk</span><span>
+</span><span id="line-20"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-21"></span><span class="hs-comment">--</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- The algebra for 'ParseAnd' satisfies</span><span>
+</span><span id="line-23"></span><span class="hs-comment">--</span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-25"></span><span class="hs-comment">--   1. Identity: 'ParseAnd' ('PSuccess' mempty)</span><span>
+</span><span id="line-26"></span><span class="hs-comment">--   2. 'PFailure' is an ideal: 'PFailure' x &lt;&gt; 'PSuccess' y == 'PFailure' x == 'PSuccess' y &lt;&gt; 'PFailure' x</span><span>
+</span><span id="line-27"></span><span class="hs-comment">--   3. Left-biased: l &lt;&gt; r == l, when it doesn't violate 1 or 2.</span><span>
+</span><span id="line-28"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-29"></span><span class="hs-comment">--</span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- Strictly speaking property 2 is stronger than saying 'PFailure' is an ideal.</span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- More precisely, the action by 'PSuccess' on 'PFailure' in 'ParseAnd' is trivial.</span><span>
+</span><span id="line-32"></span><span class="hs-keyword">newtype</span><span> </span><span id="ParseAnd"><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-var">ParseAnd</span></a></span></span><span> </span><span id="local-6989586621679104488"><span class="annot"><a href="#local-6989586621679104488"><span class="hs-identifier hs-type">acc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="ParseAnd"><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-var">ParseAnd</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseStatus.html#ParseStatus"><span class="hs-identifier hs-type">ParseStatus</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104488"><span class="hs-identifier hs-type">acc</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679104477"><span id="local-6989586621679104479"><span class="annot"><span class="annottext">ParseAnd acc -&gt; ParseAnd acc -&gt; Bool
+(ParseAnd acc -&gt; ParseAnd acc -&gt; Bool)
+-&gt; (ParseAnd acc -&gt; ParseAnd acc -&gt; Bool) -&gt; Eq (ParseAnd acc)
+forall acc. Eq acc =&gt; ParseAnd acc -&gt; ParseAnd acc -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: ParseAnd acc -&gt; ParseAnd acc -&gt; Bool
+$c/= :: forall acc. Eq acc =&gt; ParseAnd acc -&gt; ParseAnd acc -&gt; Bool
+== :: ParseAnd acc -&gt; ParseAnd acc -&gt; Bool
+$c== :: forall acc. Eq acc =&gt; ParseAnd acc -&gt; ParseAnd acc -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679104470"><span id="local-6989586621679104472"><span id="local-6989586621679104474"><span class="annot"><span class="annottext">Int -&gt; ParseAnd acc -&gt; ShowS
+[ParseAnd acc] -&gt; ShowS
+ParseAnd acc -&gt; String
+(Int -&gt; ParseAnd acc -&gt; ShowS)
+-&gt; (ParseAnd acc -&gt; String)
+-&gt; ([ParseAnd acc] -&gt; ShowS)
+-&gt; Show (ParseAnd acc)
+forall acc. Show acc =&gt; Int -&gt; ParseAnd acc -&gt; ShowS
+forall acc. Show acc =&gt; [ParseAnd acc] -&gt; ShowS
+forall acc. Show acc =&gt; ParseAnd acc -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [ParseAnd acc] -&gt; ShowS
+$cshowList :: forall acc. Show acc =&gt; [ParseAnd acc] -&gt; ShowS
+show :: ParseAnd acc -&gt; String
+$cshow :: forall acc. Show acc =&gt; ParseAnd acc -&gt; String
+showsPrec :: Int -&gt; ParseAnd acc -&gt; ShowS
+$cshowsPrec :: forall acc. Show acc =&gt; Int -&gt; ParseAnd acc -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span id="local-6989586621679104468"><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679104463"><span id="local-6989586621679104465"><span class="annot"><span class="hs-identifier hs-type">Semigroup</span></span><span> </span><span class="annot"><a href="#local-6989586621679104468"><span class="hs-identifier hs-type">acc</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Semigroup</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104468"><span class="hs-identifier hs-type">acc</span></a></span><span class="hs-special">)</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseStatus.html#PFailure"><span class="hs-identifier hs-type">PFailure</span></a></span><span> </span><span id="local-6989586621679104460"><span class="annot"><span class="annottext">l :: ParseErr
+</span><a href="#local-6989586621679104460"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span id="local-6989586621679104459"><span class="annot"><span class="annottext">&lt;&gt; :: ParseAnd acc -&gt; ParseAnd acc -&gt; ParseAnd acc
+</span><span class="hs-operator hs-var hs-var hs-var hs-var">&lt;&gt;</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ParseStatus acc -&gt; ParseAnd acc
+forall acc. ParseStatus acc -&gt; ParseAnd acc
+</span><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-var">ParseAnd</span></a></span><span> </span><span class="annot"><span class="annottext">(ParseStatus acc -&gt; ParseAnd acc)
+-&gt; ParseStatus acc -&gt; ParseAnd acc
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ParseErr -&gt; ParseStatus acc
+forall acc. ParseErr -&gt; ParseStatus acc
+</span><a href="Common.Parsing.ParseStatus.html#PFailure"><span class="hs-identifier hs-var">PFailure</span></a></span><span> </span><span class="annot"><span class="annottext">ParseErr
+</span><a href="#local-6989586621679104460"><span class="hs-identifier hs-var">l</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-identifier">_</span><span> </span><span class="annot"><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseStatus.html#PFailure"><span class="hs-identifier hs-type">PFailure</span></a></span><span> </span><span id="local-6989586621679104458"><span class="annot"><span class="annottext">r :: ParseErr
+</span><a href="#local-6989586621679104458"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ParseStatus acc -&gt; ParseAnd acc
+forall acc. ParseStatus acc -&gt; ParseAnd acc
+</span><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-var">ParseAnd</span></a></span><span> </span><span class="annot"><span class="annottext">(ParseStatus acc -&gt; ParseAnd acc)
+-&gt; ParseStatus acc -&gt; ParseAnd acc
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ParseErr -&gt; ParseStatus acc
+forall acc. ParseErr -&gt; ParseStatus acc
+</span><a href="Common.Parsing.ParseStatus.html#PFailure"><span class="hs-identifier hs-var">PFailure</span></a></span><span> </span><span class="annot"><span class="annottext">ParseErr
+</span><a href="#local-6989586621679104458"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseStatus.html#PSuccess"><span class="hs-identifier hs-type">PSuccess</span></a></span><span> </span><span id="local-6989586621679104456"><span class="annot"><span class="annottext">l :: acc
+</span><a href="#local-6989586621679104456"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseStatus.html#PSuccess"><span class="hs-identifier hs-type">PSuccess</span></a></span><span> </span><span id="local-6989586621679104455"><span class="annot"><span class="annottext">r :: acc
+</span><a href="#local-6989586621679104455"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><span class="annottext">ParseStatus acc -&gt; ParseAnd acc
+forall acc. ParseStatus acc -&gt; ParseAnd acc
+</span><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-var">ParseAnd</span></a></span><span> </span><span class="annot"><span class="annottext">(ParseStatus acc -&gt; ParseAnd acc)
+-&gt; ParseStatus acc -&gt; ParseAnd acc
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">acc -&gt; ParseStatus acc
+forall acc. acc -&gt; ParseStatus acc
+</span><a href="Common.Parsing.ParseStatus.html#PSuccess"><span class="hs-identifier hs-var">PSuccess</span></a></span><span> </span><span class="annot"><span class="annottext">(acc -&gt; ParseStatus acc) -&gt; acc -&gt; ParseStatus acc
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">acc
+</span><a href="#local-6989586621679104456"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">acc -&gt; acc -&gt; acc
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">acc
+</span><a href="#local-6989586621679104455"><span class="hs-identifier hs-var">r</span></a></span></span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span id="local-6989586621679104454"><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679104448"><span id="local-6989586621679104450"><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679104454"><span class="hs-identifier hs-type">acc</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679104454"><span class="hs-identifier hs-type">acc</span></a></span><span class="hs-special">)</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-42"></span><span>  </span><span id="local-6989586621679104446"><span class="annot"><span class="annottext">mempty :: ParseAnd acc
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">mempty</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ParseStatus acc -&gt; ParseAnd acc
+forall acc. ParseStatus acc -&gt; ParseAnd acc
+</span><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-var">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">acc -&gt; ParseStatus acc
+forall acc. acc -&gt; ParseStatus acc
+</span><a href="Common.Parsing.ParseStatus.html#PSuccess"><span class="hs-identifier hs-var">PSuccess</span></a></span><span> </span><span class="annot"><span class="annottext">acc
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-43"></span></pre></body></html>

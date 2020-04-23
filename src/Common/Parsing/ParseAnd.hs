@@ -2,6 +2,7 @@
 -- Module      : Common.Parsing.ParseAnd
 -- License     : BSD3
 -- Maintainer  : tbidne@gmail.com
+-- Provides the 'ParseAnd' monoid.
 module Common.Parsing.ParseAnd
   ( ParseAnd (..),
     module Common.Parsing.ParseStatus,
@@ -10,12 +11,24 @@ where
 
 import Common.Parsing.ParseStatus
 
--- | Induces an \"And\" monoidal structure on 'ParseStatus'. That is,
+-- | 'ParseAnd' induces an \"And\" monoidal structure on @Monoid acc => 'ParseStatus' acc@.
+-- That is,
 --
 -- @
 --   ('PSuccess' p1) <> ... <> ('PSuccess' pn) = 'PSuccess' (p1 <> ... <> pn)
 --   ('PSuccess' p1) <> ... <> ('PSuccess' pj) <> ('PFailure' pk) ... = 'PFailure' pk
 -- @
+--
+-- The algebra for 'ParseAnd' satisfies
+--
+-- @
+--   1. Identity: 'ParseAnd' ('PSuccess' mempty)
+--   2. 'PFailure' is an ideal: 'PFailure' x <> 'PSuccess' y == 'PFailure' x == 'PSuccess' y <> 'PFailure' x
+--   3. Left-biased: l <> r == l, when it doesn't violate 1 or 2.
+-- @
+--
+-- Strictly speaking property 2 is stronger than saying 'PFailure' is an ideal.
+-- More precisely, the action by 'PSuccess' on 'PFailure' in 'ParseAnd' is trivial.
 newtype ParseAnd acc = ParseAnd (ParseStatus acc)
   deriving (Eq, Show)
 

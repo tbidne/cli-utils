@@ -33,12 +33,14 @@ data ResultsWithErrs
       }
   deriving (Show)
 
+-- | Newtype wrapper for errors over (display string, num branches).
 newtype ErrDisp = ErrDisp (T.Text, Int)
 
+-- | Newtype wrapper over ('ErrDisp', 'ResultsDisp').
 newtype ResultsWithErrsDisp = ResultsWithErrsDisp (ErrDisp, ResultsDisp)
 
 -- | Transforms the 'ResultsWithErrs' into a 'ResultsWithErrsDisp' for display
--- purposes. Strips out the 'prefix' from the branches, if it exists.
+-- purposes. Strips out the @prefix@ from the branches, if it exists.
 toResultsErrDisp :: T.Text -> ResultsWithErrs -> ResultsWithErrsDisp
 toResultsErrDisp prefix ResultsWithErrs {errList, results} = ResultsWithErrsDisp (errDisp, res)
   where
