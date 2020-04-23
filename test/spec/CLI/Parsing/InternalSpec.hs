@@ -54,21 +54,25 @@ verifyCommands xs ts = and (fmap f ts)
     strSet = S.fromList $ fmap T.pack xs
     f = flip S.member strSet
 
-vMapStrToEnv :: [String] -> ValidMapLines -> Bool
-vMapStrToEnv commands (ValidMapLines (numUnique, strs)) =
+vMapStrToEnv :: [String] -> [ValidMapLine] -> Bool
+vMapStrToEnv commands validLines =
   let txtCommands = fmap T.pack commands
-      mapTxt = intercalate strs "\n"
-   in case mapStrToEnv txtCommands mapTxt of
+      mapStr = intercalate (fmap unvalidMapLine validLines) "\n"
+      -- this seems dumb but we need to do this after intercalate
+      -- because the lines themselves could have '\n' in them
+      numLines = length $ lines mapStr
+   in case mapStrToEnv txtCommands mapStr of
         Left _ -> False
         Right (Env mp commands') ->
           -- all commands are added to Env
           txtCommands == commands'
-            -- unique text keys = key size of the map
-            && length mp == numUnique
+            -- key size of the map <= number of text lines
+            -- potential duplicate keys is why we can't check simple equality
+            && length mp <= numLines
 
 vInvalidMapLine :: InvalidMapLines -> Bool
-vInvalidMapLine (InvalidMapLines ls) =
-  case mapStrToEnv [] (intercalate ls "\n") of
+vInvalidMapLine (InvalidMapLines (_, _, allLines)) =
+  case mapStrToEnv [] (intercalate allLines "\n") of
     Left _ -> True
     _ -> False
 
@@ -96,72 +100,59 @@ instance Arbitrary ValidArgs where
     let shrunk = shrink commands
      in fmap (\cs -> ValidArgs legend cs (legend : cs)) shrunk
 
-newtype ValidMapLine = ValidMapLine {unValidMapLine :: (String, String)}
+newtype ValidMapLine = ValidMapLine {unvalidMapLine :: String}
   deriving (Show)
 
 instance Arbitrary ValidMapLine where
-  arbitrary = do
-    (PrintableString k) <- arbitrary `suchThat` \(PrintableString x) -> validMapLine x
-    (PrintableString v) <- arbitrary `suchThat` \(PrintableString x) -> validMapLine x
-    pure $ ValidMapLine (k, k <> "=" <> v)
-    where
-      validMapLine [] = False
-      validMapLine ('#' : _) = False
-      validMapLine xs = foldr ((&&) . check) True xs
-      check '=' = False
-      check '\n' = False
-      check _ = True
-
-newtype ValidMapLines = ValidMapLines {unValidMapLines :: (Int, [String])}
-  deriving (Show)
-
-instance Arbitrary ValidMapLines where
-  arbitrary = do
-    xs <- listOf $ fmap unValidMapLine arbitrary
-    let numUnique = length $ S.fromList $ fmap fst xs
-    pure $ ValidMapLines (numUnique, fmap snd xs)
-
-  shrink (ValidMapLines (_, [])) = []
-  shrink (ValidMapLines (i, (x : xs))) =
-    [ValidMapLines (1, [x]), ValidMapLines (i `seq` i - 1, xs)]
+  arbitrary =
+    ValidMapLine . getPrintableString
+      <$> arbitrary `suchThat` (validMapLine . getPrintableString)
 
 newtype InvalidMapLine = InvalidMapLine String deriving (Show)
 
 instance Arbitrary InvalidMapLine where
-  arbitrary = do
-    s <- arbitrary `suchThat` \x ->
-      nonEmpty x
-        && (not . singleEquals) x
-        && (not . startsPound) x
-        && notNewLine x
-    pure $ InvalidMapLine s
+  arbitrary =
+    InvalidMapLine . getPrintableString
+      <$> arbitrary `suchThat` (not . validMapLine . getPrintableString)
 
-newtype InvalidMapLines = InvalidMapLines [String] deriving (Show)
+-- (badLine, goodLines, all in random order)
+-- we carry around all info for shrinking
+newtype InvalidMapLines = InvalidMapLines (String, [String], [String]) deriving (Show)
 
 instance Arbitrary InvalidMapLines where
   arbitrary = do
-    (ValidMapLines (_, goodLines)) <- arbitrary
+    goodLines <- listOf $ fmap unvalidMapLine arbitrary
     (InvalidMapLine bad) <- arbitrary
-    fmap InvalidMapLines $ shuffle (bad : goodLines)
+    order <- shuffle (bad : goodLines)
+    pure $ InvalidMapLines (bad, goodLines, order)
+
+  -- on shrink, forget the random order and just shrink the good lines,
+  -- adding the bad line to the beginning
+  shrink (InvalidMapLines (_, [], _)) = []
+  shrink (InvalidMapLines (bad, (g : gs), _)) =
+    [InvalidMapLines (bad, gs, [bad, g]), InvalidMapLines (bad, gs, (bad : gs))]
 
 intercalate :: Monoid m => [m] -> m -> m
 intercalate [] y = y
 intercalate (x : xs) y = x <> y <> intercalate xs y
 
-startsPound :: String -> Bool
-startsPound ('#' : _) = True
-startsPound _ = False
-
-singleEquals :: String -> Bool
-singleEquals xs = f xs False
+-- A valid line can be one of
+--   1. empty
+--   2. single new line
+--   3. start with '#'
+--   4. s with exactly one equals (non-empty both sides)
+-- If a non-empty line contains a new line then we recursively
+-- check that each side is valid
+validMapLine :: String -> Bool
+validMapLine "" = True
+validMapLine "\n" = True
+validMapLine ('#' : _) = True
+validMapLine ('=' : _) = False
+validMapLine s = go s False
   where
-    f [] b = b
-    f ('=' : _) True = False
-    f ('=' : ys) False = f ys True
-    f (_ : ys) b = f ys b
-
-nonEmpty :: String -> Bool
-nonEmpty = (/=) ""
-
-notNewLine :: String -> Bool
-notNewLine = (/=) "\n"
+    go [] b = b
+    go "=" _ = False
+    go ('\n' : xs) b = b && validMapLine xs
+    go ('=' : _) True = False
+    go ('=' : xs) False = go xs True
+    go (_ : xs) b = go xs b
