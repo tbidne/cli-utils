@@ -12,7 +12,10 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag tbidne/cli-utils:latest
+        run: |
+          docker rm -vf $(docker ps -a -q)
+          docker rmi -f $(docker images -a -q)
+          docker build . --file Dockerfile --tag tbidne/cli-utils:latest
 
       - name: Push to Docker Hub
         uses: elgohr/Publish-Docker-Github-Action@master
