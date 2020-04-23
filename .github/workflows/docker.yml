@@ -13,7 +13,7 @@ jobs:
 
       - name: Build the Docker image
         run: |
-          docker rmi -f $(docker images -a -q)
+          docker rmi -f $(docker images -q)
           docker build . --file Dockerfile --tag tbidne/cli-utils:latest
 
       - name: Push to Docker Hub
