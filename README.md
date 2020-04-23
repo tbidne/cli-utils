@@ -4,9 +4,6 @@
     <a href="https://github.com/tbidne/cli-utils/workflows/stack%20build/badge.svg?branch=master" alt="stack build">
         <img src="https://img.shields.io/github/workflow/status/tbidne/cli-utils/stack build/master?logo=haskell&style=plastic" height="20"/>
     </a>
-    <a href="https://github.com/tbidne/cli-utils/workflows/docker%20push/badge.svg?branch=master" alt="docker hub">
-        <img src="https://img.shields.io/github/workflow/status/tbidne/cli-utils/docker push/master?logo=docker&logoColor=white&style=plastic" height="20"/>
-    </a>
     <a href="https://hub.docker.com/repository/docker/tbidne/cli-utils" alt="docker hub">
         <img src="https://img.shields.io/static/v1?label=docker&message=hub&color=089cec&style=plastic&logo=docker&logoColor=white" height="20"/>
     </a>
