@@ -6,18 +6,19 @@ module Git.Stale.Core.InternalSpec
   )
 where
 
-import Data.Either (isRight)
+import Common.ArbNonNegative
+import Common.Types.NonNegative
+import qualified Data.Either as E
 import qualified Data.Text as Txt
 import qualified Data.Time.Calendar as C
 import Git.Stale.Core.Arbitraries
 import Git.Stale.Core.Internal
 import Git.Stale.Types.Arbitraries ()
 import Git.Stale.Types.Error
-import Git.Stale.Types.Nat
 import Git.Types.GitTypes
 import Test.Hspec
 import Test.Hspec.QuickCheck
-import Test.QuickCheck
+import qualified Test.QuickCheck as Q
 
 spec :: Spec
 spec = do
@@ -51,62 +52,62 @@ badDateStrFails (NameAuthDateErr nad@(_, _, t)) = case parseDay nad of
   _ -> False
   where
     ts = Txt.splitOn "-" t
-    goodRead xs = isRight $ traverse safeRead xs
+    goodRead xs = E.isRight $ traverse safeRead xs
 
-vStale :: Nat -> C.Day -> NameAuthDay -> Bool
-vStale lim day nad@(_, _, d) = (C.diffDays day d > (unNat lim)) == isStale
+vStale :: NonNegative Int -> C.Day -> NameAuthDay -> Bool
+vStale lim day nad@(_, _, d) = (C.diffDays day d > (fromIntegral (getNonNegative lim))) == isStale
   where
     isStale = stale lim day nad
 
 newtype NameLogSuccess = NameLogSuccess NameLog
   deriving (Show)
 
-instance Arbitrary NameLogSuccess where
-  arbitrary :: Gen NameLogSuccess
+instance Q.Arbitrary NameLogSuccess where
+  arbitrary :: Q.Gen NameLogSuccess
   arbitrary = do
-    n <- arbitrary
+    n <- Q.arbitrary
     l <- genValidLog
     pure $ NameLogSuccess (n, l)
 
 newtype NameLogErr = NameLogErr NameLog
   deriving (Show)
 
-instance Arbitrary NameLogErr where
-  arbitrary :: Gen NameLogErr
+instance Q.Arbitrary NameLogErr where
+  arbitrary :: Q.Gen NameLogErr
   arbitrary = do
-    n <- arbitrary `suchThat` (\(Name n) -> Txt.all (/= '|') n)
-    l <- arbitrary `suchThat` Txt.all (/= '|')
+    n <- Q.arbitrary `Q.suchThat` (\(Name n) -> Txt.all (/= '|') n)
+    l <- Q.arbitrary `Q.suchThat` Txt.all (/= '|')
     pure $ NameLogErr (n, l)
 
-genValidLog :: Gen Txt.Text
+genValidLog :: Q.Gen Txt.Text
 genValidLog = do
-  a <- arbitrary `suchThat` Txt.all (/= '|')
-  l <- arbitrary `suchThat` Txt.all (/= '|')
+  a <- Q.arbitrary `Q.suchThat` Txt.all (/= '|')
+  l <- Q.arbitrary `Q.suchThat` Txt.all (/= '|')
   pure $ a <> "|" <> l
 
 newtype NameAuthDateSuccess = NameAuthDateSuccess NameAuthDateStr
   deriving (Show)
 
-instance Arbitrary NameAuthDateSuccess where
-  arbitrary :: Gen NameAuthDateSuccess
+instance Q.Arbitrary NameAuthDateSuccess where
+  arbitrary :: Q.Gen NameAuthDateSuccess
   arbitrary = do
-    n <- arbitrary
-    a <- arbitrary
+    n <- Q.arbitrary
+    a <- Q.arbitrary
     d <- genValidDateStr
     pure $ NameAuthDateSuccess (n, a, d)
 
 newtype NameAuthDateErr = NameAuthDateErr NameAuthDateStr
   deriving (Show)
 
-instance Arbitrary NameAuthDateErr where
-  arbitrary :: Gen NameAuthDateErr
+instance Q.Arbitrary NameAuthDateErr where
+  arbitrary :: Q.Gen NameAuthDateErr
   arbitrary = do
-    n <- arbitrary
-    a <- arbitrary
-    d <- arbitrary
+    n <- Q.arbitrary
+    a <- Q.arbitrary
+    d <- Q.arbitrary
     pure $ NameAuthDateErr (n, a, d)
 
-genValidDateStr :: Gen Txt.Text
+genValidDateStr :: Q.Gen Txt.Text
 genValidDateStr = do
   y <- genYearStr
   m <- genMonthStr

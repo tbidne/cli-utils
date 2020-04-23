@@ -1,6 +1,6 @@
-name:                git-utils
-version:             3.0.0
-github:              "tbidne/git-utils"
+name:                cli-utils
+version:             4.0.0
+github:              "tbidne/cli-utils"
 license:             BSD3
 author:              "Thomas Bidne"
 maintainer:          "tbidne@gmail.com"
@@ -16,11 +16,14 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/tbidne/git-utils#readme>
+description:         Please see the README on GitHub at <https://github.com/tbidne/cli-utils#readme>
 
 dependencies:
 - base >= 4.7 && < 5
+- async
+- clock
 - containers
+- monad-loops
 - mtl
 - parallel-io
 - pretty-terminal
@@ -45,7 +48,7 @@ library:
   source-dirs: src
 
 executables:
-  git-utils:
+  cli-utils:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -53,7 +56,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - git-utils
+    - cli-utils
 
 tests:
   spec:
@@ -66,7 +69,7 @@ tests:
     - -Wno-orphans
     - -Wno-missing-export-lists
     dependencies:
-    - git-utils
+    - cli-utils
     - hspec
     - hspec-core
     - QuickCheck
@@ -80,7 +83,7 @@ tests:
     - -Wno-orphans
     - -Wno-missing-export-lists
     dependencies:
-    - git-utils
+    - cli-utils
     - hspec
     - hspec-core
     - QuickCheck
@@ -94,7 +97,7 @@ tests:
     - -Wno-orphans
     - -Wno-missing-export-lists
     dependencies:
-    - git-utils
+    - cli-utils
     - hspec
     - hspec-core
     - silently

@@ -11,13 +11,13 @@ module Git.Stale.Parsing
   )
 where
 
-import Common.Parsing
+import Common.Parsing.Core
 import Control.Applicative ((<|>))
 import qualified Data.Maybe as May
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as Cal
 import Git.Stale.Types.Env
-import Git.Stale.Types.Nat
+import Common.Types.NonNegative
 import qualified System.IO as IO
 import qualified Text.Read as R
 
@@ -64,18 +64,19 @@ parseArgs :: Cal.Day -> [String] -> Either ParseErr Env
 parseArgs d args =
   case parseAll allParsers args of
     ParseAnd (PFailure (Help _)) -> Left $ Help help
-    ParseAnd (PFailure (Err arg)) -> Left $ Err arg
+    ParseAnd (PFailure (Err arg)) ->
+      Left $ Err $ "Could not parse `" <> arg <> "`. Try --help."
     ParseAnd (PSuccess acc) -> Right $ accToEnv d acc
 
-newtype AccLimit = AccLimit Nat deriving (Show)
+newtype AccLimit = AccLimit (NonNegative Int) deriving (Show)
 
 instance Semigroup AccLimit where
   (AccLimit l) <> r
-    | (unNat l == 30) = r
+    | (getNonNegative l == 30) = r
     | otherwise = (AccLimit l)
 
 instance Monoid AccLimit where
-  mempty = AccLimit $ May.fromJust $ mkNat 30
+  mempty = AccLimit $ May.fromJust $ toNonNegative 30
 
 newtype AccBranchType = AccBranchType BranchType deriving (Show)
 
@@ -187,7 +188,7 @@ limitParser :: AnyParser Acc
 limitParser = AnyParser $ PrefixParser ("--limit=", parser, updater)
   where
     parser "" = Nothing
-    parser s = fmap AccLimit (R.readMaybe s >>= mkNat)
+    parser s = fmap AccLimit (R.readMaybe s >>= toNonNegative)
     updater acc l = acc {accLimit = l}
 
 branchTypeParser :: AnyParser Acc
@@ -224,7 +225,7 @@ masterParser = AnyParser $ PrefixParser ("--master=", parser, updater)
 
 help :: String
 help =
-  "\nUsage: git-utils find-stale [OPTIONS]\n\n"
+  "\nUsage: cli-utils find-stale [OPTIONS]\n\n"
     <> "Displays stale branches.\n\nOptions:\n"
     <> "  --grep=<string>\t\tFilters branch names based on <string>.\n\n"
     <> "  --path=<string>\t\tDirectory path, defaults to current directory.\n\n"

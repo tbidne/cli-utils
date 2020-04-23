@@ -19,6 +19,7 @@ where
 
 import App
 import Common.MonadLogger
+import Common.Types.NonNegative
 import qualified Control.Concurrent.ParallelIO.Global as Par
 import qualified Control.Monad.Reader as R
 import qualified Data.Kind as K
@@ -30,7 +31,6 @@ import Git.Stale.Types.Branch
 import Git.Stale.Types.Env
 import Git.Stale.Types.Error
 import Git.Stale.Types.Filtered
-import Git.Stale.Types.Nat
 import Git.Stale.Types.Results
 import Git.Stale.Types.ResultsWithErrs
 import Git.Types.GitTypes
@@ -45,13 +45,26 @@ class Monad m => MonadFindBranches m where
   type FinalResults m :: K.Type
 
   -- | Returns a [`Name`] representing git branches.
-  branchNamesByGrep :: Maybe FilePath -> BranchType -> Maybe T.Text -> m [Handler m Name]
+  branchNamesByGrep ::
+    Maybe FilePath ->
+    BranchType ->
+    Maybe T.Text ->
+    m [Handler m Name]
 
   -- | Maps [`Name`] to [`NameAuthDay`], filtering out non-stale branches.
-  getStaleLogs :: Maybe FilePath -> Nat -> Cal.Day -> [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
+  getStaleLogs ::
+    Maybe FilePath ->
+    NonNegative Int ->
+    Cal.Day ->
+    [Handler m Name] ->
+    m (Filtered (Handler m NameAuthDay))
 
   -- | Maps [`NameAuthDay`] to [`AnyBranch`].
-  toBranches :: Maybe FilePath -> T.Text -> Filtered (Handler m NameAuthDay) -> m [Handler m AnyBranch]
+  toBranches ::
+    Maybe FilePath ->
+    T.Text ->
+    Filtered (Handler m NameAuthDay) ->
+    m [Handler m AnyBranch]
 
   -- | Collects [`AnyBranch`] into `FinalResults`.
   collectResults :: [Handler m AnyBranch] -> m (FinalResults m)
@@ -76,26 +89,43 @@ instance MonadFindBranches IO where
 
   type FinalResults IO = ResultsWithErrs
 
-  branchNamesByGrep :: Maybe FilePath -> BranchType -> Maybe T.Text -> IO [ErrOr Name]
+  branchNamesByGrep ::
+    Maybe FilePath ->
+    BranchType ->
+    Maybe T.Text ->
+    IO [ErrOr Name]
   branchNamesByGrep path branchType grepStr = do
     let branchFn = case grepStr of
           Nothing -> not . badBranch
           Just s ->
-            \t -> (not . badBranch) t && T.toCaseFold s `T.isInfixOf` T.toCaseFold t
+            \t ->
+              (not . badBranch) t
+                && T.toCaseFold s `T.isInfixOf` T.toCaseFold t
         toNames' = fmap textToName . filter branchFn . T.lines
         cmd = "git branch " <> T.pack (branchTypeToArg branchType)
     res <- sh cmd path
     logIfErr $ pure $ toNames' res
 
-  getStaleLogs :: Maybe FilePath -> Nat -> Cal.Day -> [ErrOr Name] -> IO (Filtered (ErrOr NameAuthDay))
+  getStaleLogs ::
+    Maybe FilePath ->
+    NonNegative Int ->
+    Cal.Day ->
+    [ErrOr Name] ->
+    IO (Filtered (ErrOr NameAuthDay))
   getStaleLogs path limit today ns = do
     let staleFilter' = mkFiltered $ staleNonErr limit today
     logs <- Par.parallelE (fmap (nameToLog path) ns)
     pure $ (staleFilter' . fmap exceptToErr) logs
 
-  toBranches :: Maybe FilePath -> T.Text -> Filtered (ErrOr NameAuthDay) -> IO [ErrOr AnyBranch]
+  toBranches ::
+    Maybe FilePath ->
+    T.Text ->
+    Filtered (ErrOr NameAuthDay) ->
+    IO [ErrOr AnyBranch]
   toBranches path master ns = do
-    branches <- Par.parallelE (fmap (errTupleToBranch path master) (unFiltered ns))
+    branches <-
+      Par.parallelE
+        (fmap (errTupleToBranch path master) (unFiltered ns))
     pure $ fmap exceptToErr branches
 
   collectResults :: [ErrOr AnyBranch] -> IO ResultsWithErrs

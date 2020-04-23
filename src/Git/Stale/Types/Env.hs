@@ -12,7 +12,7 @@ where
 
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as C
-import Git.Stale.Types.Nat
+import Common.Types.NonNegative
 import qualified System.IO as IO
 
 -- | Describes the branch type.
@@ -39,7 +39,7 @@ data Env
         -- `Nothing` otherwise.
         path :: Maybe IO.FilePath,
         -- | A non-negative integer descrbing stale threshold in days.
-        limit :: Nat,
+        limit :: NonNegative Int,
         -- | The type of branches to search.
         branchType :: BranchType,
         -- | The name of the remote.

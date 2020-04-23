@@ -11,5 +11,5 @@ RUN mkdir -p /opt/app
 WORKDIR /opt/app
 RUN apt-get update && apt-get install -y \
   git
-COPY --from=builder /root/.local/bin/git-utils /opt/app
-ENTRYPOINT ["/opt/app/git-utils"]
+COPY --from=builder /root/.local/bin/cli-utils /opt/app
+ENTRYPOINT ["/opt/app/cli-utils"]

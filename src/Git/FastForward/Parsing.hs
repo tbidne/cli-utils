@@ -11,7 +11,7 @@ module Git.FastForward.Parsing
   )
 where
 
-import Common.Parsing
+import Common.Parsing.Core
 import Control.Applicative ((<|>))
 import qualified Data.Text as T
 import Git.FastForward.Types.Env
@@ -50,7 +50,8 @@ parseArgs :: [String] -> Either ParseErr Env
 parseArgs args =
   case parseAll allParsers args of
     ParseAnd (PFailure (Help _)) -> Left $ Help help
-    ParseAnd (PFailure (Err arg)) -> Left $ Err arg
+    ParseAnd (PFailure (Err arg)) ->
+      Left $ Err $ "Could not parse `" <> arg <> "`. Try --help."
     ParseAnd (PSuccess acc) -> Right $ accToEnv acc
 
 newtype AccMergeType = AccMergeType MergeType deriving (Show)
@@ -123,13 +124,13 @@ pushBranchesParser = AnyParser $ PrefixParser ("--push=", parser, updater)
 
 help :: String
 help =
-  "\nUsage: git-utils fastforward [OPTIONS]\n\n"
+  "\nUsage: cli-utils fastforward [OPTIONS]\n\n"
     <> "Fast-forwards all local branches with --ff-only.\n\nOptions:\n"
-    <> "  --path=<string>\t\tDirectory path, defaults to current directory.\n\n"
+    <> "  --path=<string>\tDirectory path, defaults to current directory.\n\n"
     <> "  -u, --merge=upstream\tMerges each branches' upstream via @{u}. This is the default.\n\n"
     <> "  -m, --merge=master\tMerges origin/master into each branch.\n\n"
-    <> "  --merge=<string>\t\tMerges branch given by <string> into each branch.\n\n"
-    <> "  --push=<list>\t\t\tList of branches to push to after we're done updating.\n"
-    <> "\t\t\t\tEach branch is formatted \"remote_name branch_name\",\n"
-    <> "\t\t\t\tand each \"remote_name branch_name\" is separated by a comma.\n"
-    <> "\t\t\t\tFor instance, --push=\"origin dev, other temp\"."
+    <> "  --merge=<string>\tMerges branch given by <string> into each branch.\n\n"
+    <> "  --push=<list>\t\tList of branches to push to after we're done updating.\n"
+    <> "\t\t\tEach branch is formatted \"remote_name branch_name\",\n"
+    <> "\t\t\tand each \"remote_name branch_name\" is separated by a comma.\n"
+    <> "\t\t\tFor instance, --push=\"origin dev, other temp\"."

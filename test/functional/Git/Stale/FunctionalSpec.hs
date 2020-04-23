@@ -35,13 +35,13 @@ mkEnv = do
   d <- currDay
   let args =
         [ "--grep=1",
-          "--path=./scripts/testing/test-git",
+          "--path=./scripts/testing/git",
           "--branch-type=local",
           "--master=master",
           "--limit=0"
         ]
   case parseArgs d args of
-    Right env -> return env
+    Right env -> pure env
     Left e -> error ("Error parsing args: " <> show e)
 
 setup :: IO ()
@@ -51,7 +51,7 @@ setup =
 
 tearDown :: IO ()
 tearDown =
-  let proc = (P.shell "./teardown.sh") {P.cwd = (Just "./scripts/testing/")}
+  let proc = (P.shell "./teardown_git.sh") {P.cwd = (Just "./scripts/testing/")}
    in P.readCreateProcess proc "" *> pure ()
 
 currDay :: IO Cal.Day

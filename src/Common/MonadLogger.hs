@@ -3,6 +3,9 @@
 
 module Common.MonadLogger
   ( MonadLogger (..),
+    clearLine,
+    logEmpty,
+    resetCR,
     logError,
     logDebug,
     logInfo,
@@ -17,33 +20,50 @@ import App
 import qualified Control.Monad.Trans as MTL
 import qualified Data.Text as T
 import qualified System.Console.Pretty as P
+import qualified System.IO as IO
 
 class Monad m => MonadLogger m where
-  logTxt :: T.Text -> m ()
+  logNoLine :: T.Text -> m ()
+
+  logLine :: T.Text -> m ()
+  logLine = logNoLine . (<>) "\n"
 
 instance MonadLogger IO where
-  logTxt = putStrLn . T.unpack
+  logNoLine txt = putStr (T.unpack txt) *> IO.hFlush IO.stdout
+  logLine = putStrLn . T.unpack
 
 instance MonadLogger m => MonadLogger (AppT env m) where
-  logTxt = MTL.lift . logTxt
+  logNoLine = MTL.lift . logNoLine
+  logLine = MTL.lift . logLine
+
+clearLine :: MonadLogger m => m ()
+clearLine = do
+  resetCR
+  logLine "                                                            "
+
+logEmpty :: MonadLogger m => m ()
+logEmpty = logLine ""
+
+resetCR :: MonadLogger m => m ()
+resetCR = logNoLine "\r"
 
 logDebug :: MonadLogger m => T.Text -> m ()
-logDebug = logTxt . (<>) "[Debug] "
+logDebug = logLine . (<>) "[Debug] "
 
 logInfo :: MonadLogger m => T.Text -> m ()
-logInfo = logTxt . (<>) "[Info] "
+logInfo = logLine . (<>) "[Info] "
 
 logInfoBlue :: MonadLogger m => T.Text -> m ()
-logInfoBlue = logTxt . P.color P.Blue . (<>) "[Info] "
+logInfoBlue = logLine . P.color P.Blue . (<>) "[Info] "
 
 logInfoCyan :: MonadLogger m => T.Text -> m ()
-logInfoCyan = logTxt . P.color P.Cyan . (<>) "[Info] "
+logInfoCyan = logLine . P.color P.Cyan . (<>) "[Info] "
 
 logInfoSuccess :: MonadLogger m => T.Text -> m ()
-logInfoSuccess = logTxt . P.color P.Green . (<>) "[Info] "
+logInfoSuccess = logLine . P.color P.Green . (<>) "[Info] "
 
 logWarn :: MonadLogger m => T.Text -> m ()
-logWarn = logTxt . P.color P.Magenta . (<>) "[Warn] "
+logWarn = logLine . P.color P.Magenta . (<>) "[Warn] "
 
 logError :: MonadLogger m => T.Text -> m ()
-logError = logTxt . P.color P.Red . (<>) "[Error] "
+logError = logLine . P.color P.Red . (<>) "[Error] "

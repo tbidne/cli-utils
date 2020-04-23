@@ -32,7 +32,8 @@ instance Monad Output where
   (Output rs x) >>= f = Output (rs <> ts) y where (Output ts y) = f x
 
 instance MonadLogger Output where
-  logTxt txt = Output [txt] ()
+  logNoLine = logLine
+  logLine txt = Output [txt] ()
 
 putShowList :: Show a => [a] -> Output ()
 putShowList xs = Output (fmap (T.pack . show) xs) ()

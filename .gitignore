@@ -1,4 +1,4 @@
 .stack-work/
-git-utils.cabal
+cli-utils.cabal
 *~
 notes.txt

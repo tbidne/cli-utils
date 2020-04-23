@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
 
 -- |
 -- Module      : Common.Utils
@@ -11,12 +12,16 @@ module Common.IO
     trySh,
     tryShAndReturnStdErr,
     tryShExitCode,
+    tryTimeSh,
   )
 where
 
+import Common.Types.NonNegative
+import Common.Utils
 import qualified Control.Exception as Ex
 import Data.Functor (($>))
 import qualified Data.Text as T
+import qualified System.Clock as C
 import qualified System.Exit as Exit
 import qualified System.Process as P
 
@@ -56,23 +61,37 @@ tryShAndReturnStdErr :: T.Text -> Maybe FilePath -> IO (Either T.Text T.Text)
 tryShAndReturnStdErr cmd path = do
   (code, _, err) <- shExitCode cmd path
   pure $ case code of
-    Exit.ExitSuccess -> Right $ T.pack err
+    Exit.ExitSuccess -> Right $ T.strip (T.pack err)
     Exit.ExitFailure _ ->
       Left $
         "Error running `"
           <> cmd
           <> "`: "
-          <> T.pack err
+          <> T.strip (T.pack err)
 
 -- | Returns 'Left' stderr if there is a failure, 'Right' stdout otherwise.
 tryShExitCode :: T.Text -> Maybe FilePath -> IO (Either T.Text T.Text)
 tryShExitCode cmd path = do
   (code, out, err) <- shExitCode cmd path
   pure $ case code of
-    Exit.ExitSuccess -> Right $ T.pack out
+    Exit.ExitSuccess -> Right $ T.strip (T.pack out)
     Exit.ExitFailure _ ->
       Left $
         "Error running `"
           <> cmd
           <> "`: "
-          <> T.pack err
+          <> T.strip (T.pack err)
+
+-- | Version of 'tryShExitCode' that also returns (t, stdout/stderr), where
+-- /t/ is the time the command took in seconds.
+tryTimeSh ::
+  Integral a =>
+  T.Text ->
+  Maybe FilePath ->
+  IO (Either (NonNegative a, T.Text) (NonNegative a, T.Text))
+tryTimeSh cmd path = do
+  start <- C.getTime C.Monotonic
+  res <- tryShExitCode cmd path
+  end <- C.getTime C.Monotonic
+  let diff = diffTime start end
+  pure $ monoBimap (diff,) res
