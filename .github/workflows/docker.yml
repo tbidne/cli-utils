@@ -13,7 +13,6 @@ jobs:
 
       - name: Build the Docker image
         run: |
-          docker rm -vf $(docker ps -a -q)
           docker rmi -f $(docker images -a -q)
           docker build . --file Dockerfile --tag tbidne/cli-utils:latest
 
