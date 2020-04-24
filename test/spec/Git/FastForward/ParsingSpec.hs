@@ -36,12 +36,13 @@ verifyDefaults =
         && mergeType == Upstream
 
 parsesArgs :: ValidArgs -> Bool
-parsesArgs ValidArgs {validPath, validMergeType, order = args} =
+parsesArgs ValidArgs {validPath, validMergeType, validDoFetch, order = args} =
   case parseArgs args of
     Left _ -> False
-    Right Env {path, mergeType} ->
+    Right Env {path, mergeType, doFetch} ->
       verifyPath validPath path
         && verifyMergeType validMergeType mergeType
+        && verifyDoFetch validDoFetch doFetch
 
 verifyPath :: String -> Maybe FilePath -> Bool
 verifyPath "--path=" Nothing = True
@@ -51,10 +52,14 @@ verifyPath _ _ = False
 verifyMergeType :: String -> MergeType -> Bool
 verifyMergeType "--merge=upstream" Upstream = True
 verifyMergeType "-u" Upstream = True
-verifyMergeType "--merge=master" Master = True
 verifyMergeType "-m" Master = True
 verifyMergeType (matchAndStrip "--merge=" -> Just s) (Other (Name n)) = (T.pack s) == n
 verifyMergeType _ _ = False
+
+verifyDoFetch :: [String] -> Bool -> Bool
+verifyDoFetch ["--no-fetch"] False = True
+verifyDoFetch [] True = True
+verifyDoFetch _ _ = False
 
 invalidArgsDies :: InvalidArgs -> Bool
 invalidArgsDies (InvalidArgs args) =

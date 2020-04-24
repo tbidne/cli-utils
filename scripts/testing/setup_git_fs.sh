@@ -1,8 +1,11 @@
 #!/bin/bash
 
-mkdir ./git
-cd ./git/
+mkdir ./git-fs
+cd ./git-fs/
 
+# User email and name needs to be set or git commands needed for test
+# will fail, but we don't want to screw up anyone's settings, so
+# only do this if CI env var is set
 if [ -n "$CI" ]
 then
   git config --global user.email "you@example.com"

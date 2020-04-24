@@ -35,7 +35,7 @@ mkEnv = do
   d <- currDay
   let args =
         [ "--grep=1",
-          "--path=./scripts/testing/git",
+          "--path=./scripts/testing/git-fs",
           "--branch-type=local",
           "--master=master",
           "--limit=0"
@@ -46,12 +46,12 @@ mkEnv = do
 
 setup :: IO ()
 setup =
-  let proc = (P.shell "./setup_git_repo.sh") {P.cwd = (Just "./scripts/testing/")}
+  let proc = (P.shell "./setup_git_fs.sh") {P.cwd = (Just "./scripts/testing/")}
    in Shh.hSilence [IO.stderr] $ P.readCreateProcess proc "" *> pure ()
 
 tearDown :: IO ()
 tearDown =
-  let proc = (P.shell "./teardown_git.sh") {P.cwd = (Just "./scripts/testing/")}
+  let proc = (P.shell "./teardown_git_fs.sh") {P.cwd = (Just "./scripts/testing/")}
    in P.readCreateProcess proc "" *> pure ()
 
 currDay :: IO Cal.Day

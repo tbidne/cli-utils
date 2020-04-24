@@ -34,6 +34,7 @@ data ValidArgs
   = ValidArgs
       { validPath :: String,
         validMergeType :: String,
+        validDoFetch :: [String],
         order :: [String]
       }
   deriving (Show)
@@ -42,8 +43,10 @@ instance Arbitrary ValidArgs where
   arbitrary = do
     (ValidPath path) <- arbitrary
     (ValidMergeType mergeType) <- arbitrary
-    order' <- shuffle [path, mergeType]
-    pure $ ValidArgs path mergeType order'
+    -- gen ["--no-fetch"] or []
+    fetchStr <- resize 1 $ listOf $ pure "--no-fetch"
+    order' <- shuffle $ [path, mergeType] ++ fetchStr
+    pure $ ValidArgs path mergeType fetchStr order'
 
 newtype InvalidArgs = InvalidArgs [String] deriving (Show)
 

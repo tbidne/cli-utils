@@ -43,6 +43,9 @@ import Git.Types.GitTypes
 --       and each "remote_name branch_name" is separated by a comma.
 --       For instance, --push="origin dev, other temp".
 --
+--   --no-fetch
+--       Skips @git fetch@ step.
+--
 --   -h, --help
 --       Returns instructions as `Left` `String`.
 -- @
@@ -67,28 +70,30 @@ data Acc
   = Acc
       { accPath :: Maybe FilePath,
         accMergeType :: AccMergeType,
-        accPush :: [Name]
+        accPush :: [Name],
+        accDoFetch :: Bool
       }
   deriving (Show)
 
 instance Semigroup Acc where
-  Acc {accPath = a, accMergeType = m, accPush = n}
-    <> Acc {accPath = a', accMergeType = m', accPush = n'} =
-      Acc (a <|> a') (m <> m') (n <> n')
+  Acc {accPath = a, accMergeType = m, accPush = n, accDoFetch = f}
+    <> Acc {accPath = a', accMergeType = m', accPush = n', accDoFetch = f'} =
+      Acc (a <|> a') (m <> m') (n <> n') (f && f')
 
 instance Monoid Acc where
-  mempty = Acc mempty mempty mempty
+  mempty = Acc mempty mempty mempty True
 
 accToEnv :: Acc -> Env
-accToEnv Acc {accPath, accMergeType = (AccMergeType m), accPush} =
-  Env {path = accPath, mergeType = m, push = accPush}
+accToEnv Acc {accPath, accMergeType = (AccMergeType m), accPush, accDoFetch} =
+  Env {path = accPath, mergeType = m, push = accPush, doFetch = accDoFetch}
 
 allParsers :: [AnyParser Acc]
 allParsers =
   [ pathParser,
     mergeTypeParser,
     mergeFlagParser,
-    pushBranchesParser
+    pushBranchesParser,
+    noFetchFlagParser
   ]
 
 pathParser :: AnyParser Acc
@@ -103,7 +108,6 @@ mergeTypeParser = AnyParser $ PrefixParser ("--merge=", parser, updater)
   where
     parser "" = Nothing
     parser "upstream" = Just $ AccMergeType Upstream
-    parser "master" = Just $ AccMergeType Master
     parser o = Just $ AccMergeType $ Other $ Name $ T.pack o
     updater acc m = acc {accMergeType = m}
 
@@ -121,6 +125,13 @@ pushBranchesParser = AnyParser $ PrefixParser ("--push=", parser, updater)
     parser "" = Nothing
     parser s = Just $ Name . T.strip <$> T.splitOn "," (T.pack s)
     updater acc ps = acc {accPush = ps}
+
+noFetchFlagParser :: AnyParser Acc
+noFetchFlagParser = AnyParser $ ExactParser (parser, updater)
+  where
+    parser "--no-fetch" = Just $ False
+    parser _ = Nothing
+    updater acc m = acc {accDoFetch = m}
 
 help :: String
 help =

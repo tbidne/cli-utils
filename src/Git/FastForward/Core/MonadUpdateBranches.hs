@@ -87,12 +87,14 @@ instance MonadUpdateBranches IO where
         | otherwise -> pure $ Success nm
 
   pushBranches :: Maybe FilePath -> [Name] -> IO [UpdateResult]
-  pushBranches path branches = do
-    traverse (pushBranch path) branches
+  pushBranches path = traverse (pushBranch path)
 
   checkoutCurrent :: Maybe FilePath -> CurrentBranch -> IO ()
   checkoutCurrent path (Name name) = do
-    sh_ ("git checkout \"" <> name <> "\"") path
+    res <- tryShAndReturnStdErr ("git checkout \"" <> name <> "\"") path
+    case res of
+      Left t -> logError t
+      Right o -> logInfo o
 
 pushBranch :: Maybe FilePath -> Name -> IO UpdateResult
 pushBranch path nm@(Name name) = do
@@ -119,8 +121,10 @@ instance MonadUpdateBranches m => MonadUpdateBranches (AppT Env m) where
 -- entrypoint for any `MonadUpdateBranches` instance.
 runUpdateBranches :: (R.MonadReader Env m, MonadLogger m, MonadUpdateBranches m) => m ()
 runUpdateBranches = do
-  Env {path, mergeType, push} <- R.ask
-  fetch path
+  Env {path, mergeType, push, doFetch} <- R.ask
+  if doFetch
+    then fetch path
+    else pure ()
   LocalBranches {current, branches} <- getBranches path
   updated <- traverse (updateBranch path mergeType) branches
   logUpdate updated
@@ -136,11 +140,11 @@ logUpdate updated = do
   displaySplits $ splitResults updated
 
 logPush :: MonadLogger m => [UpdateResult] -> m ()
-logPush updated = do
+logPush pushed = do
   logInfo ""
   logInfoBlue "PUSH SUMMARY"
   logInfoBlue "------------"
-  displaySplits $ splitResults updated
+  displaySplits $ splitResults pushed
 
 displaySplits :: MonadLogger m => SplitResults -> m ()
 displaySplits SplitResults {successes, noChanges, failures} = do

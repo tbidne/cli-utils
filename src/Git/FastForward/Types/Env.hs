@@ -20,6 +20,8 @@ data Env
         -- | The type of merge to perform.
         mergeType :: MergeType,
         -- | Branches to push to remote.
-        push :: [Name]
+        push :: [Name],
+        -- | Determines if we perform @git fetch@ first.
+        doFetch :: Bool
       }
   deriving (Show)
