@@ -12,7 +12,7 @@ import Test.Hspec.QuickCheck
 
 spec :: Spec
 spec = do
-  describe "FastForward Internal Tests" $ do
+  describe "Git.FastForward.Core.InternalSpec" $ do
     prop "Correctly formatted branches are parsed" validBranchesAreParsed
     prop "Missing starred (current) branch dies" noStarDies
     it "Up to date branch tests" $ do

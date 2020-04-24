@@ -21,7 +21,7 @@ import Test.Hspec.QuickCheck
 
 spec :: Spec
 spec = do
-  describe "FastForward parsing tests" $ do
+  describe "Git.FastForward.ParsingSpec" $ do
     it "Empty args uses defaults" $ do
       parseArgs [] `shouldSatisfy` verifyDefaults
     prop "Correctly parses valid args" parsesArgs

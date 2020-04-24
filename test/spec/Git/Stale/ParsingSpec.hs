@@ -22,7 +22,7 @@ import Test.Hspec.QuickCheck
 
 spec :: Spec
 spec = do
-  describe "Parsing tests" $ do
+  describe "Git.Stale.ParsingSpec" $ do
     it "Empty args uses defaults" $ do
       parseArgs mkDay [] `shouldSatisfy` verifyDefaults mkDay
     prop "Correctly parses valid args" parsesArgs

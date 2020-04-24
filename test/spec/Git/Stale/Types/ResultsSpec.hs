@@ -14,7 +14,7 @@ import Test.Hspec.QuickCheck
 
 spec :: Spec
 spec = do
-  describe "Results tests" $ do
+  describe "Git.Stale.Types.ResultsSpec" $ do
     prop
       "size(unique_branches) should equal size(merge_map) + size(unmerged_map)"
       sizesMatch

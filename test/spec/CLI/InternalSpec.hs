@@ -12,7 +12,7 @@ import Test.Hspec
 
 spec :: Spec
 spec = do
-  describe "CLI.Internal" $ do
+  describe "CLI.InternalSpec" $ do
     it "Should retrieve flat commands" $ do
       translateCommands mkMap ["cmd1"] `shouldBe` ["one"]
       translateCommands mkMap ["cmd2"] `shouldBe` ["two two"]

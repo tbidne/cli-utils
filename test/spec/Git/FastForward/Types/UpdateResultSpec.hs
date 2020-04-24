@@ -12,7 +12,7 @@ import Test.Hspec.QuickCheck
 
 spec :: Spec
 spec = do
-  describe "UpdateResult tests" $ do
+  describe "Git.FastForward.Types.UpdateResultSpec" $ do
     prop "Splits UpdateResults correctly" verifySplitsResults
 
 verifySplitsResults :: [UpdateResult] -> Bool

@@ -10,7 +10,7 @@ import Test.QuickCheck
 
 spec :: Spec
 spec = do
-  describe "Common.Parsing.ParseOr" $ do
+  describe "Common.Parsing.ParseOrSpec" $ do
     it "Identity" $ do
       (mempty :: ParseOr String) `shouldBe` (ParseOr (PFailure (Err "")))
     prop "Is lawful" vLawful

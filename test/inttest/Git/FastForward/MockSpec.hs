@@ -17,7 +17,7 @@ import Test.Hspec
 
 spec :: Spec
 spec = do
-  describe "MockUpdateBranches Integration tests" $ do
+  describe "Git.FastForward.MockSpec" $ do
     it "Mock run should process branches correctly" $ do
       let (Output logs ()) = runMock
       logs `shouldSatisfy` verifyOutput

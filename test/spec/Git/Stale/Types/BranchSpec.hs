@@ -14,7 +14,7 @@ import Test.Hspec.QuickCheck
 
 spec :: Spec
 spec = do
-  describe "Branch Tests" $ do
+  describe "Git.Stale.Types.BranchSpec" $ do
     prop "Verifying branch cons" vBranch
 
 vBranch :: Name -> Author -> Day -> Bool -> Bool

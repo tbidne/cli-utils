@@ -21,7 +21,7 @@ import Test.Hspec
 
 spec :: Spec
 spec = afterAll_ tearDown $ beforeAll_ setup $ do
-  describe "IO Functional tests with real git repo" $ do
+  describe "Git.Stale.FunctionalSpec" $ do
     it "Should have 0 Errors, 20 Merged, and 14 Unmerged" $ do
       env <- mkEnv
       output <- Shh.capture_ (runTest env)

@@ -20,7 +20,7 @@ import Test.QuickCheck
 
 spec :: Spec
 spec = do
-  describe "CLI.Parsing.Internal" $ do
+  describe "CLI.Parsing.InternalSpec" $ do
     it "Empty args uses defaults" $ do
       pureParseArgs [] `shouldSatisfy` verifyDefaults
     prop "Correctly parses valid args" parsesArgs

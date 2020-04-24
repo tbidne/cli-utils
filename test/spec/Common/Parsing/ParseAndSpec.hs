@@ -10,7 +10,7 @@ import Test.QuickCheck
 
 spec :: Spec
 spec = do
-  describe "Common.Parsing.ParseAnd" $ do
+  describe "Common.Parsing.ParseAndSpec" $ do
     it "Identity" $ do
       mempty `shouldBe` (ParseAnd (PSuccess ""))
     prop "Is lawful" vLawful

@@ -19,10 +19,17 @@ import Test.Hspec
 spec :: Spec
 spec = afterAll_ tearDown $ beforeAll_ setup $ do
   describe "Git.FastForward.FunctionalSpec" $ do
-    it "" $ do
+    it itMessage $ do
       env <- mkEnv
       output <- Shh.capture_ (runTest env)
       T.lines (T.pack output) `shouldSatisfy` allTrue . foldMap sToVerifier
+
+itMessage :: String
+itMessage =
+  "Should be:\n"
+    <> "      Successes:  [can-ff-one, can-ff-two]\n"
+    <> "      No Changes: [master]\n"
+    <> "      Failures:   [cannot-ff]"
 
 allTrue :: Verifier -> Bool
 allTrue (Verifier True True True) = True

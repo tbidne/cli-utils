@@ -20,7 +20,7 @@ import qualified Test.QuickCheck as Q
 
 spec :: Spec
 spec = do
-  describe "Utils tests" $ do
+  describe "Common.UtilsSpec" $ do
     prop "startsWith and matchAndStrip should return Just" validStartsWith
     it "startsWith and matchAndStrip should return Nothing" $ do
       ("a", "") `shouldSatisfy` invalidStartsWith

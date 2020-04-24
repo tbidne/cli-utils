@@ -22,7 +22,7 @@ import qualified Test.QuickCheck as Q
 
 spec :: Spec
 spec = do
-  describe "Stale Internal Tests" $ do
+  describe "Git.Stale.Core.InternalSpec" $ do
     prop "Correctly formatted name log succeeds" goodLogSucceeds
     prop "Badly formatted name log fails" badLogFails
     prop "Correctly formatted date string succeeds" goodDateStrSucceeds

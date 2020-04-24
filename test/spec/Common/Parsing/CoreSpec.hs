@@ -10,7 +10,7 @@ import qualified Text.Read as R
 
 spec :: Spec
 spec = do
-  describe "Common.Parsing.Core" $ do
+  describe "Common.Parsing.CoreSpec" $ do
     it "Individual parsing success is lazy (succeed-fast)" $ do
       let (ParseAnd res) = parseAll [nameParser, undefined] ["--name=Maverick"]
       res `shouldBe` (PSuccess (Acc (Mon.Sum 0) "Maverick" False))

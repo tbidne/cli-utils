@@ -15,7 +15,7 @@ import Test.Hspec
 
 spec :: Spec
 spec = do
-  describe "MockFindBranches Integration tests" $ do
+  describe "Git.Stale.MockSpec" $ do
     it "Mock run with grep `branch` should return 5 results" $ do
       let (Output res _) = runMock "branch"
       length res `shouldBe` 5

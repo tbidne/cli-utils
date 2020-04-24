@@ -10,7 +10,7 @@ import Test.QuickCheck
 
 spec :: Spec
 spec = do
-  describe "Common.Parsing.ParseErr" $ do
+  describe "Common.Parsing.ParseErrSpec" $ do
     it "Identity" $ do
       mempty `shouldBe` Err ""
     prop "Is lawful" vLawful
