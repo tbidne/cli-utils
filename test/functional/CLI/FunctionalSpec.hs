@@ -48,6 +48,7 @@ mkEnv :: IO Env
 mkEnv = do
   let args =
         [ "--legend=./scripts/testing/cli/legend.txt",
+          "--timeout=5",
           "bad",
           "both",
           "echo hi"

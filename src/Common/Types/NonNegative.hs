@@ -16,7 +16,7 @@ newtype NonNegative a
       { -- | Unwraps a 'NonNegative'.
         getNonNegative :: a
       }
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
 -- | Constructs `Maybe` `NonNegative` as
 --   \[

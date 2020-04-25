@@ -60,7 +60,8 @@ startsWith (x : xs) (y : ys)
 matchAndStrip :: Eq a => [a] -> [a] -> Maybe [a]
 matchAndStrip = flip startsWith
 
--- | For given \(x, y\), returns the absolute difference \(|x - y|\).
+-- | For given \(x, y\), returns the absolute difference \(|x - y|\)
+-- in seconds.
 diffTime :: Integral a => C.TimeSpec -> C.TimeSpec -> NonNegative a
 diffTime t1 t2 =
   let diff = fromIntegral $ C.sec $ C.diffTimeSpec t1 t2

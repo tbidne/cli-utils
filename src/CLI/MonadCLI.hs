@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -35,16 +36,16 @@ import qualified System.Clock as C
 -- of 'T.Text' commands.
 class Monad m => MonadCLI m where
   -- | Runs the list of commands.
-  runCommands :: [T.Text] -> m ()
+  runCommands :: [T.Text] -> Maybe (NonNegative Int) -> m ()
 
 -- | `MonadCLI` instance for `IO`. Runs each command concurrently,
 -- timing each one, and printing the outcome as success/failure.
 instance MonadCLI IO where
-  runCommands :: [T.Text] -> IO ()
-  runCommands commands = do
+  runCommands :: [T.Text] -> Maybe (NonNegative Int) -> IO ()
+  runCommands commands timeout = do
     start <- C.getTime C.Monotonic
     actionAsync <- A.async $ A.mapConcurrently_ runCommand commands
-    counter actionAsync
+    counter actionAsync timeout
     end <- C.getTime C.Monotonic
     let totalTime = diffTime start end :: NonNegative Integer
     clearLine
@@ -52,15 +53,15 @@ instance MonadCLI IO where
     logInfoBlue $ "Total time elapsed: " <> formatSeconds totalTime
 
 instance MonadCLI m => MonadCLI (AppT Env m) where
-  runCommands = R.lift . runCommands
+  runCommands cmds = R.lift . runCommands cmds
 
 -- | High level logic of `MonadCLI` usage. This function is the
 -- entrypoint for any `MonadCLI` instance.
 runCLI :: (R.MonadReader Env m, MonadCLI m) => m ()
 runCLI = do
-  Env {legend, commands} <- R.ask
+  Env {legend, timeout, commands} <- R.ask
   let commands' = translateCommands legend commands
-  runCommands commands'
+  runCommands commands' timeout
 
 runCommand :: T.Text -> IO ()
 runCommand cmd = do
@@ -72,15 +73,36 @@ runCommand cmd = do
   logFn msg
   logFn $ "Time elapsed: " <> formatSeconds seconds <> "\n"
 
-counter :: A.Async a -> IO ()
-counter asyn = do
+counter :: A.Async a -> Maybe (NonNegative Int) -> IO ()
+counter asyn timeout = do
   start <- C.getTime C.Monotonic
-  L.whileM_ (unfinished asyn) $ do
+  L.whileM_ (keepRunning asyn start timeout) $ do
     sh_ "sleep 1" Nothing
     elapsed <- C.getTime C.Monotonic
     let diff = diffTime start elapsed :: NonNegative Integer
     resetCR
     logNoLine $ "Running time: " <> formatSeconds diff
+
+keepRunning :: A.Async a -> C.TimeSpec -> Maybe (NonNegative Int) -> IO Bool
+keepRunning asyn start to = do
+  running <- unfinished asyn
+  currTime <- C.getTime C.Monotonic
+  let hasTimedOut = timedOut start currTime to
+  if running && hasTimedOut
+    then do
+      A.cancel asyn
+      clearLine
+      logWarn "Timed out, cancelling remaining tasks."
+      pure False
+    else pure running
+
+timedOut :: C.TimeSpec -> C.TimeSpec -> Maybe (NonNegative Int) -> Bool
+timedOut start curr =
+  \case
+    Nothing -> False
+    Just t ->
+      let timeSoFar = diffTime start curr
+       in timeSoFar > t
 
 unfinished :: A.Async a -> IO Bool
 unfinished = A.poll >=> pure . May.isNothing

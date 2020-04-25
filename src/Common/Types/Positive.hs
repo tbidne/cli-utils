@@ -16,7 +16,7 @@ newtype Positive a
       { -- | Unwraps a 'Positive'.
         getPositive :: a
       }
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
 -- | Constructs `Maybe` `Positive` as
 --   \[
