@@ -31,7 +31,7 @@ spec = do
       diffTime s1 s2 `shouldSatisfy` ((==) 5) . (getNonNegative :: NonNegative Int -> Int)
       diffTime s2 s1 `shouldSatisfy` ((==) 5) . (getNonNegative :: NonNegative Int -> Int)
       diffTime s1 s1 `shouldSatisfy` ((==) 0) . (getNonNegative :: NonNegative Int -> Int)
-    prop "divWithRem n d, d <= n should be (e, r) s.t. de + r = n" vDivWithRem
+    prop "divWithRem n d should be (e, r) s.t. de + r = n, r <= n" vDivWithRem
     it "formatSeconds should format the seconds" $ do
       formatSeconds (May.fromJust (iToNonNegative 0))
         `shouldBe` "0 minutes and 0 seconds  "
@@ -59,6 +59,7 @@ vDivWithRem :: NatAndPosNonZero -> Bool
 vDivWithRem (NatAndPosNonZero (n, d)) =
   let (e, r) = divWithRem n d
    in ((getPositive d) * e) + r == (getNonNegative n)
+        && r <= getNonNegative n
 
 newtype ValidStartsWith = ValidStartsWith (String, String) deriving (Show)
 

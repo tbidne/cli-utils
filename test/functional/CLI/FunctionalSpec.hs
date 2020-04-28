@@ -31,14 +31,14 @@ allFound _ = False
 sToVerifier :: T.Text -> Verifier
 sToVerifier s
   -- verify expected commands
-  | T.isPrefixOf cmdEchoHi s = mempty {foundHi = True}
-  | T.isPrefixOf cmdEcho1 s = mempty {foundOne = True}
-  | T.isPrefixOf cmdEchoLong s = mempty {foundLong = True}
-  | T.isPrefixOf cmdBad s = mempty {foundBad = True}
+  | T.isInfixOf cmdEchoHi s = mempty {foundHi = True}
+  | T.isInfixOf cmdEcho1 s = mempty {foundOne = True}
+  | T.isInfixOf cmdEchoLong s = mempty {foundLong = True}
+  | T.isInfixOf cmdBad s = mempty {foundBad = True}
   -- verify this occurs at least once
-  | T.isPrefixOf timeCmd s = mempty {foundTimeCmd = True}
+  | T.isInfixOf timeCmd s = mempty {foundTimeCmd = True}
   -- verify final counter
-  | T.isPrefixOf totalTime s = mempty {foundTotalTime = True}
+  | T.isInfixOf totalTime s = mempty {foundTotalTime = True}
   | otherwise = mempty
 
 runTest :: Env -> IO ()
@@ -48,6 +48,7 @@ mkEnv :: IO Env
 mkEnv = do
   let args =
         [ "--legend=./scripts/testing/cli/legend.txt",
+          "--timeout=5",
           "bad",
           "both",
           "echo hi"
@@ -76,6 +77,7 @@ data Verifier
         foundTimeCmd :: Bool,
         foundTotalTime :: Bool
       }
+  deriving (Show)
 
 instance Semigroup Verifier where
   (Verifier a b c d e f) <> (Verifier a' b' c' d' e' f') =

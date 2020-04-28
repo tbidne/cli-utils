@@ -10,6 +10,7 @@ import CLI.MockCLI ()
 import CLI.MonadCLI
 import CLI.Parsing.Internal
 import CLI.Types.Env
+import Common.Types.NonNegative
 import Control.Monad.Reader (runReaderT)
 import qualified Data.Text as T
 import Output
@@ -41,7 +42,10 @@ mapStr =
     <> "several=a,b,c\n"
     <> "extra=not happening"
 
+timeoutArg :: Maybe (NonNegative Int)
+timeoutArg = toNonNegative 5
+
 mkEnv :: Env
-mkEnv = case mapStrToEnv mockCommands mapStr of
+mkEnv = case mapStrToEnv mockCommands timeoutArg mapStr of
   Left err -> error $ "Failure parsing args in int test: " <> show err
   Right env -> env

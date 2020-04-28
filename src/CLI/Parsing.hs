@@ -25,6 +25,12 @@ import qualified Data.Map.Strict as M
 --   --legend=\<string>\
 --       Path to the legend file.
 --
+--   --timeout=<seconds>
+--       Non-negative integer. If we reach the timeout then all remaining
+--       commands will be cancelled. If no timeout is given then the
+--       timeout is infinite, i.e., we will keep running until all
+--       commands have finished.
+--
 --   \<string\>
 --       Any other string is considered a command. If the command has
 --       whitespace then it must be quoted or it will be considered
@@ -39,20 +45,23 @@ parseArgs args = do
     ParseAnd (PSuccess acc) -> accToEnv acc
 
 accToEnv :: Acc -> IO (Either ParseErr Env)
-accToEnv Acc {legendPath, cmds} = do
-  case legendPath of
-    Nothing -> pure $ Right $ Env M.empty cmds
+accToEnv Acc {accLegend, accTimeout, accCommands} = do
+  case accLegend of
+    Nothing -> pure $ Right $ Env M.empty accTimeout accCommands
     Just path -> do
       res <- Ex.try (readFile path) :: IO (Either Ex.SomeException String)
       pure $ case res of
         Left err -> Left $ Err $ "Error reading file " <> show path <> ": " <> (show err)
-        Right contents -> mapStrToEnv cmds contents
+        Right contents -> mapStrToEnv accCommands accTimeout contents
 
 help :: String
 help =
   "\nUsage: cli-utils run-sh \"command 1\" \"command 2\" ... [OPTIONS]\n\n"
     <> "Runs shell commands concurrently. Stdout is swallowed, so there is currently\n"
     <> "no point to performing commands whose only effect is printing to stdout.\n\nOptions:\n"
+    <> "  --timeout=<seconds>\tNon-Negative integer. If we reach the timeout then all remaining\n"
+    <> "\t\t\tcommands will be cancelled. If no timeout is given then the timeout is\n"
+    <> "\t\t\tinfinite, i.e., we will keep running until all commands have finished.\n\n"
     <> "  --legend=<string>\tPath to a legend file.\n"
     <> "\t\t\tLines are formatted <cmd_key>=<command value> (no angle brackets).\n"
     <> "\t\t\tEach line can be separated by as many new lines as desired, and comment lines start\n"

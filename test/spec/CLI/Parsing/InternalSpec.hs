@@ -10,7 +10,9 @@ where
 
 import CLI.Parsing.Internal
 import CLI.Types.Env
+import Common.ArbNonNegative ()
 import Common.Parsing.ParseAnd
+import qualified Common.Types.NonNegative as NN
 import Common.Utils
 import qualified Data.Set as S
 import qualified Data.Text as T
@@ -31,17 +33,19 @@ verifyDefaults :: ParseAnd Acc -> Bool
 verifyDefaults =
   \case
     (ParseAnd (PFailure _)) -> False
-    (ParseAnd (PSuccess (Acc {legendPath, cmds}))) ->
-      legendPath == Nothing
-        && cmds == []
+    (ParseAnd (PSuccess (Acc {accLegend, accTimeout, accCommands}))) ->
+      accLegend == Nothing
+        && accTimeout == Nothing
+        && accCommands == []
 
 parsesArgs :: ValidArgs -> Bool
-parsesArgs ValidArgs {validLegendPath, validCommands, order} =
+parsesArgs ValidArgs {validLegendPath, validTimeout, validCommands, order} =
   case pureParseArgs order of
     (ParseAnd (PFailure _)) -> False
-    (ParseAnd (PSuccess (Acc {legendPath, cmds}))) ->
-      verifyLegendPath validLegendPath legendPath
-        && verifyCommands validCommands cmds
+    (ParseAnd (PSuccess (Acc {accLegend, accTimeout, accCommands}))) ->
+      verifyLegendPath validLegendPath accLegend
+        && verifyCommands validCommands accCommands
+        && verifyTimeout validTimeout accTimeout
 
 verifyLegendPath :: String -> Maybe FilePath -> Bool
 verifyLegendPath "--legend=" Nothing = True
@@ -54,31 +58,40 @@ verifyCommands xs ts = and (fmap f ts)
     strSet = S.fromList $ fmap T.pack xs
     f = flip S.member strSet
 
-vMapStrToEnv :: [String] -> [ValidMapLine] -> Bool
-vMapStrToEnv commands validLines =
+verifyTimeout :: String -> Maybe (NN.NonNegative Int) -> Bool
+verifyTimeout "--timeout=" Nothing = True
+verifyTimeout (matchAndStrip "--timeout=" -> Just s) t =
+  NN.toNonNegative (read s) == t
+verifyTimeout _ _ = False
+
+vMapStrToEnv :: [String] -> Maybe (NN.NonNegative Int) -> [ValidMapLine] -> Bool
+vMapStrToEnv commands t validLines =
   let txtCommands = fmap T.pack commands
       mapStr = intercalate (fmap unvalidMapLine validLines) "\n"
       -- this seems dumb but we need to do this after intercalate
       -- because the lines themselves could have '\n' in them
       numLines = length $ lines mapStr
-   in case mapStrToEnv txtCommands mapStr of
+   in case mapStrToEnv txtCommands t mapStr of
         Left _ -> False
-        Right (Env mp commands') ->
+        Right (Env mp t' commands') ->
           -- all commands are added to Env
           txtCommands == commands'
+            -- timeout is copied
+            && t == t'
             -- key size of the map <= number of text lines
             -- potential duplicate keys is why we can't check simple equality
             && length mp <= numLines
 
 vInvalidMapLine :: InvalidMapLines -> Bool
 vInvalidMapLine (InvalidMapLines (_, _, allLines)) =
-  case mapStrToEnv [] (intercalate allLines "\n") of
+  case mapStrToEnv [] Nothing (intercalate allLines "\n") of
     Left _ -> True
     _ -> False
 
 data ValidArgs
   = ValidArgs
       { validLegendPath :: String,
+        validTimeout :: String,
         validCommands :: [String],
         order :: [String]
       }
@@ -87,18 +100,22 @@ data ValidArgs
 instance Arbitrary ValidArgs where
   arbitrary = do
     p <- genLegendPath
+    t <- genTimeout
     cs <- genCommands
-    order <- shuffle (p : cs)
-    pure $ ValidArgs p cs order
+    order <- shuffle (p : t : cs)
+    pure $ ValidArgs p t cs order
     where
       genLegendPath = do
         (PrintableString s) <- arbitrary
         pure $ "--legend=" <> s
       genCommands = fmap getPrintableString <$> listOf arbitrary
+      genTimeout = do
+        n <- arbitrary :: Gen (NN.NonNegative Int)
+        elements ["--timeout=", "--timeout=" <> show (NN.getNonNegative n)]
 
-  shrink (ValidArgs legend commands _) =
+  shrink (ValidArgs legend t commands _) =
     let shrunk = shrink commands
-     in fmap (\cs -> ValidArgs legend cs (legend : cs)) shrunk
+     in fmap (\cs -> ValidArgs legend t cs (legend : t : cs)) shrunk
 
 newtype ValidMapLine = ValidMapLine {unvalidMapLine :: String}
   deriving (Show)

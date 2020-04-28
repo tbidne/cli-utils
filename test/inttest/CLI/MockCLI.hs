@@ -7,4 +7,4 @@ import CLI.MonadCLI
 import Output
 
 instance MonadCLI Output where
-  runCommands xs = Output xs ()
+  runCommands xs _ = Output xs ()

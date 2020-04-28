@@ -48,11 +48,15 @@ starredBranch b =
 
 -- | Determines if a local branch is up to date.
 branchUpToDate :: T.Text -> Bool
-branchUpToDate = T.isPrefixOf "Already up to date"
+branchUpToDate t =
+  T.isPrefixOf "Already up to date" t
+    || T.isPrefixOf "Already up-to-date" t
 
 -- | Determines if a remote branch is up to date.
 remoteUpToDate :: T.Text -> Bool
-remoteUpToDate = T.isPrefixOf "Everything up-to-date"
+remoteUpToDate t =
+  T.isPrefixOf "Everything up-to-date" t
+    || T.isPrefixOf "Everything up to date" t
 
 -- | Maps a merge type to its command
 mergeTypeToCmd :: MergeType -> T.Text
