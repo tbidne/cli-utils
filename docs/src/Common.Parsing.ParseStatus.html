@@ -11,10 +11,10 @@
 </span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.Parsing.ParseErr.html"><span class="hs-identifier">Common.Parsing.ParseErr</span></a></span><span>
 </span><span id="line-12"></span><span>
 </span><span id="line-13"></span><span class="hs-comment">-- | Describes the outcome of a parse attempt into an accumulator @acc@.</span><span>
-</span><span id="line-14"></span><span class="hs-keyword">data</span><span> </span><span id="ParseStatus"><span class="annot"><a href="Common.Parsing.ParseStatus.html#ParseStatus"><span class="hs-identifier hs-var">ParseStatus</span></a></span></span><span> </span><span id="local-6989586621679104377"><span class="annot"><a href="#local-6989586621679104377"><span class="hs-identifier hs-type">acc</span></a></span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">data</span><span> </span><span id="ParseStatus"><span class="annot"><a href="Common.Parsing.ParseStatus.html#ParseStatus"><span class="hs-identifier hs-var">ParseStatus</span></a></span></span><span> </span><span id="local-6989586621679132334"><span class="annot"><a href="#local-6989586621679132334"><span class="hs-identifier hs-type">acc</span></a></span></span><span>
 </span><span id="line-15"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="PFailure"><span class="annot"><a href="Common.Parsing.ParseStatus.html#PFailure"><span class="hs-identifier hs-var">PFailure</span></a></span></span><span> </span><span class="annot"><a href="Common.Parsing.ParseErr.html#ParseErr"><span class="hs-identifier hs-type">ParseErr</span></a></span><span>
-</span><span id="line-16"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="PSuccess"><span class="annot"><a href="Common.Parsing.ParseStatus.html#PSuccess"><span class="hs-identifier hs-var">PSuccess</span></a></span></span><span> </span><span class="annot"><a href="#local-6989586621679104377"><span class="hs-identifier hs-type">acc</span></a></span><span>
-</span><span id="line-17"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679104370"><span id="local-6989586621679104372"><span class="annot"><span class="annottext">ParseStatus acc -&gt; ParseStatus acc -&gt; Bool
+</span><span id="line-16"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="PSuccess"><span class="annot"><a href="Common.Parsing.ParseStatus.html#PSuccess"><span class="hs-identifier hs-var">PSuccess</span></a></span></span><span> </span><span class="annot"><a href="#local-6989586621679132334"><span class="hs-identifier hs-type">acc</span></a></span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679132327"><span id="local-6989586621679132329"><span class="annot"><span class="annottext">ParseStatus acc -&gt; ParseStatus acc -&gt; Bool
 (ParseStatus acc -&gt; ParseStatus acc -&gt; Bool)
 -&gt; (ParseStatus acc -&gt; ParseStatus acc -&gt; Bool)
 -&gt; Eq (ParseStatus acc)
@@ -24,7 +24,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: forall acc. Eq acc =&gt; ParseStatus acc -&gt; ParseStatus acc -&gt; Bool
 == :: ParseStatus acc -&gt; ParseStatus acc -&gt; Bool
 $c== :: forall acc. Eq acc =&gt; ParseStatus acc -&gt; ParseStatus acc -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679104363"><span id="local-6989586621679104365"><span id="local-6989586621679104367"><span class="annot"><span class="annottext">Int -&gt; ParseStatus acc -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679132320"><span id="local-6989586621679132322"><span id="local-6989586621679132324"><span class="annot"><span class="annottext">Int -&gt; ParseStatus acc -&gt; ShowS
 [ParseStatus acc] -&gt; ShowS
 ParseStatus acc -&gt; String
 (Int -&gt; ParseStatus acc -&gt; ShowS)

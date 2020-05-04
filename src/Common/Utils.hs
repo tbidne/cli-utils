@@ -87,7 +87,6 @@ divWithRem n d = (n' `div` d', n' `rem` d')
 
 -- | For \(n \ge 0\) seconds, returns a 'T.Text' description of the minutes
 -- and seconds.
--- formatSeconds :: (Show a, Integral a) => NonNegative a -> T.Text
 formatSeconds :: RNonNegative Int -> T.Text
 formatSeconds seconds =
   let d = $$(refineTH 60) :: RPositive Int
@@ -109,17 +108,21 @@ formatSeconds seconds =
 monoBimap :: BF.Bifunctor f => (a -> b) -> f a a -> f b b
 monoBimap g = BF.bimap g g
 
+-- | Joins a composed 'Either' in the natural way.
 eitherJoin :: Either a (Either b c) -> Either () c
 eitherJoin (Right (Right x)) = Right x
 eitherJoin _ = Left ()
 
+-- | Natural transformation from @'Either' a@ to 'Maybe'.
 eitherToMaybe :: Either a b -> Maybe b
 eitherToMaybe (Left _) = Nothing
 eitherToMaybe (Right x) = Just x
 
+-- | Composes 'Either' functions.
 eitherCompose :: (a -> Either b c) -> (c -> Either d e) -> a -> Either () e
 eitherCompose f g x = eitherJoin (g <$> f x)
 
+-- | Composition of 'eitherToMaybe' to 'eitherCompose'.
 eitherComposeMay :: (a -> Either b c) -> (c -> Either d e) -> a -> Maybe e
 eitherComposeMay f g = eitherToMaybe . eitherCompose f g
 

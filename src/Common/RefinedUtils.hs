@@ -17,8 +17,10 @@ import qualified Control.Exception as Ex
 import qualified Data.Either as E
 import Refined
 
+-- | Alias for @Refined NonNegative@
 type RNonNegative a = Refined NonNegative a
 
+-- | Alias for @Refined Positive@
 type RPositive a = Refined Positive a
 
 -- | 'unsafeRef' for 'R.NonNegative'.

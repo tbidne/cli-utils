@@ -5,7 +5,7 @@
 -- | Please see the README on GitHub at
 --   <a>https://github.com/tbidne/cli-utils#readme</a>
 @package cli-utils
-@version 4.0.0
+@version 4.1.0
 
 
 -- | Provides the main component used in this application.
@@ -43,17 +43,6 @@ module CLI.Internal
 --   translateCommands m ["all", "blah"] == ["one", "two", "other", "blah"]
 --   </pre>
 translateCommands :: Map Text Text -> [Text] -> [Text]
-
-
--- | Provides core <a>Env</a> types used with CLI.
-module CLI.Types.Env
-
--- | Provides a list of commands and legend map.
-data Env
-Env :: Map Text Text -> [Text] -> Env
-[legend] :: Env -> Map Text Text
-[commands] :: Env -> [Text]
-instance GHC.Show.Show CLI.Types.Env.Env
 
 
 -- | Provides logging typeclass and functions.
@@ -198,54 +187,64 @@ instance GHC.Base.Semigroup acc => GHC.Base.Semigroup (Common.Parsing.ParseAnd.P
 instance GHC.Base.Monoid acc => GHC.Base.Monoid (Common.Parsing.ParseAnd.ParseAnd acc)
 
 
-module Common.Types.NonNegative
+-- | Exports utility functions for working with <a>Refined</a>.
+module Common.RefinedUtils
 
--- | Represents a non-negative <a>Integer</a>.
-data NonNegative a
+-- | Alias for <tt>Refined NonNegative</tt>
+type RNonNegative a = Refined NonNegative a
 
--- | Monomorphic version of <a>toNonNegative</a> for convenience.
-iToNonNegative :: Integer -> Maybe (NonNegative Integer)
+-- | Alias for <tt>Refined Positive</tt>
+type RPositive a = Refined Positive a
 
--- | Constructs <a>Maybe</a> <a>NonNegative</a> as &lt;math&gt;
-toNonNegative :: Integral a => a -> Maybe (NonNegative a)
+-- | <a>unsafeRef</a> for <a>NonNegative</a>.
+unsafeNonNeg :: (Num x, Ord x) => x -> Refined NonNegative x
 
--- | Unwraps a <a>NonNegative</a>.
-getNonNegative :: NonNegative a -> a
-instance GHC.Show.Show a => GHC.Show.Show (Common.Types.NonNegative.NonNegative a)
-instance GHC.Classes.Eq a => GHC.Classes.Eq (Common.Types.NonNegative.NonNegative a)
+-- | <a>unsafeRef</a> for <a>Positive</a>.
+unsafePos :: (Num x, Ord x) => x -> Refined Positive x
+
+-- | Unsafe version of <a>refine</a> that uses <a>throw</a> when <tt>x</tt>
+--   does not satisfy the predicate <tt>p</tt>.
+unsafeRef :: Predicate p x => x -> Refined p x
 
 
-module Common.Types.Positive
+-- | Provides core <a>Env</a> types used with CLI.
+module CLI.Types.Env
 
--- | Represents a positive, non-zero <a>Integer</a>.
-data Positive a
-
--- | Monomorphic version of <a>toPositive</a> for convenience.
-iToPositive :: Integer -> Maybe (Positive Integer)
-
--- | Constructs <a>Maybe</a> <a>Positive</a> as &lt;math&gt;
-toPositive :: Integral a => a -> Maybe (Positive a)
-
--- | Unwraps a <a>Positive</a>.
-getPositive :: Positive a -> a
-instance GHC.Show.Show a => GHC.Show.Show (Common.Types.Positive.Positive a)
-instance GHC.Classes.Eq a => GHC.Classes.Eq (Common.Types.Positive.Positive a)
+-- | Provides a list of commands and legend map.
+data Env
+Env :: Map Text Text -> Maybe (RNonNegative Int) -> [Text] -> Env
+[legend] :: Env -> Map Text Text
+[timeout] :: Env -> Maybe (RNonNegative Int)
+[commands] :: Env -> [Text]
+instance GHC.Show.Show CLI.Types.Env.Env
 
 
 -- | Exports utility functions
 module Common.Utils
 
 -- | For given &lt;math&gt;, returns the absolute difference &lt;math&gt;.
-diffTime :: Integral a => TimeSpec -> TimeSpec -> NonNegative a
+diffTime :: TimeSpec -> TimeSpec -> RNonNegative Int
 
 -- | For &lt;math&gt;, returns non-negative &lt;math&gt; such that
 --   
 --   &lt;math&gt;
-divWithRem :: Integral a => NonNegative a -> Positive a -> (a, a)
+divWithRem :: Integral a => RNonNegative a -> RPositive a -> (a, a)
+
+-- | Composes <a>Either</a> functions.
+eitherCompose :: (a -> Either b c) -> (c -> Either d e) -> a -> Either () e
+
+-- | Composition of <a>eitherToMaybe</a> to <a>eitherCompose</a>.
+eitherComposeMay :: (a -> Either b c) -> (c -> Either d e) -> a -> Maybe e
+
+-- | Joins a composed <a>Either</a> in the natural way.
+eitherJoin :: Either a (Either b c) -> Either () c
+
+-- | Natural transformation from <tt><a>Either</a> a</tt> to <a>Maybe</a>.
+eitherToMaybe :: Either a b -> Maybe b
 
 -- | For &lt;math&gt; seconds, returns a <a>Text</a> description of the
 --   minutes and seconds.
-formatSeconds :: (Show a, Integral a) => NonNegative a -> Text
+formatSeconds :: RNonNegative Int -> Text
 
 -- | Flipped version of <a>startsWith</a>. Useful with
 --   <tt>ViewPatterns</tt>, e.g.
@@ -325,54 +324,6 @@ PrefixParser :: (String, String -> Maybe a, acc -> a -> acc) -> Parser a acc
 parseAll :: Monoid acc => [AnyParser acc] -> [String] -> ParseAnd acc
 
 
--- | Internal module for CLI parsing.
-module CLI.Parsing.Internal
-
--- | Monoid accumulator for CLI.
-data Acc
-Acc :: Maybe FilePath -> [Text] -> Acc
-
--- | Path to the legend file.
-[legendPath] :: Acc -> Maybe FilePath
-
--- | List of commands to run.
-[cmds] :: Acc -> [Text]
-
--- | Transforms a list of commands and <a>String</a> into <a>Right</a>
---   <a>Env</a>. Each non-empty, non-comment (comments start with #) line
---   in the map string are expected to have the form <tt>key=val</tt>. If
---   any parse errors are encountered then <a>Left</a> <a>ParseErr</a> is
---   returned.
-mapStrToEnv :: [Text] -> String -> Either ParseErr Env
-
--- | Parses arguments into <tt><a>ParseAnd</a> acc</tt>.
-pureParseArgs :: [String] -> ParseAnd Acc
-instance GHC.Show.Show CLI.Parsing.Internal.Acc
-instance GHC.Base.Semigroup CLI.Parsing.Internal.Acc
-instance GHC.Base.Monoid CLI.Parsing.Internal.Acc
-
-
--- | Handles parsing of [<a>String</a>] args into <a>Env</a>.
-module CLI.Parsing
-
--- | Maps parsed [<a>String</a>] args into <a>IO</a> <a>Right</a>
---   <a>Env</a>, returning any errors as <a>Left</a> <a>String</a>. All
---   arguments are optional (i.e. an empty list is valid), but if any are
---   provided then they must be valid or an error will be returned. Valid
---   arguments are:
---   
---   <pre>
---   --legend=&lt;string&gt;
---       Path to the legend file.
---   
---   &lt;string&gt;
---       Any other string is considered a command. If the command has
---       whitespace then it must be quoted or it will be considered
---       a separate command.
---   </pre>
-parseArgs :: [String] -> IO (Either ParseErr Env)
-
-
 -- | Exports common <a>IO</a> functions.
 module Common.IO
 
@@ -404,7 +355,64 @@ tryShExitCode :: Text -> Maybe FilePath -> IO (Either Text Text)
 
 -- | Version of <a>tryShExitCode</a> that also returns (t, stdout/stderr),
 --   where <i>t</i> is the time the command took in seconds.
-tryTimeSh :: Integral a => Text -> Maybe FilePath -> IO (Either (NonNegative a, Text) (NonNegative a, Text))
+tryTimeSh :: Text -> Maybe FilePath -> IO (Either (RNonNegative Int, Text) (RNonNegative Int, Text))
+
+
+-- | Internal module for CLI parsing.
+module CLI.Parsing.Internal
+
+-- | Monoid accumulator for CLI
+data Acc
+Acc :: Maybe FilePath -> Maybe (RNonNegative Int) -> [Text] -> Acc
+
+-- | Path to the legend file.
+[accLegend] :: Acc -> Maybe FilePath
+
+-- | Maximum time to run commands
+[accTimeout] :: Acc -> Maybe (RNonNegative Int)
+
+-- | List of commands to run.
+[accCommands] :: Acc -> [Text]
+
+-- | Transforms a list of commands and <a>String</a> into <a>Right</a>
+--   <a>Env</a>. Each non-empty, non-comment (comments start with #) line
+--   in the map string are expected to have the form <tt>key=val</tt>. If
+--   any parse errors are encountered then <a>Left</a> <a>ParseErr</a> is
+--   returned.
+mapStrToEnv :: [Text] -> Maybe (RNonNegative Int) -> String -> Either ParseErr Env
+
+-- | Parses arguments into <tt><a>ParseAnd</a> acc</tt>.
+pureParseArgs :: [String] -> ParseAnd Acc
+instance GHC.Show.Show CLI.Parsing.Internal.Acc
+instance GHC.Base.Semigroup CLI.Parsing.Internal.Acc
+instance GHC.Base.Monoid CLI.Parsing.Internal.Acc
+
+
+-- | Handles parsing of [<a>String</a>] args into <a>Env</a>.
+module CLI.Parsing
+
+-- | Maps parsed [<a>String</a>] args into <a>IO</a> <a>Right</a>
+--   <a>Env</a>, returning any errors as <a>Left</a> <a>String</a>. All
+--   arguments are optional (i.e. an empty list is valid), but if any are
+--   provided then they must be valid or an error will be returned. Valid
+--   arguments are:
+--   
+--   <pre>
+--   --legend=&lt;string&gt;
+--       Path to the legend file.
+--   
+--   --timeout=<a>seconds</a>
+--       Non-negative integer. If we reach the timeout then all remaining
+--       commands will be cancelled. If no timeout is given then the
+--       timeout is infinite, i.e., we will keep running until all
+--       commands have finished.
+--   
+--   &lt;string&gt;
+--       Any other string is considered a command. If the command has
+--       whitespace then it must be quoted or it will be considered
+--       a separate command.
+--   </pre>
+parseArgs :: [String] -> IO (Either ParseErr Env)
 
 
 -- | The MonadCLI class.
@@ -415,7 +423,7 @@ module CLI.MonadCLI
 class Monad m => MonadCLI m
 
 -- | Runs the list of commands.
-runCommands :: MonadCLI m => [Text] -> m ()
+runCommands :: MonadCLI m => [Text] -> Maybe (RNonNegative Int) -> m ()
 
 -- | High level logic of <a>MonadCLI</a> usage. This function is the
 --   entrypoint for any <a>MonadCLI</a> instance.
@@ -435,7 +443,7 @@ Local :: BranchType
 
 -- | The Env type to be used with Reader.
 data Env
-Env :: Maybe Text -> Maybe FilePath -> NonNegative Int -> BranchType -> Text -> Text -> Day -> Env
+Env :: Maybe Text -> Maybe FilePath -> RNonNegative Int -> BranchType -> Text -> Text -> Day -> Env
 
 -- | A <a>String</a> to filter branch names on. <a>Just</a> <i>s</i> if
 --   non-empty, <a>Nothing</a> otherwise.
@@ -446,7 +454,7 @@ Env :: Maybe Text -> Maybe FilePath -> NonNegative Int -> BranchType -> Text -> 
 [path] :: Env -> Maybe FilePath
 
 -- | A non-negative integer descrbing stale threshold in days.
-[limit] :: Env -> NonNegative Int
+[limit] :: Env -> RNonNegative Int
 
 -- | The type of branches to search.
 [branchType] :: Env -> BranchType
@@ -516,6 +524,7 @@ instance GHC.Show.Show Git.Stale.Parsing.AccMaster
 instance GHC.Show.Show Git.Stale.Parsing.AccRemoteName
 instance GHC.Show.Show Git.Stale.Parsing.AccBranchType
 instance GHC.Show.Show Git.Stale.Parsing.AccLimit
+instance GHC.Base.Monoid Git.Stale.Parsing.AccLimit
 instance GHC.Base.Semigroup Git.Stale.Parsing.Acc
 instance GHC.Base.Monoid Git.Stale.Parsing.Acc
 instance GHC.Base.Semigroup Git.Stale.Parsing.AccMaster
@@ -525,7 +534,6 @@ instance GHC.Base.Monoid Git.Stale.Parsing.AccRemoteName
 instance GHC.Base.Semigroup Git.Stale.Parsing.AccBranchType
 instance GHC.Base.Monoid Git.Stale.Parsing.AccBranchType
 instance GHC.Base.Semigroup Git.Stale.Parsing.AccLimit
-instance GHC.Base.Monoid Git.Stale.Parsing.AccLimit
 
 
 -- | Provides <a>Err</a> type for describing any errors encountered.
@@ -723,12 +731,12 @@ safeRead :: Text -> ErrOr Int
 --   <pre>
 --   stale lim day (_, _, d) &lt;=&gt; day - d &gt;= lim
 --   </pre>
-stale :: NonNegative Int -> Day -> NameAuthDay -> Bool
+stale :: RNonNegative Int -> Day -> NameAuthDay -> Bool
 
 -- | For <a>Right</a> <a>NameAuthDay</a>, behaves the same as <a>stale</a>.
 --   But for <a>Left</a> <a>Err</a> it is always true, since we do not want
 --   to filter out errors.
-staleNonErr :: NonNegative Int -> Day -> ErrOr NameAuthDay -> Bool
+staleNonErr :: RNonNegative Int -> Day -> ErrOr NameAuthDay -> Bool
 
 -- | Strips whitespace and potential git prefix (i.e. remotes/). Works for
 --   strings with no prefix and those that have the prefix exactly once,
@@ -789,7 +797,7 @@ branchNamesByGrep :: MonadFindBranches m => Maybe FilePath -> BranchType -> Mayb
 
 -- | Maps [<a>Name</a>] to [<a>NameAuthDay</a>], filtering out non-stale
 --   branches.
-getStaleLogs :: MonadFindBranches m => Maybe FilePath -> NonNegative Int -> Day -> [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
+getStaleLogs :: MonadFindBranches m => Maybe FilePath -> RNonNegative Int -> Day -> [Handler m Name] -> m (Filtered (Handler m NameAuthDay))
 
 -- | Maps [<a>NameAuthDay</a>] to [<a>AnyBranch</a>].
 toBranches :: MonadFindBranches m => Maybe FilePath -> Text -> Filtered (Handler m NameAuthDay) -> m [Handler m AnyBranch]
@@ -879,7 +887,7 @@ module Git.FastForward.Types.Env
 
 -- | The Env type to be used with Reader.
 data Env
-Env :: Maybe FilePath -> MergeType -> [Name] -> Env
+Env :: Maybe FilePath -> MergeType -> [Name] -> Bool -> Env
 
 -- | The path of the git directory. <a>Just</a> <i>s</i> if non-empty,
 --   <a>Nothing</a> otherwise.
@@ -890,6 +898,9 @@ Env :: Maybe FilePath -> MergeType -> [Name] -> Env
 
 -- | Branches to push to remote.
 [push] :: Env -> [Name]
+
+-- | Determines if we perform <tt>git fetch</tt> first.
+[doFetch] :: Env -> Bool
 instance GHC.Show.Show Git.FastForward.Types.Env.Env
 
 
@@ -907,7 +918,7 @@ module Git.FastForward.Parsing
 --       to the empty string (current directory).
 --   
 --   -u, --merge=upstream
---       Merges upstream via @{u} into each local branch. This is the default.
+--       Merges upstream via <tt>{u} into each local branch. This is the default.
 --   
 --   -m, --branch-type=master
 --       Merges origin/master into each local branch.
@@ -920,6 +931,9 @@ module Git.FastForward.Parsing
 --       Each branch is formatted "remote_name branch_name",
 --       and each "remote_name branch_name" is separated by a comma.
 --       For instance, --push="origin dev, other temp".
+--   
+--   --no-fetch
+--       Skips </tt>git fetch@ step.
 --   
 --   -h, --help
 --       Returns instructions as <a>Left</a> <a>String</a>.

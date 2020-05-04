@@ -1,55 +1,57 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
 </span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE FlexibleInstances #-}</span><span>
 </span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE InstanceSigs #-}</span><span>
-</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE NamedFieldPuns #-}</span><span>
-</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
-</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
-</span><span id="line-7"></span><span>
-</span><span id="line-8"></span><span class="hs-comment">-- |</span><span>
-</span><span id="line-9"></span><span class="hs-comment">-- Module      : CLI.MonadCLI</span><span>
-</span><span id="line-10"></span><span class="hs-comment">-- License     : BSD3</span><span>
-</span><span id="line-11"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
-</span><span id="line-12"></span><span class="hs-comment">-- The MonadCLI class.</span><span>
-</span><span id="line-13"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">CLI.MonadCLI</span><span>
-</span><span id="line-14"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier">MonadCLI</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><span id="line-15"></span><span>    </span><span class="annot"><a href="CLI.MonadCLI.html#runCLI"><span class="hs-identifier">runCLI</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-16"></span><span>  </span><span class="hs-special">)</span><span>
-</span><span id="line-17"></span><span class="hs-keyword">where</span><span>
-</span><span id="line-18"></span><span>
-</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="App.html"><span class="hs-identifier">App</span></a></span><span>
-</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="CLI.Internal.html"><span class="hs-identifier">CLI.Internal</span></a></span><span>
-</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="CLI.Types.Env.html"><span class="hs-identifier">CLI.Types.Env</span></a></span><span>
-</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.IO.html"><span class="hs-identifier">Common.IO</span></a></span><span>
-</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.MonadLogger.html"><span class="hs-identifier">Common.MonadLogger</span></a></span><span>
-</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.Types.NonNegative.html"><span class="hs-identifier">Common.Types.NonNegative</span></a></span><span>
-</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.Utils.html"><span class="hs-identifier">Common.Utils</span></a></span><span>
-</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Concurrent.Async</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">A</span></span><span>
-</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">(&gt;=&gt;)</span></span><span class="hs-special">)</span><span>
-</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Loops</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
-</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Reader</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">R</span></span><span>
-</span><span id="line-30"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Maybe</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">May</span></span><span>
-</span><span id="line-31"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
-</span><span id="line-32"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">System.Clock</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">C</span></span><span>
-</span><span id="line-33"></span><span>
-</span><span id="line-34"></span><span class="hs-comment">-- | The 'MonadCLI' class is used to describe running a list</span><span>
-</span><span id="line-35"></span><span class="hs-comment">-- of 'T.Text' commands.</span><span>
-</span><span id="line-36"></span><span class="hs-keyword">class</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679105108"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span id="MonadCLI"><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier hs-var">MonadCLI</span></a></span></span><span> </span><span id="local-6989586621679105108"><span class="annot"><a href="#local-6989586621679105108"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-37"></span><span>  </span><span class="hs-comment">-- | Runs the list of commands.</span><span>
-</span><span id="line-38"></span><span>  </span><span id="runCommands"><span class="annot"><a href="CLI.MonadCLI.html#runCommands"><span class="hs-identifier hs-type">runCommands</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679105108"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-39"></span><span>
-</span><span id="line-40"></span><span class="hs-comment">-- | `MonadCLI` instance for `IO`. Runs each command concurrently,</span><span>
-</span><span id="line-41"></span><span class="hs-comment">-- timing each one, and printing the outcome as success/failure.</span><span>
-</span><span id="line-42"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier hs-type">MonadCLI</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-43"></span><span>  </span><span class="annot"><a href="CLI.MonadCLI.html#runCommands"><span class="hs-identifier hs-type">runCommands</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-44"></span><span>  </span><span id="local-6989586621679105051"><span class="annot"><span class="annottext">runCommands :: [Text] -&gt; IO ()
-</span><a href="#local-6989586621679105051"><span class="hs-identifier hs-var hs-var hs-var hs-var">runCommands</span></a></span></span><span> </span><span id="local-6989586621679105050"><span class="annot"><span class="annottext">commands :: [Text]
-</span><a href="#local-6989586621679105050"><span class="hs-identifier hs-var">commands</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-45"></span><span>    </span><span id="local-6989586621679105049"><span class="annot"><span class="annottext">TimeSpec
-</span><a href="#local-6989586621679105049"><span class="hs-identifier hs-var">start</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Clock -&gt; IO TimeSpec
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE NamedFieldPuns #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
+</span><span id="line-7"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-10"></span><span class="hs-comment">-- Module      : CLI.MonadCLI</span><span>
+</span><span id="line-11"></span><span class="hs-comment">-- License     : BSD3</span><span>
+</span><span id="line-12"></span><span class="hs-comment">-- Maintainer  : tbidne@gmail.com</span><span>
+</span><span id="line-13"></span><span class="hs-comment">-- The MonadCLI class.</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">CLI.MonadCLI</span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier">MonadCLI</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><a href="CLI.MonadCLI.html#runCLI"><span class="hs-identifier">runCLI</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="App.html"><span class="hs-identifier">App</span></a></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="CLI.Internal.html"><span class="hs-identifier">CLI.Internal</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="CLI.Types.Env.html"><span class="hs-identifier">CLI.Types.Env</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.IO.html"><span class="hs-identifier">Common.IO</span></a></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.MonadLogger.html"><span class="hs-identifier">Common.MonadLogger</span></a></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.RefinedUtils.html"><span class="hs-identifier">Common.RefinedUtils</span></a></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.Utils.html"><span class="hs-identifier">Common.Utils</span></a></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Concurrent.Async</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">A</span></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">(&gt;=&gt;)</span></span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Loops</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Reader</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">R</span></span><span>
+</span><span id="line-31"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Maybe</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">May</span></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-33"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">System.Clock</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">C</span></span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span class="hs-comment">-- | The 'MonadCLI' class is used to describe running a list</span><span>
+</span><span id="line-36"></span><span class="hs-comment">-- of 'T.Text' commands.</span><span>
+</span><span id="line-37"></span><span class="hs-keyword">class</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679133231"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span id="MonadCLI"><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier hs-var">MonadCLI</span></a></span></span><span> </span><span id="local-6989586621679133231"><span class="annot"><a href="#local-6989586621679133231"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-comment">-- | Runs the list of commands.</span><span>
+</span><span id="line-39"></span><span>  </span><span id="runCommands"><span class="annot"><a href="CLI.MonadCLI.html#runCommands"><span class="hs-identifier hs-type">runCommands</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.RefinedUtils.html#RNonNegative"><span class="hs-identifier hs-type">RNonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679133231"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span class="hs-comment">-- | `MonadCLI` instance for `IO`. Runs each command concurrently,</span><span>
+</span><span id="line-42"></span><span class="hs-comment">-- timing each one, and printing the outcome as success/failure.</span><span>
+</span><span id="line-43"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier hs-type">MonadCLI</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-44"></span><span>  </span><span class="annot"><a href="CLI.MonadCLI.html#runCommands"><span class="hs-identifier hs-type">runCommands</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.RefinedUtils.html#RNonNegative"><span class="hs-identifier hs-type">RNonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-45"></span><span>  </span><span id="local-6989586621679133174"><span class="annot"><span class="annottext">runCommands :: [Text] -&gt; Maybe (RNonNegative Int) -&gt; IO ()
+</span><a href="#local-6989586621679133174"><span class="hs-identifier hs-var hs-var hs-var hs-var">runCommands</span></a></span></span><span> </span><span id="local-6989586621679133173"><span class="annot"><span class="annottext">commands :: [Text]
+</span><a href="#local-6989586621679133173"><span class="hs-identifier hs-var">commands</span></a></span></span><span> </span><span id="local-6989586621679133172"><span class="annot"><span class="annottext">timeout :: Maybe (RNonNegative Int)
+</span><a href="#local-6989586621679133172"><span class="hs-identifier hs-var">timeout</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-46"></span><span>    </span><span id="local-6989586621679133171"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133171"><span class="hs-identifier hs-var">start</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Clock -&gt; IO TimeSpec
 </span><span class="hs-identifier hs-var">C.getTime</span></span><span> </span><span class="annot"><span class="annottext">Clock
 </span><span class="hs-identifier hs-var">C.Monotonic</span></span><span>
-</span><span id="line-46"></span><span>    </span><span id="local-6989586621679105046"><span class="annot"><span class="annottext">Async ()
-</span><a href="#local-6989586621679105046"><span class="hs-identifier hs-var">actionAsync</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; IO (Async ())
+</span><span id="line-47"></span><span>    </span><span id="local-6989586621679133168"><span class="annot"><span class="annottext">Async ()
+</span><a href="#local-6989586621679133168"><span class="hs-identifier hs-var">actionAsync</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; IO (Async ())
 forall a. IO a -&gt; IO (Async a)
 </span><span class="hs-identifier hs-var">A.async</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; IO (Async ())) -&gt; IO () -&gt; IO (Async ())
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -57,185 +59,257 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall (f :: * -&gt; *) a b. Foldable f =&gt; (a -&gt; IO b) -&gt; f a -&gt; IO ()
 </span><span class="hs-identifier hs-var">A.mapConcurrently_</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; IO ()
 </span><a href="CLI.MonadCLI.html#runCommand"><span class="hs-identifier hs-var">runCommand</span></a></span><span> </span><span class="annot"><span class="annottext">[Text]
-</span><a href="#local-6989586621679105050"><span class="hs-identifier hs-var">commands</span></a></span><span>
-</span><span id="line-47"></span><span>    </span><span class="annot"><span class="annottext">Async () -&gt; IO ()
-forall a. Async a -&gt; IO ()
+</span><a href="#local-6989586621679133173"><span class="hs-identifier hs-var">commands</span></a></span><span>
+</span><span id="line-48"></span><span>    </span><span class="annot"><span class="annottext">Async () -&gt; Maybe (RNonNegative Int) -&gt; IO ()
+forall a. Async a -&gt; Maybe (RNonNegative Int) -&gt; IO ()
 </span><a href="CLI.MonadCLI.html#counter"><span class="hs-identifier hs-var">counter</span></a></span><span> </span><span class="annot"><span class="annottext">Async ()
-</span><a href="#local-6989586621679105046"><span class="hs-identifier hs-var">actionAsync</span></a></span><span>
-</span><span id="line-48"></span><span>    </span><span id="local-6989586621679105041"><span class="annot"><span class="annottext">TimeSpec
-</span><a href="#local-6989586621679105041"><span class="hs-identifier hs-var">end</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Clock -&gt; IO TimeSpec
+</span><a href="#local-6989586621679133168"><span class="hs-identifier hs-var">actionAsync</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (RNonNegative Int)
+</span><a href="#local-6989586621679133172"><span class="hs-identifier hs-var">timeout</span></a></span><span>
+</span><span id="line-49"></span><span>    </span><span id="local-6989586621679133163"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133163"><span class="hs-identifier hs-var">end</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Clock -&gt; IO TimeSpec
 </span><span class="hs-identifier hs-var">C.getTime</span></span><span> </span><span class="annot"><span class="annottext">Clock
 </span><span class="hs-identifier hs-var">C.Monotonic</span></span><span>
-</span><span id="line-49"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679105040"><span class="annot"><span class="annottext">totalTime :: NonNegative Integer
-</span><a href="#local-6989586621679105040"><span class="hs-identifier hs-var hs-var">totalTime</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; TimeSpec -&gt; NonNegative Integer
-forall a. Integral a =&gt; TimeSpec -&gt; TimeSpec -&gt; NonNegative a
+</span><span id="line-50"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679133162"><span class="annot"><span class="annottext">totalTime :: RNonNegative Int
+</span><a href="#local-6989586621679133162"><span class="hs-identifier hs-var hs-var">totalTime</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; TimeSpec -&gt; RNonNegative Int
 </span><a href="Common.Utils.html#diffTime"><span class="hs-identifier hs-var">diffTime</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
-</span><a href="#local-6989586621679105049"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
-</span><a href="#local-6989586621679105041"><span class="hs-identifier hs-var">end</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Types.NonNegative.html#NonNegative"><span class="hs-identifier hs-type">NonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span>
-</span><span id="line-50"></span><span>    </span><span class="annot"><span class="annottext">IO ()
+</span><a href="#local-6989586621679133171"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133163"><span class="hs-identifier hs-var">end</span></a></span><span>
+</span><span id="line-51"></span><span>    </span><span class="annot"><span class="annottext">IO ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; m ()
 </span><a href="Common.MonadLogger.html#clearLine"><span class="hs-identifier hs-var">clearLine</span></a></span><span>
-</span><span id="line-51"></span><span>    </span><span class="annot"><span class="annottext">Text -&gt; IO ()
+</span><span id="line-52"></span><span>    </span><span class="annot"><span class="annottext">Text -&gt; IO ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
 </span><a href="Common.MonadLogger.html#logInfoBlue"><span class="hs-identifier hs-var">logInfoBlue</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;Finished!&quot;</span></span><span>
-</span><span id="line-52"></span><span>    </span><span class="annot"><span class="annottext">Text -&gt; IO ()
+</span><span id="line-53"></span><span>    </span><span class="annot"><span class="annottext">Text -&gt; IO ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
 </span><a href="Common.MonadLogger.html#logInfoBlue"><span class="hs-identifier hs-var">logInfoBlue</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; IO ()) -&gt; Text -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Total time elapsed: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">NonNegative Integer -&gt; Text
-forall a. (Show a, Integral a) =&gt; NonNegative a -&gt; Text
-</span><a href="Common.Utils.html#formatSeconds"><span class="hs-identifier hs-var">formatSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">NonNegative Integer
-</span><a href="#local-6989586621679105040"><span class="hs-identifier hs-var">totalTime</span></a></span><span>
-</span><span id="line-53"></span><span>
-</span><span id="line-54"></span><span id="local-6989586621679105035"><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier hs-type">MonadCLI</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679105035"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier hs-type">MonadCLI</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="App.html#AppT"><span class="hs-identifier hs-type">AppT</span></a></span><span> </span><span class="annot"><a href="CLI.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679105035"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-55"></span><span>  </span><span id="local-6989586621679105032"><span class="annot"><span class="annottext">runCommands :: [Text] -&gt; AppT Env m ()
-</span><a href="#local-6989586621679105032"><span class="hs-identifier hs-var hs-var hs-var hs-var">runCommands</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m () -&gt; AppT Env m ()
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int -&gt; Text
+</span><a href="Common.Utils.html#formatSeconds"><span class="hs-identifier hs-var">formatSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int
+</span><a href="#local-6989586621679133162"><span class="hs-identifier hs-var">totalTime</span></a></span><span>
+</span><span id="line-54"></span><span>
+</span><span id="line-55"></span><span id="local-6989586621679133157"><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier hs-type">MonadCLI</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679133157"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier hs-type">MonadCLI</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="App.html#AppT"><span class="hs-identifier hs-type">AppT</span></a></span><span> </span><span class="annot"><a href="CLI.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679133157"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-56"></span><span>  </span><span id="local-6989586621679133154"><span class="annot"><span class="annottext">runCommands :: [Text] -&gt; Maybe (RNonNegative Int) -&gt; AppT Env m ()
+</span><a href="#local-6989586621679133154"><span class="hs-identifier hs-var hs-var hs-var hs-var">runCommands</span></a></span></span><span> </span><span id="local-6989586621679133153"><span class="annot"><span class="annottext">cmds :: [Text]
+</span><a href="#local-6989586621679133153"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m () -&gt; AppT Env m ()
 forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
 (MonadTrans t, Monad m) =&gt;
 m a -&gt; t m a
 </span><span class="hs-identifier hs-var">R.lift</span></span><span> </span><span class="annot"><span class="annottext">(m () -&gt; AppT Env m ())
--&gt; ([Text] -&gt; m ()) -&gt; [Text] -&gt; AppT Env m ()
+-&gt; (Maybe (RNonNegative Int) -&gt; m ())
+-&gt; Maybe (RNonNegative Int)
+-&gt; AppT Env m ()
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; m ()
-forall (m :: * -&gt; *). MonadCLI m =&gt; [Text] -&gt; m ()
-</span><a href="CLI.MonadCLI.html#runCommands"><span class="hs-identifier hs-var">runCommands</span></a></span></span><span>
-</span><span id="line-56"></span><span>
-</span><span id="line-57"></span><span class="hs-comment">-- | High level logic of `MonadCLI` usage. This function is the</span><span>
-</span><span id="line-58"></span><span class="hs-comment">-- entrypoint for any `MonadCLI` instance.</span><span>
-</span><span id="line-59"></span><span id="local-6989586621679105029"><span class="annot"><a href="CLI.MonadCLI.html#runCLI"><span class="hs-identifier hs-type">runCLI</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">R.MonadReader</span></span><span> </span><span class="annot"><a href="CLI.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679105029"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier hs-type">MonadCLI</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679105029"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679105029"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
-</span><span id="line-60"></span><span id="runCLI"><span class="annot"><span class="annottext">runCLI :: m ()
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; Maybe (RNonNegative Int) -&gt; m ()
+forall (m :: * -&gt; *).
+MonadCLI m =&gt;
+[Text] -&gt; Maybe (RNonNegative Int) -&gt; m ()
+</span><a href="CLI.MonadCLI.html#runCommands"><span class="hs-identifier hs-var">runCommands</span></a></span><span> </span><span class="annot"><span class="annottext">[Text]
+</span><a href="#local-6989586621679133153"><span class="hs-identifier hs-var">cmds</span></a></span></span><span>
+</span><span id="line-57"></span><span>
+</span><span id="line-58"></span><span class="hs-comment">-- | High level logic of `MonadCLI` usage. This function is the</span><span>
+</span><span id="line-59"></span><span class="hs-comment">-- entrypoint for any `MonadCLI` instance.</span><span>
+</span><span id="line-60"></span><span id="local-6989586621679133150"><span class="annot"><a href="CLI.MonadCLI.html#runCLI"><span class="hs-identifier hs-type">runCLI</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">R.MonadReader</span></span><span> </span><span class="annot"><a href="CLI.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679133150"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="CLI.MonadCLI.html#MonadCLI"><span class="hs-identifier hs-type">MonadCLI</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679133150"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679133150"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-61"></span><span id="runCLI"><span class="annot"><span class="annottext">runCLI :: m ()
 </span><a href="CLI.MonadCLI.html#runCLI"><span class="hs-identifier hs-var hs-var">runCLI</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-61"></span><span>  </span><span class="annot"><a href="CLI.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679105027"><span class="annot"><span class="annottext">Map Text Text
+</span><span id="line-62"></span><span>  </span><span class="annot"><a href="CLI.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679133148"><span class="annot"><span class="annottext">Map Text Text
 legend :: Env -&gt; Map Text Text
 legend :: Map Text Text
-</span><a href="CLI.Types.Env.html#legend"><span class="hs-identifier hs-var hs-var">legend</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105025"><span class="annot"><span class="annottext">[Text]
+</span><a href="CLI.Types.Env.html#legend"><span class="hs-identifier hs-var hs-var">legend</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679133146"><span class="annot"><span class="annottext">Maybe (RNonNegative Int)
+timeout :: Env -&gt; Maybe (RNonNegative Int)
+timeout :: Maybe (RNonNegative Int)
+</span><a href="CLI.Types.Env.html#timeout"><span class="hs-identifier hs-var hs-var">timeout</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679133144"><span class="annot"><span class="annottext">[Text]
 commands :: Env -&gt; [Text]
 commands :: [Text]
 </span><a href="CLI.Types.Env.html#commands"><span class="hs-identifier hs-var hs-var">commands</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">m Env
 forall r (m :: * -&gt; *). MonadReader r m =&gt; m r
 </span><span class="hs-identifier hs-var">R.ask</span></span><span>
-</span><span id="line-62"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679105022"><span class="annot"><span class="annottext">commands' :: [Text]
-</span><a href="#local-6989586621679105022"><span class="hs-identifier hs-var hs-var">commands'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Map Text Text -&gt; [Text] -&gt; [Text]
+</span><span id="line-63"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679133141"><span class="annot"><span class="annottext">commands' :: [Text]
+</span><a href="#local-6989586621679133141"><span class="hs-identifier hs-var hs-var">commands'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Map Text Text -&gt; [Text] -&gt; [Text]
 </span><a href="CLI.Internal.html#translateCommands"><span class="hs-identifier hs-var">translateCommands</span></a></span><span> </span><span class="annot"><span class="annottext">Map Text Text
-</span><a href="#local-6989586621679105027"><span class="hs-identifier hs-var">legend</span></a></span><span> </span><span class="annot"><span class="annottext">[Text]
-</span><a href="#local-6989586621679105025"><span class="hs-identifier hs-var">commands</span></a></span><span>
-</span><span id="line-63"></span><span>  </span><span class="annot"><span class="annottext">[Text] -&gt; m ()
-forall (m :: * -&gt; *). MonadCLI m =&gt; [Text] -&gt; m ()
+</span><a href="#local-6989586621679133148"><span class="hs-identifier hs-var">legend</span></a></span><span> </span><span class="annot"><span class="annottext">[Text]
+</span><a href="#local-6989586621679133144"><span class="hs-identifier hs-var">commands</span></a></span><span>
+</span><span id="line-64"></span><span>  </span><span class="annot"><span class="annottext">[Text] -&gt; Maybe (RNonNegative Int) -&gt; m ()
+forall (m :: * -&gt; *).
+MonadCLI m =&gt;
+[Text] -&gt; Maybe (RNonNegative Int) -&gt; m ()
 </span><a href="CLI.MonadCLI.html#runCommands"><span class="hs-identifier hs-var">runCommands</span></a></span><span> </span><span class="annot"><span class="annottext">[Text]
-</span><a href="#local-6989586621679105022"><span class="hs-identifier hs-var">commands'</span></a></span><span>
-</span><span id="line-64"></span><span>
-</span><span id="line-65"></span><span class="annot"><a href="CLI.MonadCLI.html#runCommand"><span class="hs-identifier hs-type">runCommand</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-66"></span><span id="runCommand"><span class="annot"><span class="annottext">runCommand :: Text -&gt; IO ()
-</span><a href="CLI.MonadCLI.html#runCommand"><span class="hs-identifier hs-var hs-var">runCommand</span></a></span></span><span> </span><span id="local-6989586621679105020"><span class="annot"><span class="annottext">cmd :: Text
-</span><a href="#local-6989586621679105020"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-67"></span><span>  </span><span id="local-6989586621679105019"><span class="annot"><span class="annottext">Either (NonNegative Integer, Text) (NonNegative Integer, Text)
-</span><a href="#local-6989586621679105019"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679133141"><span class="hs-identifier hs-var">commands'</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (RNonNegative Int)
+</span><a href="#local-6989586621679133146"><span class="hs-identifier hs-var">timeout</span></a></span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span class="annot"><a href="CLI.MonadCLI.html#runCommand"><span class="hs-identifier hs-type">runCommand</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-67"></span><span id="runCommand"><span class="annot"><span class="annottext">runCommand :: Text -&gt; IO ()
+</span><a href="CLI.MonadCLI.html#runCommand"><span class="hs-identifier hs-var hs-var">runCommand</span></a></span></span><span> </span><span id="local-6989586621679133139"><span class="annot"><span class="annottext">cmd :: Text
+</span><a href="#local-6989586621679133139"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-68"></span><span>  </span><span id="local-6989586621679133138"><span class="annot"><span class="annottext">Either (RNonNegative Int, Text) (RNonNegative Int, Text)
+</span><a href="#local-6989586621679133138"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text
 -&gt; Maybe FilePath
--&gt; IO
-     (Either (NonNegative Integer, Text) (NonNegative Integer, Text))
-forall a.
-Integral a =&gt;
-Text
--&gt; Maybe FilePath
--&gt; IO (Either (NonNegative a, Text) (NonNegative a, Text))
+-&gt; IO (Either (RNonNegative Int, Text) (RNonNegative Int, Text))
 </span><a href="Common.IO.html#tryTimeSh"><span class="hs-identifier hs-var">tryTimeSh</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679105020"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679133139"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-68"></span><span>  </span><span class="hs-special">(</span><span id="local-6989586621679105017"><span class="annot"><span class="annottext">NonNegative Integer
-</span><a href="#local-6989586621679105017"><span class="hs-identifier hs-var">seconds</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Types.NonNegative.html#NonNegative"><span class="hs-identifier hs-type">NonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105016"><span class="annot"><span class="annottext">logFn :: Text -&gt; IO ()
-</span><a href="#local-6989586621679105016"><span class="hs-identifier hs-var">logFn</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105015"><span class="annot"><span class="annottext">msg :: Text
-</span><a href="#local-6989586621679105015"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either (NonNegative Integer, Text) (NonNegative Integer, Text)
-</span><a href="#local-6989586621679105019"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-69"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679105014"><span class="annot"><span class="annottext">t :: NonNegative Integer
-</span><a href="#local-6989586621679105014"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105013"><span class="annot"><span class="annottext">err :: Text
-</span><a href="#local-6989586621679105013"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(NonNegative Integer, Text -&gt; IO (), Text)
--&gt; IO (NonNegative Integer, Text -&gt; IO (), Text)
+</span><span id="line-69"></span><span>  </span><span class="hs-special">(</span><span id="local-6989586621679133136"><span class="annot"><span class="annottext">seconds :: RNonNegative Int
+</span><a href="#local-6989586621679133136"><span class="hs-identifier hs-var">seconds</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679133135"><span class="annot"><span class="annottext">logFn :: Text -&gt; IO ()
+</span><a href="#local-6989586621679133135"><span class="hs-identifier hs-var">logFn</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679133134"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679133134"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either (RNonNegative Int, Text) (RNonNegative Int, Text)
+</span><a href="#local-6989586621679133138"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-70"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679133133"><span class="annot"><span class="annottext">t :: RNonNegative Int
+</span><a href="#local-6989586621679133133"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679133132"><span class="annot"><span class="annottext">err :: Text
+</span><a href="#local-6989586621679133132"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(RNonNegative Int, Text -&gt; IO (), Text)
+-&gt; IO (RNonNegative Int, Text -&gt; IO (), Text)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
-</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">NonNegative Integer
-</span><a href="#local-6989586621679105014"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text -&gt; IO ()
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RNonNegative Int
+</span><a href="#local-6989586621679133133"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text -&gt; IO ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
 </span><a href="Common.MonadLogger.html#logError"><span class="hs-identifier hs-var">logError</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679105013"><span class="hs-identifier hs-var">err</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-70"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679105011"><span class="annot"><span class="annottext">t :: NonNegative Integer
-</span><a href="#local-6989586621679105011"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(NonNegative Integer, Text -&gt; IO (), Text)
--&gt; IO (NonNegative Integer, Text -&gt; IO (), Text)
+</span><a href="#local-6989586621679133132"><span class="hs-identifier hs-var">err</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-71"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679133130"><span class="annot"><span class="annottext">t :: RNonNegative Int
+</span><a href="#local-6989586621679133130"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(RNonNegative Int, Text -&gt; IO (), Text)
+-&gt; IO (RNonNegative Int, Text -&gt; IO (), Text)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
-</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">NonNegative Integer
-</span><a href="#local-6989586621679105011"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text -&gt; IO ()
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RNonNegative Int
+</span><a href="#local-6989586621679133130"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text -&gt; IO ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
 </span><a href="Common.MonadLogger.html#logInfoSuccess"><span class="hs-identifier hs-var">logInfoSuccess</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;Successfully ran `&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679105020"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><a href="#local-6989586621679133139"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;`&quot;</span></span><span class="hs-special">)</span><span>
-</span><span id="line-71"></span><span>  </span><span class="annot"><span class="annottext">IO ()
+</span><span id="line-72"></span><span>  </span><span class="annot"><span class="annottext">IO ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; m ()
 </span><a href="Common.MonadLogger.html#clearLine"><span class="hs-identifier hs-var">clearLine</span></a></span><span>
-</span><span id="line-72"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; IO ()
-</span><a href="#local-6989586621679105016"><span class="hs-identifier hs-var">logFn</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679105015"><span class="hs-identifier hs-var">msg</span></a></span><span>
 </span><span id="line-73"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; IO ()
-</span><a href="#local-6989586621679105016"><span class="hs-identifier hs-var">logFn</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; IO ()) -&gt; Text -&gt; IO ()
+</span><a href="#local-6989586621679133135"><span class="hs-identifier hs-var">logFn</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679133134"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><span id="line-74"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; IO ()
+</span><a href="#local-6989586621679133135"><span class="hs-identifier hs-var">logFn</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; IO ()) -&gt; Text -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Time elapsed: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">NonNegative Integer -&gt; Text
-forall a. (Show a, Integral a) =&gt; NonNegative a -&gt; Text
-</span><a href="Common.Utils.html#formatSeconds"><span class="hs-identifier hs-var">formatSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">NonNegative Integer
-</span><a href="#local-6989586621679105017"><span class="hs-identifier hs-var">seconds</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int -&gt; Text
+</span><a href="Common.Utils.html#formatSeconds"><span class="hs-identifier hs-var">formatSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int
+</span><a href="#local-6989586621679133136"><span class="hs-identifier hs-var">seconds</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\n&quot;</span></span><span>
-</span><span id="line-74"></span><span>
-</span><span id="line-75"></span><span id="local-6989586621679105097"><span class="annot"><a href="CLI.MonadCLI.html#counter"><span class="hs-identifier hs-type">counter</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">A.Async</span></span><span> </span><span class="annot"><a href="#local-6989586621679105097"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
-</span><span id="line-76"></span><span id="counter"><span class="annot"><span class="annottext">counter :: Async a -&gt; IO ()
-</span><a href="CLI.MonadCLI.html#counter"><span class="hs-identifier hs-var hs-var">counter</span></a></span></span><span> </span><span id="local-6989586621679105009"><span class="annot"><span class="annottext">asyn :: Async a
-</span><a href="#local-6989586621679105009"><span class="hs-identifier hs-var">asyn</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-77"></span><span>  </span><span id="local-6989586621679105008"><span class="annot"><span class="annottext">TimeSpec
-</span><a href="#local-6989586621679105008"><span class="hs-identifier hs-var">start</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Clock -&gt; IO TimeSpec
+</span><span id="line-75"></span><span>
+</span><span id="line-76"></span><span id="local-6989586621679133220"><span class="annot"><a href="CLI.MonadCLI.html#counter"><span class="hs-identifier hs-type">counter</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">A.Async</span></span><span> </span><span class="annot"><a href="#local-6989586621679133220"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.RefinedUtils.html#RNonNegative"><span class="hs-identifier hs-type">RNonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-77"></span><span id="counter"><span class="annot"><span class="annottext">counter :: Async a -&gt; Maybe (RNonNegative Int) -&gt; IO ()
+</span><a href="CLI.MonadCLI.html#counter"><span class="hs-identifier hs-var hs-var">counter</span></a></span></span><span> </span><span id="local-6989586621679133128"><span class="annot"><span class="annottext">asyn :: Async a
+</span><a href="#local-6989586621679133128"><span class="hs-identifier hs-var">asyn</span></a></span></span><span> </span><span id="local-6989586621679133127"><span class="annot"><span class="annottext">timeout :: Maybe (RNonNegative Int)
+</span><a href="#local-6989586621679133127"><span class="hs-identifier hs-var">timeout</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-78"></span><span>  </span><span id="local-6989586621679133126"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133126"><span class="hs-identifier hs-var">start</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Clock -&gt; IO TimeSpec
 </span><span class="hs-identifier hs-var">C.getTime</span></span><span> </span><span class="annot"><span class="annottext">Clock
 </span><span class="hs-identifier hs-var">C.Monotonic</span></span><span>
-</span><span id="line-78"></span><span>  </span><span class="annot"><span class="annottext">IO Bool -&gt; IO () -&gt; IO ()
+</span><span id="line-79"></span><span>  </span><span class="annot"><span class="annottext">IO Bool -&gt; IO () -&gt; IO ()
 forall (m :: * -&gt; *) a. Monad m =&gt; m Bool -&gt; m a -&gt; m ()
-</span><span class="hs-identifier hs-var">L.whileM_</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Async a -&gt; IO Bool
-forall a. Async a -&gt; IO Bool
-</span><a href="CLI.MonadCLI.html#unfinished"><span class="hs-identifier hs-var">unfinished</span></a></span><span> </span><span class="annot"><span class="annottext">Async a
-</span><a href="#local-6989586621679105009"><span class="hs-identifier hs-var">asyn</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; IO ()) -&gt; IO () -&gt; IO ()
+</span><span class="hs-identifier hs-var">L.whileM_</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Async a -&gt; TimeSpec -&gt; Maybe (RNonNegative Int) -&gt; IO Bool
+forall a.
+Async a -&gt; TimeSpec -&gt; Maybe (RNonNegative Int) -&gt; IO Bool
+</span><a href="CLI.MonadCLI.html#keepRunning"><span class="hs-identifier hs-var">keepRunning</span></a></span><span> </span><span class="annot"><span class="annottext">Async a
+</span><a href="#local-6989586621679133128"><span class="hs-identifier hs-var">asyn</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133126"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (RNonNegative Int)
+</span><a href="#local-6989586621679133127"><span class="hs-identifier hs-var">timeout</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; IO ()) -&gt; IO () -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-79"></span><span>    </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO ()
+</span><span id="line-80"></span><span>    </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO ()
 </span><a href="Common.IO.html#sh_"><span class="hs-identifier hs-var">sh_</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;sleep 1&quot;</span></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-80"></span><span>    </span><span id="local-6989586621679105004"><span class="annot"><span class="annottext">TimeSpec
-</span><a href="#local-6989586621679105004"><span class="hs-identifier hs-var">elapsed</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Clock -&gt; IO TimeSpec
+</span><span id="line-81"></span><span>    </span><span id="local-6989586621679133122"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133122"><span class="hs-identifier hs-var">elapsed</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Clock -&gt; IO TimeSpec
 </span><span class="hs-identifier hs-var">C.getTime</span></span><span> </span><span class="annot"><span class="annottext">Clock
 </span><span class="hs-identifier hs-var">C.Monotonic</span></span><span>
-</span><span id="line-81"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679105003"><span class="annot"><span class="annottext">diff :: NonNegative Integer
-</span><a href="#local-6989586621679105003"><span class="hs-identifier hs-var hs-var">diff</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; TimeSpec -&gt; NonNegative Integer
-forall a. Integral a =&gt; TimeSpec -&gt; TimeSpec -&gt; NonNegative a
+</span><span id="line-82"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679133121"><span class="annot"><span class="annottext">diff :: RNonNegative Int
+</span><a href="#local-6989586621679133121"><span class="hs-identifier hs-var hs-var">diff</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; TimeSpec -&gt; RNonNegative Int
 </span><a href="Common.Utils.html#diffTime"><span class="hs-identifier hs-var">diffTime</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
-</span><a href="#local-6989586621679105008"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
-</span><a href="#local-6989586621679105004"><span class="hs-identifier hs-var">elapsed</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Types.NonNegative.html#NonNegative"><span class="hs-identifier hs-type">NonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span>
-</span><span id="line-82"></span><span>    </span><span class="annot"><span class="annottext">IO ()
+</span><a href="#local-6989586621679133126"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133122"><span class="hs-identifier hs-var">elapsed</span></a></span><span>
+</span><span id="line-83"></span><span>    </span><span class="annot"><span class="annottext">IO ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; m ()
 </span><a href="Common.MonadLogger.html#resetCR"><span class="hs-identifier hs-var">resetCR</span></a></span><span>
-</span><span id="line-83"></span><span>    </span><span class="annot"><span class="annottext">Text -&gt; IO ()
+</span><span id="line-84"></span><span>    </span><span class="annot"><span class="annottext">Text -&gt; IO ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
 </span><a href="Common.MonadLogger.html#logNoLine"><span class="hs-identifier hs-var">logNoLine</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; IO ()) -&gt; Text -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Running time: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">NonNegative Integer -&gt; Text
-forall a. (Show a, Integral a) =&gt; NonNegative a -&gt; Text
-</span><a href="Common.Utils.html#formatSeconds"><span class="hs-identifier hs-var">formatSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">NonNegative Integer
-</span><a href="#local-6989586621679105003"><span class="hs-identifier hs-var">diff</span></a></span><span>
-</span><span id="line-84"></span><span>
-</span><span id="line-85"></span><span id="local-6989586621679105066"><span class="annot"><a href="CLI.MonadCLI.html#unfinished"><span class="hs-identifier hs-type">unfinished</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">A.Async</span></span><span> </span><span class="annot"><a href="#local-6989586621679105066"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
-</span><span id="line-86"></span><span id="unfinished"><span class="annot"><span class="annottext">unfinished :: Async a -&gt; IO Bool
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int -&gt; Text
+</span><a href="Common.Utils.html#formatSeconds"><span class="hs-identifier hs-var">formatSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int
+</span><a href="#local-6989586621679133121"><span class="hs-identifier hs-var">diff</span></a></span><span>
+</span><span id="line-85"></span><span>
+</span><span id="line-86"></span><span id="local-6989586621679133193"><span class="annot"><a href="CLI.MonadCLI.html#keepRunning"><span class="hs-identifier hs-type">keepRunning</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">A.Async</span></span><span> </span><span class="annot"><a href="#local-6989586621679133193"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">C.TimeSpec</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.RefinedUtils.html#RNonNegative"><span class="hs-identifier hs-type">RNonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
+</span><span id="line-87"></span><span id="keepRunning"><span class="annot"><span class="annottext">keepRunning :: Async a -&gt; TimeSpec -&gt; Maybe (RNonNegative Int) -&gt; IO Bool
+</span><a href="CLI.MonadCLI.html#keepRunning"><span class="hs-identifier hs-var hs-var">keepRunning</span></a></span></span><span> </span><span id="local-6989586621679133118"><span class="annot"><span class="annottext">asyn :: Async a
+</span><a href="#local-6989586621679133118"><span class="hs-identifier hs-var">asyn</span></a></span></span><span> </span><span id="local-6989586621679133117"><span class="annot"><span class="annottext">start :: TimeSpec
+</span><a href="#local-6989586621679133117"><span class="hs-identifier hs-var">start</span></a></span></span><span> </span><span id="local-6989586621679133116"><span class="annot"><span class="annottext">to :: Maybe (RNonNegative Int)
+</span><a href="#local-6989586621679133116"><span class="hs-identifier hs-var">to</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-88"></span><span>  </span><span id="local-6989586621679133115"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679133115"><span class="hs-identifier hs-var">running</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Async a -&gt; IO Bool
+forall a. Async a -&gt; IO Bool
+</span><a href="CLI.MonadCLI.html#unfinished"><span class="hs-identifier hs-var">unfinished</span></a></span><span> </span><span class="annot"><span class="annottext">Async a
+</span><a href="#local-6989586621679133118"><span class="hs-identifier hs-var">asyn</span></a></span><span>
+</span><span id="line-89"></span><span>  </span><span id="local-6989586621679133113"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133113"><span class="hs-identifier hs-var">currTime</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Clock -&gt; IO TimeSpec
+</span><span class="hs-identifier hs-var">C.getTime</span></span><span> </span><span class="annot"><span class="annottext">Clock
+</span><span class="hs-identifier hs-var">C.Monotonic</span></span><span>
+</span><span id="line-90"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679133112"><span class="annot"><span class="annottext">hasTimedOut :: Bool
+</span><a href="#local-6989586621679133112"><span class="hs-identifier hs-var hs-var">hasTimedOut</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; TimeSpec -&gt; Maybe (RNonNegative Int) -&gt; Bool
+</span><a href="CLI.MonadCLI.html#timedOut"><span class="hs-identifier hs-var">timedOut</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133117"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133113"><span class="hs-identifier hs-var">currTime</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (RNonNegative Int)
+</span><a href="#local-6989586621679133116"><span class="hs-identifier hs-var">to</span></a></span><span>
+</span><span id="line-91"></span><span>  </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679133115"><span class="hs-identifier hs-var">running</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679133112"><span class="hs-identifier hs-var">hasTimedOut</span></a></span><span>
+</span><span id="line-92"></span><span>    </span><span class="hs-keyword">then</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-93"></span><span>      </span><span class="annot"><span class="annottext">Async a -&gt; IO ()
+forall a. Async a -&gt; IO ()
+</span><span class="hs-identifier hs-var">A.cancel</span></span><span> </span><span class="annot"><span class="annottext">Async a
+</span><a href="#local-6989586621679133118"><span class="hs-identifier hs-var">asyn</span></a></span><span>
+</span><span id="line-94"></span><span>      </span><span class="annot"><span class="annottext">IO ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; m ()
+</span><a href="Common.MonadLogger.html#clearLine"><span class="hs-identifier hs-var">clearLine</span></a></span><span>
+</span><span id="line-95"></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; IO ()
+forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
+</span><a href="Common.MonadLogger.html#logWarn"><span class="hs-identifier hs-var">logWarn</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;Timed out, cancelling remaining tasks.&quot;</span></span><span>
+</span><span id="line-96"></span><span>      </span><span class="annot"><span class="annottext">Bool -&gt; IO Bool
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">False</span></span><span>
+</span><span id="line-97"></span><span>    </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; IO Bool
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679133115"><span class="hs-identifier hs-var">running</span></a></span><span>
+</span><span id="line-98"></span><span>
+</span><span id="line-99"></span><span class="annot"><a href="CLI.MonadCLI.html#timedOut"><span class="hs-identifier hs-type">timedOut</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">C.TimeSpec</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">C.TimeSpec</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.RefinedUtils.html#RNonNegative"><span class="hs-identifier hs-type">RNonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
+</span><span id="line-100"></span><span id="timedOut"><span class="annot"><span class="annottext">timedOut :: TimeSpec -&gt; TimeSpec -&gt; Maybe (RNonNegative Int) -&gt; Bool
+</span><a href="CLI.MonadCLI.html#timedOut"><span class="hs-identifier hs-var hs-var">timedOut</span></a></span></span><span> </span><span id="local-6989586621679133107"><span class="annot"><span class="annottext">start :: TimeSpec
+</span><a href="#local-6989586621679133107"><span class="hs-identifier hs-var">start</span></a></span></span><span> </span><span id="local-6989586621679133106"><span class="annot"><span class="annottext">curr :: TimeSpec
+</span><a href="#local-6989586621679133106"><span class="hs-identifier hs-var">curr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-101"></span><span>  </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-102"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">False</span></span><span>
+</span><span id="line-103"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679133105"><span class="annot"><span class="annottext">t :: RNonNegative Int
+</span><a href="#local-6989586621679133105"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-104"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679133104"><span class="annot"><span class="annottext">timeSoFar :: RNonNegative Int
+</span><a href="#local-6989586621679133104"><span class="hs-identifier hs-var hs-var">timeSoFar</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; TimeSpec -&gt; RNonNegative Int
+</span><a href="Common.Utils.html#diffTime"><span class="hs-identifier hs-var">diffTime</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133107"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679133106"><span class="hs-identifier hs-var">curr</span></a></span><span>
+</span><span id="line-105"></span><span>       </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">RNonNegative Int
+</span><a href="#local-6989586621679133104"><span class="hs-identifier hs-var">timeSoFar</span></a></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int -&gt; RNonNegative Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int
+</span><a href="#local-6989586621679133105"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-106"></span><span>
+</span><span id="line-107"></span><span id="local-6989586621679133191"><span class="annot"><a href="CLI.MonadCLI.html#unfinished"><span class="hs-identifier hs-type">unfinished</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">A.Async</span></span><span> </span><span class="annot"><a href="#local-6989586621679133191"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
+</span><span id="line-108"></span><span id="unfinished"><span class="annot"><span class="annottext">unfinished :: Async a -&gt; IO Bool
 </span><a href="CLI.MonadCLI.html#unfinished"><span class="hs-identifier hs-var hs-var">unfinished</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Async a -&gt; IO (Maybe (Either SomeException a))
 forall a. Async a -&gt; IO (Maybe (Either SomeException a))
 </span><span class="hs-identifier hs-var">A.poll</span></span><span> </span><span class="annot"><span class="annottext">(Async a -&gt; IO (Maybe (Either SomeException a)))
@@ -255,4 +329,4 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Maybe (Either SomeException a) -&gt; Bool
 forall a. Maybe a -&gt; Bool
 </span><span class="hs-identifier hs-var">May.isNothing</span></span><span>
-</span><span id="line-87"></span></pre></body></html>
+</span><span id="line-109"></span></pre></body></html>

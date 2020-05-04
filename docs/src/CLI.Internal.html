@@ -28,42 +28,42 @@
 </span><span id="line-28"></span><span class="hs-comment">-- @</span><span>
 </span><span id="line-29"></span><span class="annot"><a href="CLI.Internal.html#translateCommands"><span class="hs-identifier hs-type">translateCommands</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span>
 </span><span id="line-30"></span><span id="translateCommands"><span class="annot"><span class="annottext">translateCommands :: Map Text Text -&gt; [Text] -&gt; [Text]
-</span><a href="CLI.Internal.html#translateCommands"><span class="hs-identifier hs-var hs-var">translateCommands</span></a></span></span><span> </span><span id="local-6989586621679104207"><span class="annot"><span class="annottext">mp :: Map Text Text
-</span><a href="#local-6989586621679104207"><span class="hs-identifier hs-var">mp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Text -&gt; [Text]) -&gt; [Text] -&gt; [Text]
+</span><a href="CLI.Internal.html#translateCommands"><span class="hs-identifier hs-var hs-var">translateCommands</span></a></span></span><span> </span><span id="local-6989586621679132180"><span class="annot"><span class="annottext">mp :: Map Text Text
+</span><a href="#local-6989586621679132180"><span class="hs-identifier hs-var">mp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Text -&gt; [Text]) -&gt; [Text] -&gt; [Text]
 forall (t :: * -&gt; *) m a.
 (Foldable t, Monoid m) =&gt;
 (a -&gt; m) -&gt; t a -&gt; m
 </span><span class="hs-identifier hs-var">foldMap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map Text Text -&gt; Text -&gt; [Text]
 </span><a href="CLI.Internal.html#lineToCommands"><span class="hs-identifier hs-var">lineToCommands</span></a></span><span> </span><span class="annot"><span class="annottext">Map Text Text
-</span><a href="#local-6989586621679104207"><span class="hs-identifier hs-var">mp</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679132180"><span class="hs-identifier hs-var">mp</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-31"></span><span>
 </span><span id="line-32"></span><span class="annot"><a href="CLI.Internal.html#lineToCommands"><span class="hs-identifier hs-type">lineToCommands</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span class="hs-special">]</span><span>
 </span><span id="line-33"></span><span id="lineToCommands"><span class="annot"><span class="annottext">lineToCommands :: Map Text Text -&gt; Text -&gt; [Text]
-</span><a href="CLI.Internal.html#lineToCommands"><span class="hs-identifier hs-var hs-var">lineToCommands</span></a></span></span><span> </span><span id="local-6989586621679104204"><span class="annot"><span class="annottext">mp :: Map Text Text
-</span><a href="#local-6989586621679104204"><span class="hs-identifier hs-var">mp</span></a></span></span><span> </span><span id="local-6989586621679104203"><span class="annot"><span class="annottext">line :: Text
-</span><a href="#local-6989586621679104203"><span class="hs-identifier hs-var">line</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="CLI.Internal.html#lineToCommands"><span class="hs-identifier hs-var hs-var">lineToCommands</span></a></span></span><span> </span><span id="local-6989586621679132177"><span class="annot"><span class="annottext">mp :: Map Text Text
+</span><a href="#local-6989586621679132177"><span class="hs-identifier hs-var">mp</span></a></span></span><span> </span><span id="local-6989586621679132176"><span class="annot"><span class="annottext">line :: Text
+</span><a href="#local-6989586621679132176"><span class="hs-identifier hs-var">line</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-34"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; [Text]
 </span><span class="hs-identifier hs-var">T.splitOn</span></span><span> </span><span class="annot"><span class="hs-string">&quot;,&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679104203"><span class="hs-identifier hs-var">line</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-35"></span><span>    </span><span class="hs-special">[</span><span id="local-6989586621679104201"><span class="annot"><span class="annottext">l :: Text
-</span><a href="#local-6989586621679104201"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><a href="#local-6989586621679132176"><span class="hs-identifier hs-var">line</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-35"></span><span>    </span><span class="hs-special">[</span><span id="local-6989586621679132174"><span class="annot"><span class="annottext">l :: Text
+</span><a href="#local-6989586621679132174"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-36"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Map Text Text -&gt; Maybe Text
 forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Map.lookup</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679104201"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Map Text Text
-</span><a href="#local-6989586621679104204"><span class="hs-identifier hs-var">mp</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-37"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679104199"><span class="annot"><span class="annottext">c :: Text
-</span><a href="#local-6989586621679104199"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Map Text Text -&gt; Text -&gt; [Text]
+</span><a href="#local-6989586621679132174"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Map Text Text
+</span><a href="#local-6989586621679132177"><span class="hs-identifier hs-var">mp</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-37"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679132172"><span class="annot"><span class="annottext">c :: Text
+</span><a href="#local-6989586621679132172"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Map Text Text -&gt; Text -&gt; [Text]
 </span><a href="CLI.Internal.html#lineToCommands"><span class="hs-identifier hs-var">lineToCommands</span></a></span><span> </span><span class="annot"><span class="annottext">Map Text Text
-</span><a href="#local-6989586621679104204"><span class="hs-identifier hs-var">mp</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679104199"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><a href="#local-6989586621679132177"><span class="hs-identifier hs-var">mp</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679132172"><span class="hs-identifier hs-var">c</span></a></span><span>
 </span><span id="line-38"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679104201"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">]</span><span>
-</span><span id="line-39"></span><span>    </span><span id="local-6989586621679104198"><span class="annot"><span class="annottext">xs :: [Text]
-</span><a href="#local-6989586621679104198"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[Text]
-</span><a href="#local-6989586621679104198"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; (Text -&gt; [Text]) -&gt; [Text]
+</span><a href="#local-6989586621679132174"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-39"></span><span>    </span><span id="local-6989586621679132171"><span class="annot"><span class="annottext">xs :: [Text]
+</span><a href="#local-6989586621679132171"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[Text]
+</span><a href="#local-6989586621679132171"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; (Text -&gt; [Text]) -&gt; [Text]
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
 </span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="annot"><span class="annottext">Map Text Text -&gt; Text -&gt; [Text]
 </span><a href="CLI.Internal.html#lineToCommands"><span class="hs-identifier hs-var">lineToCommands</span></a></span><span> </span><span class="annot"><span class="annottext">Map Text Text
-</span><a href="#local-6989586621679104204"><span class="hs-identifier hs-var">mp</span></a></span><span>
+</span><a href="#local-6989586621679132177"><span class="hs-identifier hs-var">mp</span></a></span><span>
 </span><span id="line-40"></span></pre></body></html>
