@@ -43,21 +43,24 @@
 </span><span id="line-43"></span><span class="hs-comment">--       and each &quot;remote_name branch_name&quot; is separated by a comma.</span><span>
 </span><span id="line-44"></span><span class="hs-comment">--       For instance, --push=&quot;origin dev, other temp&quot;.</span><span>
 </span><span id="line-45"></span><span class="hs-comment">--</span><span>
-</span><span id="line-46"></span><span class="hs-comment">--   -h, --help</span><span>
-</span><span id="line-47"></span><span class="hs-comment">--       Returns instructions as `Left` `String`.</span><span>
-</span><span id="line-48"></span><span class="hs-comment">-- @</span><span>
-</span><span id="line-49"></span><span class="annot"><a href="Git.FastForward.Parsing.html#parseArgs"><span class="hs-identifier hs-type">parseArgs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><a href="Common.Parsing.ParseErr.html#ParseErr"><span class="hs-identifier hs-type">ParseErr</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
-</span><span id="line-50"></span><span id="parseArgs"><span class="annot"><span class="annottext">parseArgs :: [String] -&gt; Either ParseErr Env
-</span><a href="Git.FastForward.Parsing.html#parseArgs"><span class="hs-identifier hs-var hs-var">parseArgs</span></a></span></span><span> </span><span id="local-6989586621679106330"><span class="annot"><span class="annottext">args :: [String]
-</span><a href="#local-6989586621679106330"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-51"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[AnyParser Acc] -&gt; [String] -&gt; ParseAnd Acc
+</span><span id="line-46"></span><span class="hs-comment">--   --no-fetch</span><span>
+</span><span id="line-47"></span><span class="hs-comment">--       Skips @git fetch@ step.</span><span>
+</span><span id="line-48"></span><span class="hs-comment">--</span><span>
+</span><span id="line-49"></span><span class="hs-comment">--   -h, --help</span><span>
+</span><span id="line-50"></span><span class="hs-comment">--       Returns instructions as `Left` `String`.</span><span>
+</span><span id="line-51"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-52"></span><span class="annot"><a href="Git.FastForward.Parsing.html#parseArgs"><span class="hs-identifier hs-type">parseArgs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><a href="Common.Parsing.ParseErr.html#ParseErr"><span class="hs-identifier hs-type">ParseErr</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
+</span><span id="line-53"></span><span id="parseArgs"><span class="annot"><span class="annottext">parseArgs :: [String] -&gt; Either ParseErr Env
+</span><a href="Git.FastForward.Parsing.html#parseArgs"><span class="hs-identifier hs-var hs-var">parseArgs</span></a></span></span><span> </span><span id="local-6989586621679134479"><span class="annot"><span class="annottext">args :: [String]
+</span><a href="#local-6989586621679134479"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-54"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[AnyParser Acc] -&gt; [String] -&gt; ParseAnd Acc
 forall acc.
 Monoid acc =&gt;
 [AnyParser acc] -&gt; [String] -&gt; ParseAnd acc
 </span><a href="Common.Parsing.Core.html#parseAll"><span class="hs-identifier hs-var">parseAll</span></a></span><span> </span><span class="annot"><span class="annottext">[AnyParser Acc]
 </span><a href="Git.FastForward.Parsing.html#allParsers"><span class="hs-identifier hs-var">allParsers</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679106330"><span class="hs-identifier hs-var">args</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-52"></span><span>    </span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseStatus.html#PFailure"><span class="hs-identifier hs-type">PFailure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseErr.html#Help"><span class="hs-identifier hs-type">Help</span></a></span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ParseErr -&gt; Either ParseErr Env
+</span><a href="#local-6989586621679134479"><span class="hs-identifier hs-var">args</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-55"></span><span>    </span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseStatus.html#PFailure"><span class="hs-identifier hs-type">PFailure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseErr.html#Help"><span class="hs-identifier hs-type">Help</span></a></span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ParseErr -&gt; Either ParseErr Env
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">(ParseErr -&gt; Either ParseErr Env)
 -&gt; ParseErr -&gt; Either ParseErr Env
@@ -65,9 +68,9 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ParseErr
 </span><a href="Common.Parsing.ParseErr.html#Help"><span class="hs-identifier hs-var">Help</span></a></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="Git.FastForward.Parsing.html#help"><span class="hs-identifier hs-var">help</span></a></span><span>
-</span><span id="line-53"></span><span>    </span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseStatus.html#PFailure"><span class="hs-identifier hs-type">PFailure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseErr.html#Err"><span class="hs-identifier hs-type">Err</span></a></span><span> </span><span id="local-6989586621679106322"><span class="annot"><span class="annottext">arg :: String
-</span><a href="#local-6989586621679106322"><span class="hs-identifier hs-var">arg</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-54"></span><span>      </span><span class="annot"><span class="annottext">ParseErr -&gt; Either ParseErr Env
+</span><span id="line-56"></span><span>    </span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseStatus.html#PFailure"><span class="hs-identifier hs-type">PFailure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseErr.html#Err"><span class="hs-identifier hs-type">Err</span></a></span><span> </span><span id="local-6989586621679134471"><span class="annot"><span class="annottext">arg :: String
+</span><a href="#local-6989586621679134471"><span class="hs-identifier hs-var">arg</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-57"></span><span>      </span><span class="annot"><span class="annottext">ParseErr -&gt; Either ParseErr Env
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">(ParseErr -&gt; Either ParseErr Env)
 -&gt; ParseErr -&gt; Either ParseErr Env
@@ -78,19 +81,19 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Could not parse `&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679106322"><span class="hs-identifier hs-var">arg</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679134471"><span class="hs-identifier hs-var">arg</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;`. Try --help.&quot;</span></span><span>
-</span><span id="line-55"></span><span>    </span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseStatus.html#PSuccess"><span class="hs-identifier hs-type">PSuccess</span></a></span><span> </span><span id="local-6989586621679106320"><span class="annot"><span class="annottext">acc :: Acc
-</span><a href="#local-6989586621679106320"><span class="hs-identifier hs-var">acc</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Either ParseErr Env
+</span><span id="line-58"></span><span>    </span><span class="annot"><a href="Common.Parsing.ParseAnd.html#ParseAnd"><span class="hs-identifier hs-type">ParseAnd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Common.Parsing.ParseStatus.html#PSuccess"><span class="hs-identifier hs-type">PSuccess</span></a></span><span> </span><span id="local-6989586621679134469"><span class="annot"><span class="annottext">acc :: Acc
+</span><a href="#local-6989586621679134469"><span class="hs-identifier hs-var">acc</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Env -&gt; Either ParseErr Env
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(Env -&gt; Either ParseErr Env) -&gt; Env -&gt; Either ParseErr Env
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Acc -&gt; Env
 </span><a href="Git.FastForward.Parsing.html#accToEnv"><span class="hs-identifier hs-var">accToEnv</span></a></span><span> </span><span class="annot"><span class="annottext">Acc
-</span><a href="#local-6989586621679106320"><span class="hs-identifier hs-var">acc</span></a></span><span>
-</span><span id="line-56"></span><span>
-</span><span id="line-57"></span><span class="hs-keyword">newtype</span><span> </span><span id="AccMergeType"><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-var">AccMergeType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AccMergeType"><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-var">AccMergeType</span></a></span></span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#MergeType"><span class="hs-identifier hs-type">MergeType</span></a></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679106312"><span id="local-6989586621679106314"><span id="local-6989586621679106316"><span class="annot"><span class="annottext">Int -&gt; AccMergeType -&gt; String -&gt; String
+</span><a href="#local-6989586621679134469"><span class="hs-identifier hs-var">acc</span></a></span><span>
+</span><span id="line-59"></span><span>
+</span><span id="line-60"></span><span class="hs-keyword">newtype</span><span> </span><span id="AccMergeType"><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-var">AccMergeType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AccMergeType"><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-var">AccMergeType</span></a></span></span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#MergeType"><span class="hs-identifier hs-type">MergeType</span></a></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679134461"><span id="local-6989586621679134463"><span id="local-6989586621679134465"><span class="annot"><span class="annottext">Int -&gt; AccMergeType -&gt; String -&gt; String
 [AccMergeType] -&gt; String -&gt; String
 AccMergeType -&gt; String
 (Int -&gt; AccMergeType -&gt; String -&gt; String)
@@ -107,32 +110,34 @@ $cshow :: AccMergeType -&gt; String
 showsPrec :: Int -&gt; AccMergeType -&gt; String -&gt; String
 $cshowsPrec :: Int -&gt; AccMergeType -&gt; String -&gt; String
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
-</span><span id="line-58"></span><span>
-</span><span id="line-59"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679106306"><span id="local-6989586621679106308"><span class="annot"><span class="hs-identifier hs-type">Semigroup</span></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-type">AccMergeType</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-60"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-type">AccMergeType</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#Upstream"><span class="hs-identifier hs-type">Upstream</span></a></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679106303"><span class="annot"><span class="annottext">&lt;&gt; :: AccMergeType -&gt; AccMergeType -&gt; AccMergeType
-</span><span class="hs-operator hs-var hs-var hs-var hs-var">&lt;&gt;</span></span></span><span> </span><span id="local-6989586621679106302"><span class="annot"><span class="annottext">r :: AccMergeType
-</span><a href="#local-6989586621679106302"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType
-</span><a href="#local-6989586621679106302"><span class="hs-identifier hs-var">r</span></a></span><span>
-</span><span id="line-61"></span><span>  </span><span id="local-6989586621679106301"><span class="annot"><span class="annottext">l :: AccMergeType
-</span><a href="#local-6989586621679106301"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="annot"><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType
-</span><a href="#local-6989586621679106301"><span class="hs-identifier hs-var">l</span></a></span><span>
-</span><span id="line-62"></span><span>
-</span><span id="line-63"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679106295"><span id="local-6989586621679106297"><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-type">AccMergeType</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-64"></span><span>  </span><span id="local-6989586621679106293"><span class="annot"><span class="annottext">mempty :: AccMergeType
+</span><span id="line-61"></span><span>
+</span><span id="line-62"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679134455"><span id="local-6989586621679134457"><span class="annot"><span class="hs-identifier hs-type">Semigroup</span></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-type">AccMergeType</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-type">AccMergeType</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Types.MergeType.html#Upstream"><span class="hs-identifier hs-type">Upstream</span></a></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679134452"><span class="annot"><span class="annottext">&lt;&gt; :: AccMergeType -&gt; AccMergeType -&gt; AccMergeType
+</span><span class="hs-operator hs-var hs-var hs-var hs-var">&lt;&gt;</span></span></span><span> </span><span id="local-6989586621679134451"><span class="annot"><span class="annottext">r :: AccMergeType
+</span><a href="#local-6989586621679134451"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType
+</span><a href="#local-6989586621679134451"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-64"></span><span>  </span><span id="local-6989586621679134450"><span class="annot"><span class="annottext">l :: AccMergeType
+</span><a href="#local-6989586621679134450"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="annot"><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType
+</span><a href="#local-6989586621679134450"><span class="hs-identifier hs-var">l</span></a></span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679134444"><span id="local-6989586621679134446"><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-type">AccMergeType</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-67"></span><span>  </span><span id="local-6989586621679134442"><span class="annot"><span class="annottext">mempty :: AccMergeType
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">mempty</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MergeType -&gt; AccMergeType
 </span><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-var">AccMergeType</span></a></span><span> </span><span class="annot"><span class="annottext">MergeType
 </span><a href="Git.FastForward.Types.MergeType.html#Upstream"><span class="hs-identifier hs-var">Upstream</span></a></span><span>
-</span><span id="line-65"></span><span>
-</span><span id="line-66"></span><span class="hs-keyword">data</span><span> </span><span id="Acc"><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-var">Acc</span></a></span></span><span>
-</span><span id="line-67"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="Acc"><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-var">Acc</span></a></span></span><span>
-</span><span id="line-68"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="accPath"><span class="annot"><span class="annottext">Acc -&gt; Maybe String
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span class="hs-keyword">data</span><span> </span><span id="Acc"><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-var">Acc</span></a></span></span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="Acc"><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-var">Acc</span></a></span></span><span>
+</span><span id="line-71"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="accPath"><span class="annot"><span class="annottext">Acc -&gt; Maybe String
 </span><a href="Git.FastForward.Parsing.html#accPath"><span class="hs-identifier hs-var hs-var">accPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span class="hs-special">,</span><span>
-</span><span id="line-69"></span><span>        </span><span id="accMergeType"><span class="annot"><span class="annottext">Acc -&gt; AccMergeType
+</span><span id="line-72"></span><span>        </span><span id="accMergeType"><span class="annot"><span class="annottext">Acc -&gt; AccMergeType
 </span><a href="Git.FastForward.Parsing.html#accMergeType"><span class="hs-identifier hs-var hs-var">accMergeType</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-type">AccMergeType</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-70"></span><span>        </span><span id="accPush"><span class="annot"><span class="annottext">Acc -&gt; [Name]
-</span><a href="Git.FastForward.Parsing.html#accPush"><span class="hs-identifier hs-var hs-var">accPush</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span class="hs-special">]</span><span>
-</span><span id="line-71"></span><span>      </span><span class="hs-special">}</span><span>
-</span><span id="line-72"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679106282"><span id="local-6989586621679106284"><span id="local-6989586621679106286"><span class="annot"><span class="annottext">Int -&gt; Acc -&gt; String -&gt; String
+</span><span id="line-73"></span><span>        </span><span id="accPush"><span class="annot"><span class="annottext">Acc -&gt; [Name]
+</span><a href="Git.FastForward.Parsing.html#accPush"><span class="hs-identifier hs-var hs-var">accPush</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-74"></span><span>        </span><span id="accDoFetch"><span class="annot"><span class="annottext">Acc -&gt; Bool
+</span><a href="Git.FastForward.Parsing.html#accDoFetch"><span class="hs-identifier hs-var hs-var">accDoFetch</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
+</span><span id="line-75"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-76"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679134430"><span id="local-6989586621679134432"><span id="local-6989586621679134434"><span class="annot"><span class="annottext">Int -&gt; Acc -&gt; String -&gt; String
 [Acc] -&gt; String -&gt; String
 Acc -&gt; String
 (Int -&gt; Acc -&gt; String -&gt; String)
@@ -147,84 +152,99 @@ $cshow :: Acc -&gt; String
 showsPrec :: Int -&gt; Acc -&gt; String -&gt; String
 $cshowsPrec :: Int -&gt; Acc -&gt; String -&gt; String
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
-</span><span id="line-73"></span><span>
-</span><span id="line-74"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679106277"><span id="local-6989586621679106279"><span class="annot"><span class="hs-identifier hs-type">Semigroup</span></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-75"></span><span>  </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accPath :: Acc -&gt; Maybe String
-</span><a href="Git.FastForward.Parsing.html#accPath"><span class="hs-identifier hs-var">accPath</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679106276"><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679106276"><span class="hs-identifier hs-var">a</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accMergeType :: Acc -&gt; AccMergeType
-</span><a href="Git.FastForward.Parsing.html#accMergeType"><span class="hs-identifier hs-var">accMergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679106275"><span class="annot"><span class="annottext">AccMergeType
-</span><a href="#local-6989586621679106275"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accPush :: Acc -&gt; [Name]
-</span><a href="Git.FastForward.Parsing.html#accPush"><span class="hs-identifier hs-var">accPush</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679106274"><span class="annot"><span class="annottext">[Name]
-</span><a href="#local-6989586621679106274"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">}</span><span>
-</span><span id="line-76"></span><span>    </span><span id="local-6989586621679106273"><span class="annot"><span class="annottext">&lt;&gt; :: Acc -&gt; Acc -&gt; Acc
+</span><span id="line-77"></span><span>
+</span><span id="line-78"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679134425"><span id="local-6989586621679134427"><span class="annot"><span class="hs-identifier hs-type">Semigroup</span></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-79"></span><span>  </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accPath :: Acc -&gt; Maybe String
+</span><a href="Git.FastForward.Parsing.html#accPath"><span class="hs-identifier hs-var">accPath</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679134424"><span class="annot"><span class="annottext">Maybe String
+</span><a href="#local-6989586621679134424"><span class="hs-identifier hs-var">a</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accMergeType :: Acc -&gt; AccMergeType
+</span><a href="Git.FastForward.Parsing.html#accMergeType"><span class="hs-identifier hs-var">accMergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679134423"><span class="annot"><span class="annottext">AccMergeType
+</span><a href="#local-6989586621679134423"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accPush :: Acc -&gt; [Name]
+</span><a href="Git.FastForward.Parsing.html#accPush"><span class="hs-identifier hs-var">accPush</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679134422"><span class="annot"><span class="annottext">[Name]
+</span><a href="#local-6989586621679134422"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accDoFetch :: Acc -&gt; Bool
+</span><a href="Git.FastForward.Parsing.html#accDoFetch"><span class="hs-identifier hs-var">accDoFetch</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679134421"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679134421"><span class="hs-identifier hs-var">f</span></a></span></span><span class="hs-special">}</span><span>
+</span><span id="line-80"></span><span>    </span><span id="local-6989586621679134420"><span class="annot"><span class="annottext">&lt;&gt; :: Acc -&gt; Acc -&gt; Acc
 </span><span class="hs-operator hs-var hs-var hs-var hs-var">&lt;&gt;</span></span></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accPath :: Acc -&gt; Maybe String
-</span><a href="Git.FastForward.Parsing.html#accPath"><span class="hs-identifier hs-var">accPath</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679106272"><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679106272"><span class="hs-identifier hs-var">a'</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accMergeType :: Acc -&gt; AccMergeType
-</span><a href="Git.FastForward.Parsing.html#accMergeType"><span class="hs-identifier hs-var">accMergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679106271"><span class="annot"><span class="annottext">AccMergeType
-</span><a href="#local-6989586621679106271"><span class="hs-identifier hs-var">m'</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accPush :: Acc -&gt; [Name]
-</span><a href="Git.FastForward.Parsing.html#accPush"><span class="hs-identifier hs-var">accPush</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679106270"><span class="annot"><span class="annottext">[Name]
-</span><a href="#local-6989586621679106270"><span class="hs-identifier hs-var">n'</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-77"></span><span>      </span><span class="annot"><span class="annottext">Maybe String -&gt; AccMergeType -&gt; [Name] -&gt; Acc
+</span><a href="Git.FastForward.Parsing.html#accPath"><span class="hs-identifier hs-var">accPath</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679134419"><span class="annot"><span class="annottext">Maybe String
+</span><a href="#local-6989586621679134419"><span class="hs-identifier hs-var">a'</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accMergeType :: Acc -&gt; AccMergeType
+</span><a href="Git.FastForward.Parsing.html#accMergeType"><span class="hs-identifier hs-var">accMergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679134418"><span class="annot"><span class="annottext">AccMergeType
+</span><a href="#local-6989586621679134418"><span class="hs-identifier hs-var">m'</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accPush :: Acc -&gt; [Name]
+</span><a href="Git.FastForward.Parsing.html#accPush"><span class="hs-identifier hs-var">accPush</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679134417"><span class="annot"><span class="annottext">[Name]
+</span><a href="#local-6989586621679134417"><span class="hs-identifier hs-var">n'</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accDoFetch :: Acc -&gt; Bool
+</span><a href="Git.FastForward.Parsing.html#accDoFetch"><span class="hs-identifier hs-var">accDoFetch</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679134416"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679134416"><span class="hs-identifier hs-var">f'</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-81"></span><span>      </span><span class="annot"><span class="annottext">Maybe String -&gt; AccMergeType -&gt; [Name] -&gt; Bool -&gt; Acc
 </span><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-var">Acc</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679106276"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe String -&gt; Maybe String -&gt; Maybe String
+</span><a href="#local-6989586621679134424"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe String -&gt; Maybe String -&gt; Maybe String
 forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
 </span><span class="hs-operator hs-var">&lt;|&gt;</span></span><span> </span><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679106272"><span class="hs-identifier hs-var">a'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AccMergeType
-</span><a href="#local-6989586621679106275"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">AccMergeType -&gt; AccMergeType -&gt; AccMergeType
+</span><a href="#local-6989586621679134419"><span class="hs-identifier hs-var">a'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AccMergeType
+</span><a href="#local-6989586621679134423"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">AccMergeType -&gt; AccMergeType -&gt; AccMergeType
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">AccMergeType
-</span><a href="#local-6989586621679106271"><span class="hs-identifier hs-var">m'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Name]
-</span><a href="#local-6989586621679106274"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">[Name] -&gt; [Name] -&gt; [Name]
+</span><a href="#local-6989586621679134418"><span class="hs-identifier hs-var">m'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Name]
+</span><a href="#local-6989586621679134422"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">[Name] -&gt; [Name] -&gt; [Name]
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">[Name]
-</span><a href="#local-6989586621679106270"><span class="hs-identifier hs-var">n'</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-78"></span><span>
-</span><span id="line-79"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679106264"><span id="local-6989586621679106266"><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-80"></span><span>  </span><span id="local-6989586621679106263"><span class="annot"><span class="annottext">mempty :: Acc
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">mempty</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe String -&gt; AccMergeType -&gt; [Name] -&gt; Acc
+</span><a href="#local-6989586621679134417"><span class="hs-identifier hs-var">n'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679134421"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679134416"><span class="hs-identifier hs-var">f'</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-82"></span><span>
+</span><span id="line-83"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679134409"><span id="local-6989586621679134411"><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-84"></span><span>  </span><span id="local-6989586621679134408"><span class="annot"><span class="annottext">mempty :: Acc
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">mempty</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe String -&gt; AccMergeType -&gt; [Name] -&gt; Bool -&gt; Acc
 </span><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-var">Acc</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe String
 forall a. Monoid a =&gt; a
 </span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="annot"><span class="annottext">AccMergeType
 forall a. Monoid a =&gt; a
 </span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="annot"><span class="annottext">[Name]
 forall a. Monoid a =&gt; a
-</span><span class="hs-identifier hs-var">mempty</span></span><span>
-</span><span id="line-81"></span><span>
-</span><span id="line-82"></span><span class="annot"><a href="Git.FastForward.Parsing.html#accToEnv"><span class="hs-identifier hs-type">accToEnv</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
-</span><span id="line-83"></span><span id="accToEnv"><span class="annot"><span class="annottext">accToEnv :: Acc -&gt; Env
-</span><a href="Git.FastForward.Parsing.html#accToEnv"><span class="hs-identifier hs-var hs-var">accToEnv</span></a></span></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679106262"><span class="annot"><span class="annottext">Maybe String
+</span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span>
+</span><span id="line-85"></span><span>
+</span><span id="line-86"></span><span class="annot"><a href="Git.FastForward.Parsing.html#accToEnv"><span class="hs-identifier hs-type">accToEnv</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span>
+</span><span id="line-87"></span><span id="accToEnv"><span class="annot"><span class="annottext">accToEnv :: Acc -&gt; Env
+</span><a href="Git.FastForward.Parsing.html#accToEnv"><span class="hs-identifier hs-var hs-var">accToEnv</span></a></span></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679134407"><span class="annot"><span class="annottext">Maybe String
 accPath :: Maybe String
 accPath :: Acc -&gt; Maybe String
-</span><a href="#local-6989586621679106262"><span class="hs-identifier hs-var hs-var">accPath</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accMergeType :: Acc -&gt; AccMergeType
-</span><a href="Git.FastForward.Parsing.html#accMergeType"><span class="hs-identifier hs-var">accMergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-type">AccMergeType</span></a></span><span> </span><span id="local-6989586621679106261"><span class="annot"><span class="annottext">m :: MergeType
-</span><a href="#local-6989586621679106261"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span id="local-6989586621679106260"><span class="annot"><span class="annottext">[Name]
+</span><a href="#local-6989586621679134407"><span class="hs-identifier hs-var hs-var">accPath</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accMergeType :: Acc -&gt; AccMergeType
+</span><a href="Git.FastForward.Parsing.html#accMergeType"><span class="hs-identifier hs-var">accMergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-type">AccMergeType</span></a></span><span> </span><span id="local-6989586621679134406"><span class="annot"><span class="annottext">m :: MergeType
+</span><a href="#local-6989586621679134406"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134405"><span class="annot"><span class="annottext">[Name]
 accPush :: [Name]
 accPush :: Acc -&gt; [Name]
-</span><a href="#local-6989586621679106260"><span class="hs-identifier hs-var hs-var">accPush</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-84"></span><span>  </span><span class="annot"><span class="annottext">Env :: Maybe String -&gt; MergeType -&gt; [Name] -&gt; Env
+</span><a href="#local-6989586621679134405"><span class="hs-identifier hs-var hs-var">accPush</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134404"><span class="annot"><span class="annottext">Bool
+accDoFetch :: Bool
+accDoFetch :: Acc -&gt; Bool
+</span><a href="#local-6989586621679134404"><span class="hs-identifier hs-var hs-var">accDoFetch</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-88"></span><span>  </span><span class="annot"><span class="annottext">Env :: Maybe String -&gt; MergeType -&gt; [Name] -&gt; Bool -&gt; Env
 </span><a href="Git.FastForward.Types.Env.html#Env"><span class="hs-identifier hs-type hs-type">Env</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">path :: Maybe String
 </span><a href="Git.FastForward.Types.Env.html#path"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679106262"><span class="hs-identifier hs-var">accPath</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">mergeType :: MergeType
+</span><a href="#local-6989586621679134407"><span class="hs-identifier hs-var">accPath</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">mergeType :: MergeType
 </span><a href="Git.FastForward.Types.Env.html#mergeType"><span class="hs-identifier hs-var">mergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MergeType
-</span><a href="#local-6989586621679106261"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">push :: [Name]
+</span><a href="#local-6989586621679134406"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">push :: [Name]
 </span><a href="Git.FastForward.Types.Env.html#push"><span class="hs-identifier hs-var">push</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Name]
-</span><a href="#local-6989586621679106260"><span class="hs-identifier hs-var">accPush</span></a></span><span class="hs-special">}</span><span>
-</span><span id="line-85"></span><span>
-</span><span id="line-86"></span><span class="annot"><a href="Git.FastForward.Parsing.html#allParsers"><span class="hs-identifier hs-type">allParsers</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span class="hs-special">]</span><span>
-</span><span id="line-87"></span><span id="allParsers"><span class="annot"><span class="annottext">allParsers :: [AnyParser Acc]
+</span><a href="#local-6989586621679134405"><span class="hs-identifier hs-var">accPush</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">doFetch :: Bool
+</span><a href="Git.FastForward.Types.Env.html#doFetch"><span class="hs-identifier hs-var">doFetch</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679134404"><span class="hs-identifier hs-var">accDoFetch</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-89"></span><span>
+</span><span id="line-90"></span><span class="annot"><a href="Git.FastForward.Parsing.html#allParsers"><span class="hs-identifier hs-type">allParsers</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-91"></span><span id="allParsers"><span class="annot"><span class="annottext">allParsers :: [AnyParser Acc]
 </span><a href="Git.FastForward.Parsing.html#allParsers"><span class="hs-identifier hs-var hs-var">allParsers</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-88"></span><span>  </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">AnyParser Acc
+</span><span id="line-92"></span><span>  </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">AnyParser Acc
 </span><a href="Git.FastForward.Parsing.html#pathParser"><span class="hs-identifier hs-var">pathParser</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-89"></span><span>    </span><span class="annot"><span class="annottext">AnyParser Acc
+</span><span id="line-93"></span><span>    </span><span class="annot"><span class="annottext">AnyParser Acc
 </span><a href="Git.FastForward.Parsing.html#mergeTypeParser"><span class="hs-identifier hs-var">mergeTypeParser</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-90"></span><span>    </span><span class="annot"><span class="annottext">AnyParser Acc
+</span><span id="line-94"></span><span>    </span><span class="annot"><span class="annottext">AnyParser Acc
 </span><a href="Git.FastForward.Parsing.html#mergeFlagParser"><span class="hs-identifier hs-var">mergeFlagParser</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-91"></span><span>    </span><span class="annot"><span class="annottext">AnyParser Acc
-</span><a href="Git.FastForward.Parsing.html#pushBranchesParser"><span class="hs-identifier hs-var">pushBranchesParser</span></a></span><span>
-</span><span id="line-92"></span><span>  </span><span class="hs-special">]</span><span>
-</span><span id="line-93"></span><span>
-</span><span id="line-94"></span><span class="annot"><a href="Git.FastForward.Parsing.html#pathParser"><span class="hs-identifier hs-type">pathParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span>
-</span><span id="line-95"></span><span id="pathParser"><span class="annot"><span class="annottext">pathParser :: AnyParser Acc
+</span><span id="line-95"></span><span>    </span><span class="annot"><span class="annottext">AnyParser Acc
+</span><a href="Git.FastForward.Parsing.html#pushBranchesParser"><span class="hs-identifier hs-var">pushBranchesParser</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-96"></span><span>    </span><span class="annot"><span class="annottext">AnyParser Acc
+</span><a href="Git.FastForward.Parsing.html#noFetchFlagParser"><span class="hs-identifier hs-var">noFetchFlagParser</span></a></span><span>
+</span><span id="line-97"></span><span>  </span><span class="hs-special">]</span><span>
+</span><span id="line-98"></span><span>
+</span><span id="line-99"></span><span class="annot"><a href="Git.FastForward.Parsing.html#pathParser"><span class="hs-identifier hs-type">pathParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span>
+</span><span id="line-100"></span><span id="pathParser"><span class="annot"><span class="annottext">pathParser :: AnyParser Acc
 </span><a href="Git.FastForward.Parsing.html#pathParser"><span class="hs-identifier hs-var hs-var">pathParser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser (Maybe String) Acc -&gt; AnyParser Acc
 forall acc a. Parser a acc -&gt; AnyParser acc
 </span><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-var">AnyParser</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (Maybe String) Acc -&gt; AnyParser Acc)
@@ -237,34 +257,34 @@ forall a acc.
 (String, String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.Core.html#PrefixParser"><span class="hs-identifier hs-var">PrefixParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;--path=&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe (Maybe String)
 forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe (Maybe a)
-</span><a href="#local-6989586621679106248"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Acc -&gt; Maybe String -&gt; Acc
-</span><a href="#local-6989586621679106247"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-96"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-97"></span><span>    </span><span id="local-6989586621679106248"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe (Maybe a)
-</span><a href="#local-6989586621679106248"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe a -&gt; Maybe (Maybe a)
+</span><a href="#local-6989586621679134390"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Acc -&gt; Maybe String -&gt; Acc
+</span><a href="#local-6989586621679134389"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-101"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-102"></span><span>    </span><span id="local-6989586621679134390"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe (Maybe a)
+</span><a href="#local-6989586621679134390"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe a -&gt; Maybe (Maybe a)
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Maybe a
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-98"></span><span>    </span><span class="annot"><a href="#local-6989586621679106248"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679106246"><span class="annot"><span class="annottext">s :: a
-</span><a href="#local-6989586621679106246"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe a -&gt; Maybe (Maybe a)
+</span><span id="line-103"></span><span>    </span><span class="annot"><a href="#local-6989586621679134390"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679134388"><span class="annot"><span class="annottext">s :: a
+</span><a href="#local-6989586621679134388"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe a -&gt; Maybe (Maybe a)
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Maybe a -&gt; Maybe (Maybe a)) -&gt; Maybe a -&gt; Maybe (Maybe a)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Maybe a
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679106246"><span class="hs-identifier hs-var">s</span></a></span><span>
-</span><span id="line-99"></span><span>    </span><span id="local-6989586621679106247"><span class="annot"><span class="annottext">updater :: Acc -&gt; Maybe String -&gt; Acc
-</span><a href="#local-6989586621679106247"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679106245"><span class="annot"><span class="annottext">acc :: Acc
-</span><a href="#local-6989586621679106245"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span id="local-6989586621679106244"><span class="annot"><span class="annottext">p :: Maybe String
-</span><a href="#local-6989586621679106244"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Acc
-</span><a href="#local-6989586621679106245"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accPath :: Maybe String
+</span><a href="#local-6989586621679134388"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-104"></span><span>    </span><span id="local-6989586621679134389"><span class="annot"><span class="annottext">updater :: Acc -&gt; Maybe String -&gt; Acc
+</span><a href="#local-6989586621679134389"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679134387"><span class="annot"><span class="annottext">acc :: Acc
+</span><a href="#local-6989586621679134387"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span id="local-6989586621679134386"><span class="annot"><span class="annottext">p :: Maybe String
+</span><a href="#local-6989586621679134386"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Acc
+</span><a href="#local-6989586621679134387"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accPath :: Maybe String
 </span><a href="Git.FastForward.Parsing.html#accPath"><span class="hs-identifier hs-var">accPath</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679106244"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">}</span><span>
-</span><span id="line-100"></span><span>
-</span><span id="line-101"></span><span class="annot"><a href="Git.FastForward.Parsing.html#mergeTypeParser"><span class="hs-identifier hs-type">mergeTypeParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span>
-</span><span id="line-102"></span><span id="mergeTypeParser"><span class="annot"><span class="annottext">mergeTypeParser :: AnyParser Acc
+</span><a href="#local-6989586621679134386"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-105"></span><span>
+</span><span id="line-106"></span><span class="annot"><a href="Git.FastForward.Parsing.html#mergeTypeParser"><span class="hs-identifier hs-type">mergeTypeParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span>
+</span><span id="line-107"></span><span id="mergeTypeParser"><span class="annot"><span class="annottext">mergeTypeParser :: AnyParser Acc
 </span><a href="Git.FastForward.Parsing.html#mergeTypeParser"><span class="hs-identifier hs-var hs-var">mergeTypeParser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser AccMergeType Acc -&gt; AnyParser Acc
 forall acc a. Parser a acc -&gt; AnyParser acc
 </span><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-var">AnyParser</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser AccMergeType Acc -&gt; AnyParser Acc)
@@ -275,14 +295,14 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a acc.
 (String, String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.Core.html#PrefixParser"><span class="hs-identifier hs-var">PrefixParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;--merge=&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe AccMergeType
-</span><a href="#local-6989586621679106243"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Acc -&gt; AccMergeType -&gt; Acc
-</span><a href="#local-6989586621679106242"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-103"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-104"></span><span>    </span><span id="local-6989586621679106243"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe AccMergeType
-</span><a href="#local-6989586621679106243"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe AccMergeType
+</span><a href="#local-6989586621679134385"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Acc -&gt; AccMergeType -&gt; Acc
+</span><a href="#local-6989586621679134384"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-108"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-109"></span><span>    </span><span id="local-6989586621679134385"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe AccMergeType
+</span><a href="#local-6989586621679134385"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe AccMergeType
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-105"></span><span>    </span><span class="annot"><a href="#local-6989586621679106243"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-string">&quot;upstream&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType -&gt; Maybe AccMergeType
+</span><span id="line-110"></span><span>    </span><span class="annot"><a href="#local-6989586621679134385"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-string">&quot;upstream&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType -&gt; Maybe AccMergeType
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(AccMergeType -&gt; Maybe AccMergeType)
 -&gt; AccMergeType -&gt; Maybe AccMergeType
@@ -290,16 +310,8 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">MergeType -&gt; AccMergeType
 </span><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-var">AccMergeType</span></a></span><span> </span><span class="annot"><span class="annottext">MergeType
 </span><a href="Git.FastForward.Types.MergeType.html#Upstream"><span class="hs-identifier hs-var">Upstream</span></a></span><span>
-</span><span id="line-106"></span><span>    </span><span class="annot"><a href="#local-6989586621679106243"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-string">&quot;master&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType -&gt; Maybe AccMergeType
-forall a. a -&gt; Maybe a
-</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(AccMergeType -&gt; Maybe AccMergeType)
--&gt; AccMergeType -&gt; Maybe AccMergeType
-forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">MergeType -&gt; AccMergeType
-</span><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-var">AccMergeType</span></a></span><span> </span><span class="annot"><span class="annottext">MergeType
-</span><a href="Git.FastForward.Types.MergeType.html#Master"><span class="hs-identifier hs-var">Master</span></a></span><span>
-</span><span id="line-107"></span><span>    </span><span class="annot"><a href="#local-6989586621679106243"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679106240"><span class="annot"><span class="annottext">o :: String
-</span><a href="#local-6989586621679106240"><span class="hs-identifier hs-var">o</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType -&gt; Maybe AccMergeType
+</span><span id="line-111"></span><span>    </span><span class="annot"><a href="#local-6989586621679134385"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679134383"><span class="annot"><span class="annottext">o :: String
+</span><a href="#local-6989586621679134383"><span class="hs-identifier hs-var">o</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType -&gt; Maybe AccMergeType
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(AccMergeType -&gt; Maybe AccMergeType)
 -&gt; AccMergeType -&gt; Maybe AccMergeType
@@ -315,17 +327,17 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679106240"><span class="hs-identifier hs-var">o</span></a></span><span>
-</span><span id="line-108"></span><span>    </span><span id="local-6989586621679106242"><span class="annot"><span class="annottext">updater :: Acc -&gt; AccMergeType -&gt; Acc
-</span><a href="#local-6989586621679106242"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679106236"><span class="annot"><span class="annottext">acc :: Acc
-</span><a href="#local-6989586621679106236"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span id="local-6989586621679106235"><span class="annot"><span class="annottext">m :: AccMergeType
-</span><a href="#local-6989586621679106235"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Acc
-</span><a href="#local-6989586621679106236"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accMergeType :: AccMergeType
+</span><a href="#local-6989586621679134383"><span class="hs-identifier hs-var">o</span></a></span><span>
+</span><span id="line-112"></span><span>    </span><span id="local-6989586621679134384"><span class="annot"><span class="annottext">updater :: Acc -&gt; AccMergeType -&gt; Acc
+</span><a href="#local-6989586621679134384"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679134379"><span class="annot"><span class="annottext">acc :: Acc
+</span><a href="#local-6989586621679134379"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span id="local-6989586621679134378"><span class="annot"><span class="annottext">m :: AccMergeType
+</span><a href="#local-6989586621679134378"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Acc
+</span><a href="#local-6989586621679134379"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accMergeType :: AccMergeType
 </span><a href="Git.FastForward.Parsing.html#accMergeType"><span class="hs-identifier hs-var">accMergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType
-</span><a href="#local-6989586621679106235"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">}</span><span>
-</span><span id="line-109"></span><span>
-</span><span id="line-110"></span><span class="annot"><a href="Git.FastForward.Parsing.html#mergeFlagParser"><span class="hs-identifier hs-type">mergeFlagParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span>
-</span><span id="line-111"></span><span id="mergeFlagParser"><span class="annot"><span class="annottext">mergeFlagParser :: AnyParser Acc
+</span><a href="#local-6989586621679134378"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-113"></span><span>
+</span><span id="line-114"></span><span class="annot"><a href="Git.FastForward.Parsing.html#mergeFlagParser"><span class="hs-identifier hs-type">mergeFlagParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span>
+</span><span id="line-115"></span><span id="mergeFlagParser"><span class="annot"><span class="annottext">mergeFlagParser :: AnyParser Acc
 </span><a href="Git.FastForward.Parsing.html#mergeFlagParser"><span class="hs-identifier hs-var hs-var">mergeFlagParser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser AccMergeType Acc -&gt; AnyParser Acc
 forall acc a. Parser a acc -&gt; AnyParser acc
 </span><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-var">AnyParser</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser AccMergeType Acc -&gt; AnyParser Acc)
@@ -336,11 +348,11 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a acc. (String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.Core.html#ExactParser"><span class="hs-identifier hs-var">ExactParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe AccMergeType
 forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe AccMergeType
-</span><a href="#local-6989586621679106233"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Acc -&gt; AccMergeType -&gt; Acc
-</span><a href="#local-6989586621679106232"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-112"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-113"></span><span>    </span><span id="local-6989586621679106233"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe AccMergeType
-</span><a href="#local-6989586621679106233"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;-u&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType -&gt; Maybe AccMergeType
+</span><a href="#local-6989586621679134376"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Acc -&gt; AccMergeType -&gt; Acc
+</span><a href="#local-6989586621679134375"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-116"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-117"></span><span>    </span><span id="local-6989586621679134376"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe AccMergeType
+</span><a href="#local-6989586621679134376"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;-u&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType -&gt; Maybe AccMergeType
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(AccMergeType -&gt; Maybe AccMergeType)
 -&gt; AccMergeType -&gt; Maybe AccMergeType
@@ -348,7 +360,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">MergeType -&gt; AccMergeType
 </span><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-var">AccMergeType</span></a></span><span> </span><span class="annot"><span class="annottext">MergeType
 </span><a href="Git.FastForward.Types.MergeType.html#Upstream"><span class="hs-identifier hs-var">Upstream</span></a></span><span>
-</span><span id="line-114"></span><span>    </span><span class="annot"><a href="#local-6989586621679106233"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-string">&quot;-m&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType -&gt; Maybe AccMergeType
+</span><span id="line-118"></span><span>    </span><span class="annot"><a href="#local-6989586621679134376"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-string">&quot;-m&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType -&gt; Maybe AccMergeType
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(AccMergeType -&gt; Maybe AccMergeType)
 -&gt; AccMergeType -&gt; Maybe AccMergeType
@@ -356,19 +368,19 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">MergeType -&gt; AccMergeType
 </span><a href="Git.FastForward.Parsing.html#AccMergeType"><span class="hs-identifier hs-var">AccMergeType</span></a></span><span> </span><span class="annot"><span class="annottext">MergeType
 </span><a href="Git.FastForward.Types.MergeType.html#Master"><span class="hs-identifier hs-var">Master</span></a></span><span>
-</span><span id="line-115"></span><span>    </span><span class="annot"><a href="#local-6989586621679106233"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe AccMergeType
+</span><span id="line-119"></span><span>    </span><span class="annot"><a href="#local-6989586621679134376"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe AccMergeType
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-116"></span><span>    </span><span id="local-6989586621679106232"><span class="annot"><span class="annottext">updater :: Acc -&gt; AccMergeType -&gt; Acc
-</span><a href="#local-6989586621679106232"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679106231"><span class="annot"><span class="annottext">acc :: Acc
-</span><a href="#local-6989586621679106231"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span id="local-6989586621679106230"><span class="annot"><span class="annottext">m :: AccMergeType
-</span><a href="#local-6989586621679106230"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Acc
-</span><a href="#local-6989586621679106231"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accMergeType :: AccMergeType
+</span><span id="line-120"></span><span>    </span><span id="local-6989586621679134375"><span class="annot"><span class="annottext">updater :: Acc -&gt; AccMergeType -&gt; Acc
+</span><a href="#local-6989586621679134375"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679134373"><span class="annot"><span class="annottext">acc :: Acc
+</span><a href="#local-6989586621679134373"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span id="local-6989586621679134372"><span class="annot"><span class="annottext">m :: AccMergeType
+</span><a href="#local-6989586621679134372"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Acc
+</span><a href="#local-6989586621679134373"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accMergeType :: AccMergeType
 </span><a href="Git.FastForward.Parsing.html#accMergeType"><span class="hs-identifier hs-var">accMergeType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AccMergeType
-</span><a href="#local-6989586621679106230"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">}</span><span>
-</span><span id="line-117"></span><span>
-</span><span id="line-118"></span><span class="annot"><a href="Git.FastForward.Parsing.html#pushBranchesParser"><span class="hs-identifier hs-type">pushBranchesParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span>
-</span><span id="line-119"></span><span id="pushBranchesParser"><span class="annot"><span class="annottext">pushBranchesParser :: AnyParser Acc
+</span><a href="#local-6989586621679134372"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-121"></span><span>
+</span><span id="line-122"></span><span class="annot"><a href="Git.FastForward.Parsing.html#pushBranchesParser"><span class="hs-identifier hs-type">pushBranchesParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span>
+</span><span id="line-123"></span><span id="pushBranchesParser"><span class="annot"><span class="annottext">pushBranchesParser :: AnyParser Acc
 </span><a href="Git.FastForward.Parsing.html#pushBranchesParser"><span class="hs-identifier hs-var hs-var">pushBranchesParser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser [Name] Acc -&gt; AnyParser Acc
 forall acc a. Parser a acc -&gt; AnyParser acc
 </span><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-var">AnyParser</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser [Name] Acc -&gt; AnyParser Acc)
@@ -379,15 +391,15 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a acc.
 (String, String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
 </span><a href="Common.Parsing.Core.html#PrefixParser"><span class="hs-identifier hs-var">PrefixParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;--push=&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe [Name]
-</span><a href="#local-6989586621679106229"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Acc -&gt; [Name] -&gt; Acc
-</span><a href="#local-6989586621679106228"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-120"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-121"></span><span>    </span><span id="local-6989586621679106229"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe [Name]
-</span><a href="#local-6989586621679106229"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe [Name]
+</span><a href="#local-6989586621679134371"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Acc -&gt; [Name] -&gt; Acc
+</span><a href="#local-6989586621679134370"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-124"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-125"></span><span>    </span><span id="local-6989586621679134371"><span class="annot"><span class="annottext">parser :: String -&gt; Maybe [Name]
+</span><a href="#local-6989586621679134371"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe [Name]
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-122"></span><span>    </span><span class="annot"><a href="#local-6989586621679106229"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679106227"><span class="annot"><span class="annottext">s :: String
-</span><a href="#local-6989586621679106227"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Name] -&gt; Maybe [Name]
+</span><span id="line-126"></span><span>    </span><span class="annot"><a href="#local-6989586621679134371"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span id="local-6989586621679134369"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679134369"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Name] -&gt; Maybe [Name]
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">([Name] -&gt; Maybe [Name]) -&gt; [Name] -&gt; Maybe [Name]
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -400,44 +412,76 @@ forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; [Text]
 </span><span class="hs-identifier hs-var">T.splitOn</span></span><span> </span><span class="annot"><span class="hs-string">&quot;,&quot;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Text
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679106227"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-123"></span><span>    </span><span id="local-6989586621679106228"><span class="annot"><span class="annottext">updater :: Acc -&gt; [Name] -&gt; Acc
-</span><a href="#local-6989586621679106228"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679106222"><span class="annot"><span class="annottext">acc :: Acc
-</span><a href="#local-6989586621679106222"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span id="local-6989586621679106221"><span class="annot"><span class="annottext">ps :: [Name]
-</span><a href="#local-6989586621679106221"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Acc
-</span><a href="#local-6989586621679106222"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accPush :: [Name]
+</span><a href="#local-6989586621679134369"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-127"></span><span>    </span><span id="local-6989586621679134370"><span class="annot"><span class="annottext">updater :: Acc -&gt; [Name] -&gt; Acc
+</span><a href="#local-6989586621679134370"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679134364"><span class="annot"><span class="annottext">acc :: Acc
+</span><a href="#local-6989586621679134364"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span id="local-6989586621679134363"><span class="annot"><span class="annottext">ps :: [Name]
+</span><a href="#local-6989586621679134363"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Acc
+</span><a href="#local-6989586621679134364"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accPush :: [Name]
 </span><a href="Git.FastForward.Parsing.html#accPush"><span class="hs-identifier hs-var">accPush</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Name]
-</span><a href="#local-6989586621679106221"><span class="hs-identifier hs-var">ps</span></a></span><span class="hs-special">}</span><span>
-</span><span id="line-124"></span><span>
-</span><span id="line-125"></span><span class="annot"><a href="Git.FastForward.Parsing.html#help"><span class="hs-identifier hs-type">help</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
-</span><span id="line-126"></span><span id="help"><span class="annot"><span class="annottext">help :: String
+</span><a href="#local-6989586621679134363"><span class="hs-identifier hs-var">ps</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-128"></span><span>
+</span><span id="line-129"></span><span class="annot"><a href="Git.FastForward.Parsing.html#noFetchFlagParser"><span class="hs-identifier hs-type">noFetchFlagParser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-type">AnyParser</span></a></span><span> </span><span class="annot"><a href="Git.FastForward.Parsing.html#Acc"><span class="hs-identifier hs-type">Acc</span></a></span><span>
+</span><span id="line-130"></span><span id="noFetchFlagParser"><span class="annot"><span class="annottext">noFetchFlagParser :: AnyParser Acc
+</span><a href="Git.FastForward.Parsing.html#noFetchFlagParser"><span class="hs-identifier hs-var hs-var">noFetchFlagParser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser Bool Acc -&gt; AnyParser Acc
+forall acc a. Parser a acc -&gt; AnyParser acc
+</span><a href="Common.Parsing.Core.html#AnyParser"><span class="hs-identifier hs-var">AnyParser</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser Bool Acc -&gt; AnyParser Acc)
+-&gt; Parser Bool Acc -&gt; AnyParser Acc
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Maybe Bool, Acc -&gt; Bool -&gt; Acc) -&gt; Parser Bool Acc
+forall a acc. (String -&gt; Maybe a, acc -&gt; a -&gt; acc) -&gt; Parser a acc
+</span><a href="Common.Parsing.Core.html#ExactParser"><span class="hs-identifier hs-var">ExactParser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe Bool
+forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe Bool
+</span><a href="#local-6989586621679134362"><span class="hs-identifier hs-var">parser</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Acc -&gt; Bool -&gt; Acc
+</span><a href="#local-6989586621679134361"><span class="hs-identifier hs-var">updater</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-131"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-132"></span><span>    </span><span id="local-6989586621679134362"><span class="annot"><span class="annottext">parser :: a -&gt; Maybe Bool
+</span><a href="#local-6989586621679134362"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-string">&quot;--no-fetch&quot;</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Maybe Bool
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(Bool -&gt; Maybe Bool) -&gt; Bool -&gt; Maybe Bool
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">False</span></span><span>
+</span><span id="line-133"></span><span>    </span><span class="annot"><a href="#local-6989586621679134362"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Bool
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-134"></span><span>    </span><span id="local-6989586621679134361"><span class="annot"><span class="annottext">updater :: Acc -&gt; Bool -&gt; Acc
+</span><a href="#local-6989586621679134361"><span class="hs-identifier hs-var hs-var">updater</span></a></span></span><span> </span><span id="local-6989586621679134360"><span class="annot"><span class="annottext">acc :: Acc
+</span><a href="#local-6989586621679134360"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span id="local-6989586621679134359"><span class="annot"><span class="annottext">m :: Bool
+</span><a href="#local-6989586621679134359"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Acc
+</span><a href="#local-6989586621679134360"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">accDoFetch :: Bool
+</span><a href="Git.FastForward.Parsing.html#accDoFetch"><span class="hs-identifier hs-var">accDoFetch</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679134359"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-135"></span><span>
+</span><span id="line-136"></span><span class="annot"><a href="Git.FastForward.Parsing.html#help"><span class="hs-identifier hs-type">help</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-137"></span><span id="help"><span class="annot"><span class="annottext">help :: String
 </span><a href="Git.FastForward.Parsing.html#help"><span class="hs-identifier hs-var hs-var">help</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-127"></span><span>  </span><span class="annot"><span class="hs-string">&quot;\nUsage: cli-utils fastforward [OPTIONS]\n\n&quot;</span></span><span>
-</span><span id="line-128"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><span id="line-138"></span><span>  </span><span class="annot"><span class="hs-string">&quot;\nUsage: cli-utils fastforward [OPTIONS]\n\n&quot;</span></span><span>
+</span><span id="line-139"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Fast-forwards all local branches with --ff-only.\n\nOptions:\n&quot;</span></span><span>
-</span><span id="line-129"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><span id="line-140"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;  --path=&lt;string&gt;\tDirectory path, defaults to current directory.\n\n&quot;</span></span><span>
-</span><span id="line-130"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><span id="line-141"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;  -u, --merge=upstream\tMerges each branches' upstream via @{u}. This is the default.\n\n&quot;</span></span><span>
-</span><span id="line-131"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><span id="line-142"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;  -m, --merge=master\tMerges origin/master into each branch.\n\n&quot;</span></span><span>
-</span><span id="line-132"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><span id="line-143"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;  --merge=&lt;string&gt;\tMerges branch given by &lt;string&gt; into each branch.\n\n&quot;</span></span><span>
-</span><span id="line-133"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><span id="line-144"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;  --push=&lt;list&gt;\t\tList of branches to push to after we're done updating.\n&quot;</span></span><span>
-</span><span id="line-134"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><span id="line-145"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\t\t\tEach branch is formatted \&quot;remote_name branch_name\&quot;,\n&quot;</span></span><span>
-</span><span id="line-135"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><span id="line-146"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\t\t\tand each \&quot;remote_name branch_name\&quot; is separated by a comma.\n&quot;</span></span><span>
-</span><span id="line-136"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><span id="line-147"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\t\t\tFor instance, --push=\&quot;origin dev, other temp\&quot;.&quot;</span></span><span>
-</span><span id="line-137"></span></pre></body></html>
+</span><span id="line-148"></span></pre></body></html>

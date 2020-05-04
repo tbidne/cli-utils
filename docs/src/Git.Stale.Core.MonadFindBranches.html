@@ -19,7 +19,7 @@
 </span><span id="line-19"></span><span>
 </span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="App.html"><span class="hs-identifier">App</span></a></span><span>
 </span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.MonadLogger.html"><span class="hs-identifier">Common.MonadLogger</span></a></span><span>
-</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.Types.NonNegative.html"><span class="hs-identifier">Common.Types.NonNegative</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Common.RefinedUtils.html"><span class="hs-identifier">Common.RefinedUtils</span></a></span><span>
 </span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Concurrent.ParallelIO.Global</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Par</span></span><span>
 </span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Reader</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">R</span></span><span>
 </span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Kind</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">K</span></span><span>
@@ -37,40 +37,40 @@
 </span><span id="line-37"></span><span>
 </span><span id="line-38"></span><span class="hs-comment">-- | The 'MonadFindBranches' class is used to describe various git</span><span>
 </span><span id="line-39"></span><span class="hs-comment">-- actions for finding stale branches.</span><span>
-</span><span id="line-40"></span><span class="hs-keyword">class</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span id="MonadFindBranches"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#MonadFindBranches"><span class="hs-identifier hs-var">MonadFindBranches</span></a></span></span><span> </span><span id="local-6989586621679106106"><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-40"></span><span class="hs-keyword">class</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span id="MonadFindBranches"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#MonadFindBranches"><span class="hs-identifier hs-var">MonadFindBranches</span></a></span></span><span> </span><span id="local-6989586621679134243"><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-41"></span><span>  </span><span class="hs-comment">-- | Adds custom handling to returned data (e.g. for error handling).</span><span>
-</span><span id="line-42"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Handler"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-var">Handler</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679106106"><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">K.Type</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">K.Type</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679106062"><span class="annot"><a href="#local-6989586621679106062"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">K.Type</span></span><span class="hs-special">)</span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Handler"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-var">Handler</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679134243"><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">K.Type</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">K.Type</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679134199"><span class="annot"><a href="#local-6989586621679134199"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">K.Type</span></span><span class="hs-special">)</span><span>
 </span><span id="line-43"></span><span>
 </span><span id="line-44"></span><span>  </span><span class="hs-comment">-- | The type returned by `collectResults`.</span><span>
-</span><span id="line-45"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="FinalResults"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#FinalResults"><span class="hs-identifier hs-var">FinalResults</span></a></span></span><span> </span><span id="local-6989586621679106106"><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">K.Type</span></span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="FinalResults"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#FinalResults"><span class="hs-identifier hs-var">FinalResults</span></a></span></span><span> </span><span id="local-6989586621679134243"><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">K.Type</span></span><span>
 </span><span id="line-46"></span><span>
 </span><span id="line-47"></span><span>  </span><span class="hs-comment">-- | Returns a [`Name`] representing git branches.</span><span>
 </span><span id="line-48"></span><span>  </span><span id="branchNamesByGrep"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#branchNamesByGrep"><span class="hs-identifier hs-type">branchNamesByGrep</span></a></span></span><span> </span><span class="hs-glyph">::</span><span>
 </span><span id="line-49"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-50"></span><span>    </span><span class="annot"><a href="Git.Stale.Types.Env.html#BranchType"><span class="hs-identifier hs-type">BranchType</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-51"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-52"></span><span>    </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-53"></span><span>
 </span><span id="line-54"></span><span>  </span><span class="hs-comment">-- | Maps [`Name`] to [`NameAuthDay`], filtering out non-stale branches.</span><span>
 </span><span id="line-55"></span><span>  </span><span id="getStaleLogs"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#getStaleLogs"><span class="hs-identifier hs-type">getStaleLogs</span></a></span></span><span> </span><span class="hs-glyph">::</span><span>
 </span><span id="line-56"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-57"></span><span>    </span><span class="annot"><a href="Common.Types.NonNegative.html#NonNegative"><span class="hs-identifier hs-type">NonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-57"></span><span>    </span><span class="annot"><a href="Common.RefinedUtils.html#RNonNegative"><span class="hs-identifier hs-type">RNonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-58"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Cal.Day</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-59"></span><span>    </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-60"></span><span>    </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#NameAuthDay"><span class="hs-identifier hs-type">NameAuthDay</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-59"></span><span>    </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#NameAuthDay"><span class="hs-identifier hs-type">NameAuthDay</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-61"></span><span>
 </span><span id="line-62"></span><span>  </span><span class="hs-comment">-- | Maps [`NameAuthDay`] to [`AnyBranch`].</span><span>
 </span><span id="line-63"></span><span>  </span><span id="toBranches"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#toBranches"><span class="hs-identifier hs-type">toBranches</span></a></span></span><span> </span><span class="hs-glyph">::</span><span>
 </span><span id="line-64"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-65"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-66"></span><span>    </span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#NameAuthDay"><span class="hs-identifier hs-type">NameAuthDay</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-67"></span><span>    </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Branch.html#AnyBranch"><span class="hs-identifier hs-type">AnyBranch</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-66"></span><span>    </span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#NameAuthDay"><span class="hs-identifier hs-type">NameAuthDay</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-67"></span><span>    </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Branch.html#AnyBranch"><span class="hs-identifier hs-type">AnyBranch</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-68"></span><span>
 </span><span id="line-69"></span><span>  </span><span class="hs-comment">-- | Collects [`AnyBranch`] into `FinalResults`.</span><span>
-</span><span id="line-70"></span><span>  </span><span id="collectResults"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#collectResults"><span class="hs-identifier hs-type">collectResults</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Branch.html#AnyBranch"><span class="hs-identifier hs-type">AnyBranch</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#FinalResults"><span class="hs-identifier hs-type">FinalResults</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-70"></span><span>  </span><span id="collectResults"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#collectResults"><span class="hs-identifier hs-type">collectResults</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Branch.html#AnyBranch"><span class="hs-identifier hs-type">AnyBranch</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#FinalResults"><span class="hs-identifier hs-type">FinalResults</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-71"></span><span>
 </span><span id="line-72"></span><span>  </span><span class="hs-comment">-- | Displays results.</span><span>
-</span><span id="line-73"></span><span>  </span><span id="display"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#display"><span class="hs-identifier hs-type">display</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#FinalResults"><span class="hs-identifier hs-type">FinalResults</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679106106"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-73"></span><span>  </span><span id="display"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#display"><span class="hs-identifier hs-type">display</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#FinalResults"><span class="hs-identifier hs-type">FinalResults</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679134243"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-74"></span><span>
 </span><span id="line-75"></span><span class="hs-comment">-- | `MonadFindBranches` instance `IO`. This means we can encounter</span><span>
 </span><span id="line-76"></span><span class="hs-comment">-- exceptions, but</span><span>
@@ -85,7 +85,7 @@
 </span><span id="line-85"></span><span class="hs-comment">-- (`Either` `Err` a) -- as we do not want a single error to crash the app.</span><span>
 </span><span id="line-86"></span><span class="hs-comment">-- instance (MonadLogger m, R.MonadIO m) =&gt; MonadFindBranches (AppT Env m) where</span><span>
 </span><span id="line-87"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#MonadFindBranches"><span class="hs-identifier hs-type">MonadFindBranches</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-88"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Handler"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-var">Handler</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span id="local-6989586621679106049"><span class="annot"><a href="#local-6989586621679106049"><span class="hs-identifier hs-type hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Git.Stale.Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106049"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Handler"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-var">Handler</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span id="local-6989586621679134186"><span class="annot"><a href="#local-6989586621679134186"><span class="hs-identifier hs-type hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Git.Stale.Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134186"><span class="hs-identifier hs-type">a</span></a></span><span>
 </span><span id="line-89"></span><span>
 </span><span id="line-90"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="FinalResults"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#FinalResults"><span class="hs-identifier hs-var">FinalResults</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Git.Stale.Types.ResultsWithErrs.html#ResultsWithErrs"><span class="hs-identifier hs-type">ResultsWithErrs</span></a></span><span>
 </span><span id="line-91"></span><span>
@@ -94,38 +94,38 @@
 </span><span id="line-94"></span><span>    </span><span class="annot"><a href="Git.Stale.Types.Env.html#BranchType"><span class="hs-identifier hs-type">BranchType</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-95"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-96"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span class="hs-special">]</span><span>
-</span><span id="line-97"></span><span>  </span><span id="local-6989586621679106048"><span class="annot"><span class="annottext">branchNamesByGrep :: Maybe FilePath -&gt; BranchType -&gt; Maybe Text -&gt; IO [ErrOr Name]
-</span><a href="#local-6989586621679106048"><span class="hs-identifier hs-var hs-var hs-var hs-var">branchNamesByGrep</span></a></span></span><span> </span><span id="local-6989586621679106047"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679106047"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679106046"><span class="annot"><span class="annottext">branchType :: BranchType
-</span><a href="#local-6989586621679106046"><span class="hs-identifier hs-var">branchType</span></a></span></span><span> </span><span id="local-6989586621679106045"><span class="annot"><span class="annottext">grepStr :: Maybe Text
-</span><a href="#local-6989586621679106045"><span class="hs-identifier hs-var">grepStr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-98"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679106044"><span class="annot"><span class="annottext">branchFn :: Text -&gt; Bool
-</span><a href="#local-6989586621679106044"><span class="hs-identifier hs-var hs-var">branchFn</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe Text
-</span><a href="#local-6989586621679106045"><span class="hs-identifier hs-var">grepStr</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-97"></span><span>  </span><span id="local-6989586621679134185"><span class="annot"><span class="annottext">branchNamesByGrep :: Maybe FilePath -&gt; BranchType -&gt; Maybe Text -&gt; IO [ErrOr Name]
+</span><a href="#local-6989586621679134185"><span class="hs-identifier hs-var hs-var hs-var hs-var">branchNamesByGrep</span></a></span></span><span> </span><span id="local-6989586621679134184"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679134184"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679134183"><span class="annot"><span class="annottext">branchType :: BranchType
+</span><a href="#local-6989586621679134183"><span class="hs-identifier hs-var">branchType</span></a></span></span><span> </span><span id="local-6989586621679134182"><span class="annot"><span class="annottext">grepStr :: Maybe Text
+</span><a href="#local-6989586621679134182"><span class="hs-identifier hs-var">grepStr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-98"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679134181"><span class="annot"><span class="annottext">branchFn :: Text -&gt; Bool
+</span><a href="#local-6989586621679134181"><span class="hs-identifier hs-var hs-var">branchFn</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679134182"><span class="hs-identifier hs-var">grepStr</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-99"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
 </span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="annot"><span class="annottext">(Bool -&gt; Bool) -&gt; (Text -&gt; Bool) -&gt; Text -&gt; Bool
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Bool
 </span><a href="Git.Stale.Core.Internal.html#badBranch"><span class="hs-identifier hs-var">badBranch</span></a></span><span>
-</span><span id="line-100"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679106040"><span class="annot"><span class="annottext">s :: Text
-</span><a href="#local-6989586621679106040"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-101"></span><span>            </span><span class="hs-glyph">\</span><span id="local-6989586621679106039"><span class="annot"><span class="annottext">t :: Text
-</span><a href="#local-6989586621679106039"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-100"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679134177"><span class="annot"><span class="annottext">s :: Text
+</span><a href="#local-6989586621679134177"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-101"></span><span>            </span><span class="hs-glyph">\</span><span id="local-6989586621679134176"><span class="annot"><span class="annottext">t :: Text
+</span><a href="#local-6989586621679134176"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-102"></span><span>              </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Bool -&gt; Bool
 </span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="annot"><span class="annottext">(Bool -&gt; Bool) -&gt; (Text -&gt; Bool) -&gt; Text -&gt; Bool
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Bool
 </span><a href="Git.Stale.Core.Internal.html#badBranch"><span class="hs-identifier hs-var">badBranch</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679106039"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><a href="#local-6989586621679134176"><span class="hs-identifier hs-var">t</span></a></span><span>
 </span><span id="line-103"></span><span>                </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text
 </span><span class="hs-identifier hs-var">T.toCaseFold</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679106040"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Bool
+</span><a href="#local-6989586621679134177"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Bool
 </span><span class="hs-operator hs-var">`T.isInfixOf`</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text
 </span><span class="hs-identifier hs-var">T.toCaseFold</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679106039"><span class="hs-identifier hs-var">t</span></a></span><span>
-</span><span id="line-104"></span><span>        </span><span id="local-6989586621679106035"><span class="annot"><span class="annottext">toNames' :: Text -&gt; [ErrOr Name]
-</span><a href="#local-6989586621679106035"><span class="hs-identifier hs-var hs-var">toNames'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ErrOr Name) -&gt; [Text] -&gt; [ErrOr Name]
+</span><a href="#local-6989586621679134176"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-104"></span><span>        </span><span id="local-6989586621679134172"><span class="annot"><span class="annottext">toNames' :: Text -&gt; [ErrOr Name]
+</span><a href="#local-6989586621679134172"><span class="hs-identifier hs-var hs-var">toNames'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ErrOr Name) -&gt; [Text] -&gt; [ErrOr Name]
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; ErrOr Name
 </span><a href="Git.Stale.Core.Internal.html#textToName"><span class="hs-identifier hs-var">textToName</span></a></span><span> </span><span class="annot"><span class="annottext">([Text] -&gt; [ErrOr Name])
@@ -134,22 +134,22 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Bool) -&gt; [Text] -&gt; [Text]
 forall a. (a -&gt; Bool) -&gt; [a] -&gt; [a]
 </span><span class="hs-identifier hs-var">filter</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Bool
-</span><a href="#local-6989586621679106044"><span class="hs-identifier hs-var">branchFn</span></a></span><span> </span><span class="annot"><span class="annottext">([Text] -&gt; [Text]) -&gt; (Text -&gt; [Text]) -&gt; Text -&gt; [Text]
+</span><a href="#local-6989586621679134181"><span class="hs-identifier hs-var">branchFn</span></a></span><span> </span><span class="annot"><span class="annottext">([Text] -&gt; [Text]) -&gt; (Text -&gt; [Text]) -&gt; Text -&gt; [Text]
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; [Text]
 </span><span class="hs-identifier hs-var">T.lines</span></span><span>
-</span><span id="line-105"></span><span>        </span><span id="local-6989586621679106032"><span class="annot"><span class="annottext">cmd :: Text
-</span><a href="#local-6989586621679106032"><span class="hs-identifier hs-var hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;git branch &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><span id="line-105"></span><span>        </span><span id="local-6989586621679134169"><span class="annot"><span class="annottext">cmd :: Text
+</span><a href="#local-6989586621679134169"><span class="hs-identifier hs-var hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;git branch &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Text
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">BranchType -&gt; FilePath
 </span><a href="Git.Stale.Types.Env.html#branchTypeToArg"><span class="hs-identifier hs-var">branchTypeToArg</span></a></span><span> </span><span class="annot"><span class="annottext">BranchType
-</span><a href="#local-6989586621679106046"><span class="hs-identifier hs-var">branchType</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-106"></span><span>    </span><span id="local-6989586621679106029"><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679106029"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO Text
+</span><a href="#local-6989586621679134183"><span class="hs-identifier hs-var">branchType</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-106"></span><span>    </span><span id="local-6989586621679134166"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679134166"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe FilePath -&gt; IO Text
 </span><a href="Common.IO.html#sh"><span class="hs-identifier hs-var">sh</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679106032"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679106047"><span class="hs-identifier hs-var">path</span></a></span><span>
+</span><a href="#local-6989586621679134169"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679134184"><span class="hs-identifier hs-var">path</span></a></span><span>
 </span><span id="line-107"></span><span>    </span><span class="annot"><span class="annottext">IO [ErrOr Name] -&gt; IO [ErrOr Name]
 forall a. IO a -&gt; IO a
 </span><a href="Git.Stale.Core.IO.html#logIfErr"><span class="hs-identifier hs-var">logIfErr</span></a></span><span> </span><span class="annot"><span class="annottext">(IO [ErrOr Name] -&gt; IO [ErrOr Name])
@@ -161,27 +161,27 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 -&gt; [ErrOr Name] -&gt; IO [ErrOr Name]
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; [ErrOr Name]
-</span><a href="#local-6989586621679106035"><span class="hs-identifier hs-var">toNames'</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679106029"><span class="hs-identifier hs-var">res</span></a></span><span>
+</span><a href="#local-6989586621679134172"><span class="hs-identifier hs-var">toNames'</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679134166"><span class="hs-identifier hs-var">res</span></a></span><span>
 </span><span id="line-108"></span><span>
 </span><span id="line-109"></span><span>  </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#getStaleLogs"><span class="hs-identifier hs-type">getStaleLogs</span></a></span><span> </span><span class="hs-glyph">::</span><span>
 </span><span id="line-110"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-111"></span><span>    </span><span class="annot"><a href="Common.Types.NonNegative.html#NonNegative"><span class="hs-identifier hs-type">NonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-111"></span><span>    </span><span class="annot"><a href="Common.RefinedUtils.html#RNonNegative"><span class="hs-identifier hs-type">RNonNegative</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-112"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Cal.Day</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-113"></span><span>    </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-114"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#NameAuthDay"><span class="hs-identifier hs-type">NameAuthDay</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-115"></span><span>  </span><span id="local-6989586621679106026"><span class="annot"><span class="annottext">getStaleLogs :: Maybe FilePath
--&gt; NonNegative Int
+</span><span id="line-115"></span><span>  </span><span id="local-6989586621679134163"><span class="annot"><span class="annottext">getStaleLogs :: Maybe FilePath
+-&gt; RNonNegative Int
 -&gt; Day
 -&gt; [ErrOr Name]
 -&gt; IO (Filtered (ErrOr NameAuthDay))
-</span><a href="#local-6989586621679106026"><span class="hs-identifier hs-var hs-var hs-var hs-var">getStaleLogs</span></a></span></span><span> </span><span id="local-6989586621679106025"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679106025"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679106024"><span class="annot"><span class="annottext">limit :: NonNegative Int
-</span><a href="#local-6989586621679106024"><span class="hs-identifier hs-var">limit</span></a></span></span><span> </span><span id="local-6989586621679106023"><span class="annot"><span class="annottext">today :: Day
-</span><a href="#local-6989586621679106023"><span class="hs-identifier hs-var">today</span></a></span></span><span> </span><span id="local-6989586621679106022"><span class="annot"><span class="annottext">ns :: [ErrOr Name]
-</span><a href="#local-6989586621679106022"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-116"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679106021"><span class="annot"><span class="annottext">staleFilter' :: [ErrOr NameAuthDay] -&gt; Filtered (ErrOr NameAuthDay)
-</span><a href="#local-6989586621679106021"><span class="hs-identifier hs-var hs-var">staleFilter'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ErrOr NameAuthDay -&gt; Bool)
+</span><a href="#local-6989586621679134163"><span class="hs-identifier hs-var hs-var hs-var hs-var">getStaleLogs</span></a></span></span><span> </span><span id="local-6989586621679134162"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679134162"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679134161"><span class="annot"><span class="annottext">limit :: RNonNegative Int
+</span><a href="#local-6989586621679134161"><span class="hs-identifier hs-var">limit</span></a></span></span><span> </span><span id="local-6989586621679134160"><span class="annot"><span class="annottext">today :: Day
+</span><a href="#local-6989586621679134160"><span class="hs-identifier hs-var">today</span></a></span></span><span> </span><span id="local-6989586621679134159"><span class="annot"><span class="annottext">ns :: [ErrOr Name]
+</span><a href="#local-6989586621679134159"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-116"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679134158"><span class="annot"><span class="annottext">staleFilter' :: [ErrOr NameAuthDay] -&gt; Filtered (ErrOr NameAuthDay)
+</span><a href="#local-6989586621679134158"><span class="hs-identifier hs-var hs-var">staleFilter'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ErrOr NameAuthDay -&gt; Bool)
 -&gt; [ErrOr NameAuthDay] -&gt; Filtered (ErrOr NameAuthDay)
 forall a. (a -&gt; Bool) -&gt; [a] -&gt; Filtered a
 </span><a href="Git.Stale.Types.Filtered.html#mkFiltered"><span class="hs-identifier hs-var">mkFiltered</span></a></span><span> </span><span class="annot"><span class="annottext">((ErrOr NameAuthDay -&gt; Bool)
@@ -190,12 +190,12 @@ forall a. (a -&gt; Bool) -&gt; [a] -&gt; Filtered a
 -&gt; [ErrOr NameAuthDay]
 -&gt; Filtered (ErrOr NameAuthDay)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">NonNegative Int -&gt; Day -&gt; ErrOr NameAuthDay -&gt; Bool
-</span><a href="Git.Stale.Core.Internal.html#staleNonErr"><span class="hs-identifier hs-var">staleNonErr</span></a></span><span> </span><span class="annot"><span class="annottext">NonNegative Int
-</span><a href="#local-6989586621679106024"><span class="hs-identifier hs-var">limit</span></a></span><span> </span><span class="annot"><span class="annottext">Day
-</span><a href="#local-6989586621679106023"><span class="hs-identifier hs-var">today</span></a></span><span>
-</span><span id="line-117"></span><span>    </span><span id="local-6989586621679106018"><span class="annot"><span class="annottext">[Either SomeException (ErrOr NameAuthDay)]
-</span><a href="#local-6989586621679106018"><span class="hs-identifier hs-var">logs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[IO (ErrOr NameAuthDay)]
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int -&gt; Day -&gt; ErrOr NameAuthDay -&gt; Bool
+</span><a href="Git.Stale.Core.Internal.html#staleNonErr"><span class="hs-identifier hs-var">staleNonErr</span></a></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int
+</span><a href="#local-6989586621679134161"><span class="hs-identifier hs-var">limit</span></a></span><span> </span><span class="annot"><span class="annottext">Day
+</span><a href="#local-6989586621679134160"><span class="hs-identifier hs-var">today</span></a></span><span>
+</span><span id="line-117"></span><span>    </span><span id="local-6989586621679134155"><span class="annot"><span class="annottext">[Either SomeException (ErrOr NameAuthDay)]
+</span><a href="#local-6989586621679134155"><span class="hs-identifier hs-var">logs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[IO (ErrOr NameAuthDay)]
 -&gt; IO [Either SomeException (ErrOr NameAuthDay)]
 forall a. [IO a] -&gt; IO [Either SomeException a]
 </span><span class="hs-identifier hs-var">Par.parallelE</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(ErrOr Name -&gt; IO (ErrOr NameAuthDay))
@@ -203,8 +203,8 @@ forall a. [IO a] -&gt; IO [Either SomeException a]
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe FilePath -&gt; ErrOr Name -&gt; IO (ErrOr NameAuthDay)
 </span><a href="Git.Stale.Core.IO.html#nameToLog"><span class="hs-identifier hs-var">nameToLog</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679106025"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[ErrOr Name]
-</span><a href="#local-6989586621679106022"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679134162"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[ErrOr Name]
+</span><a href="#local-6989586621679134159"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-118"></span><span>    </span><span class="annot"><span class="annottext">Filtered (ErrOr NameAuthDay) -&gt; IO (Filtered (ErrOr NameAuthDay))
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Filtered (ErrOr NameAuthDay) -&gt; IO (Filtered (ErrOr NameAuthDay)))
@@ -212,7 +212,7 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 -&gt; IO (Filtered (ErrOr NameAuthDay))
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[ErrOr NameAuthDay] -&gt; Filtered (ErrOr NameAuthDay)
-</span><a href="#local-6989586621679106021"><span class="hs-identifier hs-var">staleFilter'</span></a></span><span> </span><span class="annot"><span class="annottext">([ErrOr NameAuthDay] -&gt; Filtered (ErrOr NameAuthDay))
+</span><a href="#local-6989586621679134158"><span class="hs-identifier hs-var">staleFilter'</span></a></span><span> </span><span class="annot"><span class="annottext">([ErrOr NameAuthDay] -&gt; Filtered (ErrOr NameAuthDay))
 -&gt; ([Either SomeException (ErrOr NameAuthDay)]
     -&gt; [ErrOr NameAuthDay])
 -&gt; [Either SomeException (ErrOr NameAuthDay)]
@@ -225,21 +225,21 @@ forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">Either SomeException (ErrOr NameAuthDay) -&gt; ErrOr NameAuthDay
 forall a b. Show a =&gt; Either a (Either Err b) -&gt; Either Err b
 </span><a href="Git.Stale.Core.Internal.html#exceptToErr"><span class="hs-identifier hs-var">exceptToErr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Either SomeException (ErrOr NameAuthDay)]
-</span><a href="#local-6989586621679106018"><span class="hs-identifier hs-var">logs</span></a></span><span>
+</span><a href="#local-6989586621679134155"><span class="hs-identifier hs-var">logs</span></a></span><span>
 </span><span id="line-119"></span><span>
 </span><span id="line-120"></span><span>  </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#toBranches"><span class="hs-identifier hs-type">toBranches</span></a></span><span> </span><span class="hs-glyph">::</span><span>
 </span><span id="line-121"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-122"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-123"></span><span>    </span><span class="annot"><a href="Git.Stale.Types.Filtered.html#Filtered"><span class="hs-identifier hs-type">Filtered</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="Git.Types.GitTypes.html#NameAuthDay"><span class="hs-identifier hs-type">NameAuthDay</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-124"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Branch.html#AnyBranch"><span class="hs-identifier hs-type">AnyBranch</span></a></span><span class="hs-special">]</span><span>
-</span><span id="line-125"></span><span>  </span><span id="local-6989586621679106014"><span class="annot"><span class="annottext">toBranches :: Maybe FilePath
+</span><span id="line-125"></span><span>  </span><span id="local-6989586621679134151"><span class="annot"><span class="annottext">toBranches :: Maybe FilePath
 -&gt; Text -&gt; Filtered (ErrOr NameAuthDay) -&gt; IO [ErrOr AnyBranch]
-</span><a href="#local-6989586621679106014"><span class="hs-identifier hs-var hs-var hs-var hs-var">toBranches</span></a></span></span><span> </span><span id="local-6989586621679106013"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679106013"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679106012"><span class="annot"><span class="annottext">master :: Text
-</span><a href="#local-6989586621679106012"><span class="hs-identifier hs-var">master</span></a></span></span><span> </span><span id="local-6989586621679106011"><span class="annot"><span class="annottext">ns :: Filtered (ErrOr NameAuthDay)
-</span><a href="#local-6989586621679106011"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-126"></span><span>    </span><span id="local-6989586621679106010"><span class="annot"><span class="annottext">[Either SomeException (ErrOr AnyBranch)]
-</span><a href="#local-6989586621679106010"><span class="hs-identifier hs-var">branches</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><a href="#local-6989586621679134151"><span class="hs-identifier hs-var hs-var hs-var hs-var">toBranches</span></a></span></span><span> </span><span id="local-6989586621679134150"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679134150"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679134149"><span class="annot"><span class="annottext">master :: Text
+</span><a href="#local-6989586621679134149"><span class="hs-identifier hs-var">master</span></a></span></span><span> </span><span id="local-6989586621679134148"><span class="annot"><span class="annottext">ns :: Filtered (ErrOr NameAuthDay)
+</span><a href="#local-6989586621679134148"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-126"></span><span>    </span><span id="local-6989586621679134147"><span class="annot"><span class="annottext">[Either SomeException (ErrOr AnyBranch)]
+</span><a href="#local-6989586621679134147"><span class="hs-identifier hs-var">branches</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
 </span><span id="line-127"></span><span>      </span><span class="annot"><span class="annottext">[IO (ErrOr AnyBranch)]
 -&gt; IO [Either SomeException (ErrOr AnyBranch)]
 forall a. [IO a] -&gt; IO [Either SomeException a]
@@ -249,11 +249,11 @@ forall a. [IO a] -&gt; IO [Either SomeException a]
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe FilePath -&gt; Text -&gt; ErrOr NameAuthDay -&gt; IO (ErrOr AnyBranch)
 </span><a href="Git.Stale.Core.IO.html#errTupleToBranch"><span class="hs-identifier hs-var">errTupleToBranch</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679106013"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679106012"><span class="hs-identifier hs-var">master</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Filtered (ErrOr NameAuthDay) -&gt; [ErrOr NameAuthDay]
+</span><a href="#local-6989586621679134150"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679134149"><span class="hs-identifier hs-var">master</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Filtered (ErrOr NameAuthDay) -&gt; [ErrOr NameAuthDay]
 forall a. Filtered a -&gt; [a]
 </span><a href="Git.Stale.Types.Filtered.html#unFiltered"><span class="hs-identifier hs-var hs-var">unFiltered</span></a></span><span> </span><span class="annot"><span class="annottext">Filtered (ErrOr NameAuthDay)
-</span><a href="#local-6989586621679106011"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679134148"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-129"></span><span>    </span><span class="annot"><span class="annottext">[ErrOr AnyBranch] -&gt; IO [ErrOr AnyBranch]
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">([ErrOr AnyBranch] -&gt; IO [ErrOr AnyBranch])
@@ -265,11 +265,11 @@ forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">Either SomeException (ErrOr AnyBranch) -&gt; ErrOr AnyBranch
 forall a b. Show a =&gt; Either a (Either Err b) -&gt; Either Err b
 </span><a href="Git.Stale.Core.Internal.html#exceptToErr"><span class="hs-identifier hs-var">exceptToErr</span></a></span><span> </span><span class="annot"><span class="annottext">[Either SomeException (ErrOr AnyBranch)]
-</span><a href="#local-6989586621679106010"><span class="hs-identifier hs-var">branches</span></a></span><span>
+</span><a href="#local-6989586621679134147"><span class="hs-identifier hs-var">branches</span></a></span><span>
 </span><span id="line-130"></span><span>
 </span><span id="line-131"></span><span>  </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#collectResults"><span class="hs-identifier hs-type">collectResults</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Git.Stale.Types.Error.html#ErrOr"><span class="hs-identifier hs-type">ErrOr</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Branch.html#AnyBranch"><span class="hs-identifier hs-type">AnyBranch</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Git.Stale.Types.ResultsWithErrs.html#ResultsWithErrs"><span class="hs-identifier hs-type">ResultsWithErrs</span></a></span><span>
-</span><span id="line-132"></span><span>  </span><span id="local-6989586621679106007"><span class="annot"><span class="annottext">collectResults :: [ErrOr AnyBranch] -&gt; IO ResultsWithErrs
-</span><a href="#local-6989586621679106007"><span class="hs-identifier hs-var hs-var hs-var hs-var">collectResults</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ResultsWithErrs -&gt; IO ResultsWithErrs
+</span><span id="line-132"></span><span>  </span><span id="local-6989586621679134144"><span class="annot"><span class="annottext">collectResults :: [ErrOr AnyBranch] -&gt; IO ResultsWithErrs
+</span><a href="#local-6989586621679134144"><span class="hs-identifier hs-var hs-var hs-var hs-var">collectResults</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ResultsWithErrs -&gt; IO ResultsWithErrs
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(ResultsWithErrs -&gt; IO ResultsWithErrs)
 -&gt; ([ErrOr AnyBranch] -&gt; ResultsWithErrs)
@@ -280,9 +280,9 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><a href="Git.Stale.Types.ResultsWithErrs.html#toResultsWithErrs"><span class="hs-identifier hs-var">toResultsWithErrs</span></a></span><span>
 </span><span id="line-133"></span><span>
 </span><span id="line-134"></span><span>  </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#display"><span class="hs-identifier hs-type">display</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Git.Stale.Types.ResultsWithErrs.html#ResultsWithErrs"><span class="hs-identifier hs-type">ResultsWithErrs</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-135"></span><span>  </span><span id="local-6989586621679106005"><span class="annot"><span class="annottext">display :: Text -&gt; ResultsWithErrs -&gt; IO ()
-</span><a href="#local-6989586621679106005"><span class="hs-identifier hs-var hs-var hs-var hs-var">display</span></a></span></span><span> </span><span id="local-6989586621679106004"><span class="annot"><span class="annottext">remoteName :: Text
-</span><a href="#local-6989586621679106004"><span class="hs-identifier hs-var">remoteName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ResultsWithErrsDisp -&gt; IO ()
+</span><span id="line-135"></span><span>  </span><span id="local-6989586621679134142"><span class="annot"><span class="annottext">display :: Text -&gt; ResultsWithErrs -&gt; IO ()
+</span><a href="#local-6989586621679134142"><span class="hs-identifier hs-var hs-var hs-var hs-var">display</span></a></span></span><span> </span><span id="local-6989586621679134141"><span class="annot"><span class="annottext">remoteName :: Text
+</span><a href="#local-6989586621679134141"><span class="hs-identifier hs-var">remoteName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ResultsWithErrsDisp -&gt; IO ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; ResultsWithErrsDisp -&gt; m ()
 </span><a href="Git.Stale.Core.MonadFindBranches.html#logResultsWithErrs"><span class="hs-identifier hs-var">logResultsWithErrs</span></a></span><span> </span><span class="annot"><span class="annottext">(ResultsWithErrsDisp -&gt; IO ())
 -&gt; (ResultsWithErrs -&gt; ResultsWithErrsDisp)
@@ -291,19 +291,19 @@ forall (m :: * -&gt; *). MonadLogger m =&gt; ResultsWithErrsDisp -&gt; m ()
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; ResultsWithErrs -&gt; ResultsWithErrsDisp
 </span><a href="Git.Stale.Types.ResultsWithErrs.html#toResultsErrDisp"><span class="hs-identifier hs-var">toResultsErrDisp</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679106004"><span class="hs-identifier hs-var">remoteName</span></a></span><span>
+</span><a href="#local-6989586621679134141"><span class="hs-identifier hs-var">remoteName</span></a></span><span>
 </span><span id="line-136"></span><span>
-</span><span id="line-137"></span><span id="local-6989586621679106001"><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#MonadFindBranches"><span class="hs-identifier hs-type">MonadFindBranches</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106001"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#MonadFindBranches"><span class="hs-identifier hs-type">MonadFindBranches</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="App.html#AppT"><span class="hs-identifier hs-type">AppT</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106001"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-138"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Handler"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-var">Handler</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="App.html#AppT"><span class="hs-identifier hs-type">AppT</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106001"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679105994"><span class="annot"><a href="#local-6989586621679105994"><span class="hs-identifier hs-type hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106001"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679105994"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-139"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="FinalResults"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#FinalResults"><span class="hs-identifier hs-var">FinalResults</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="App.html#AppT"><span class="hs-identifier hs-type">AppT</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106001"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#FinalResults"><span class="hs-identifier hs-type">FinalResults</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106001"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-137"></span><span id="local-6989586621679134138"><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#MonadFindBranches"><span class="hs-identifier hs-type">MonadFindBranches</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134138"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#MonadFindBranches"><span class="hs-identifier hs-type">MonadFindBranches</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="App.html#AppT"><span class="hs-identifier hs-type">AppT</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134138"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-138"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Handler"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-var">Handler</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="App.html#AppT"><span class="hs-identifier hs-type">AppT</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134138"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679134131"><span class="annot"><a href="#local-6989586621679134131"><span class="hs-identifier hs-type hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134138"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134131"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-139"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="FinalResults"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#FinalResults"><span class="hs-identifier hs-var">FinalResults</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="App.html#AppT"><span class="hs-identifier hs-type">AppT</span></a></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134138"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#FinalResults"><span class="hs-identifier hs-type">FinalResults</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134138"><span class="hs-identifier hs-type">m</span></a></span><span>
 </span><span id="line-140"></span><span>
-</span><span id="line-141"></span><span>  </span><span id="local-6989586621679105993"><span class="annot"><span class="annottext">branchNamesByGrep :: Maybe FilePath
+</span><span id="line-141"></span><span>  </span><span id="local-6989586621679134130"><span class="annot"><span class="annottext">branchNamesByGrep :: Maybe FilePath
 -&gt; BranchType
 -&gt; Maybe Text
 -&gt; AppT Env m [Handler (AppT Env m) Name]
-</span><a href="#local-6989586621679105993"><span class="hs-identifier hs-var hs-var hs-var hs-var">branchNamesByGrep</span></a></span></span><span> </span><span id="local-6989586621679105992"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679105992"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679105991"><span class="annot"><span class="annottext">branchType :: BranchType
-</span><a href="#local-6989586621679105991"><span class="hs-identifier hs-var">branchType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m [Handler m Name] -&gt; AppT Env m [Handler m Name]
+</span><a href="#local-6989586621679134130"><span class="hs-identifier hs-var hs-var hs-var hs-var">branchNamesByGrep</span></a></span></span><span> </span><span id="local-6989586621679134129"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679134129"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679134128"><span class="annot"><span class="annottext">branchType :: BranchType
+</span><a href="#local-6989586621679134128"><span class="hs-identifier hs-var">branchType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m [Handler m Name] -&gt; AppT Env m [Handler m Name]
 forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
 (MonadTrans t, Monad m) =&gt;
 m a -&gt; t m a
@@ -317,17 +317,17 @@ forall (m :: * -&gt; *).
 MonadFindBranches m =&gt;
 Maybe FilePath -&gt; BranchType -&gt; Maybe Text -&gt; m [Handler m Name]
 </span><a href="Git.Stale.Core.MonadFindBranches.html#branchNamesByGrep"><span class="hs-identifier hs-var">branchNamesByGrep</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679105992"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">BranchType
-</span><a href="#local-6989586621679105991"><span class="hs-identifier hs-var">branchType</span></a></span><span>
-</span><span id="line-142"></span><span>  </span><span id="local-6989586621679105989"><span class="annot"><span class="annottext">getStaleLogs :: Maybe FilePath
--&gt; NonNegative Int
+</span><a href="#local-6989586621679134129"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">BranchType
+</span><a href="#local-6989586621679134128"><span class="hs-identifier hs-var">branchType</span></a></span><span>
+</span><span id="line-142"></span><span>  </span><span id="local-6989586621679134126"><span class="annot"><span class="annottext">getStaleLogs :: Maybe FilePath
+-&gt; RNonNegative Int
 -&gt; Day
 -&gt; [Handler (AppT Env m) Name]
 -&gt; AppT Env m (Filtered (Handler (AppT Env m) NameAuthDay))
-</span><a href="#local-6989586621679105989"><span class="hs-identifier hs-var hs-var hs-var hs-var">getStaleLogs</span></a></span></span><span> </span><span id="local-6989586621679105988"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679105988"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679105987"><span class="annot"><span class="annottext">nat :: NonNegative Int
-</span><a href="#local-6989586621679105987"><span class="hs-identifier hs-var">nat</span></a></span></span><span> </span><span id="local-6989586621679105986"><span class="annot"><span class="annottext">day :: Day
-</span><a href="#local-6989586621679105986"><span class="hs-identifier hs-var">day</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m (Filtered (Handler m NameAuthDay))
+</span><a href="#local-6989586621679134126"><span class="hs-identifier hs-var hs-var hs-var hs-var">getStaleLogs</span></a></span></span><span> </span><span id="local-6989586621679134125"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679134125"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679134124"><span class="annot"><span class="annottext">nat :: RNonNegative Int
+</span><a href="#local-6989586621679134124"><span class="hs-identifier hs-var">nat</span></a></span></span><span> </span><span id="local-6989586621679134123"><span class="annot"><span class="annottext">day :: Day
+</span><a href="#local-6989586621679134123"><span class="hs-identifier hs-var">day</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m (Filtered (Handler m NameAuthDay))
 -&gt; AppT Env m (Filtered (Handler m NameAuthDay))
 forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
 (MonadTrans t, Monad m) =&gt;
@@ -339,28 +339,28 @@ m a -&gt; t m a
 -&gt; AppT Env m (Filtered (Handler m NameAuthDay))
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
--&gt; NonNegative Int
+-&gt; RNonNegative Int
 -&gt; Day
 -&gt; [Handler m Name]
 -&gt; m (Filtered (Handler m NameAuthDay))
 forall (m :: * -&gt; *).
 MonadFindBranches m =&gt;
 Maybe FilePath
--&gt; NonNegative Int
+-&gt; RNonNegative Int
 -&gt; Day
 -&gt; [Handler m Name]
 -&gt; m (Filtered (Handler m NameAuthDay))
 </span><a href="Git.Stale.Core.MonadFindBranches.html#getStaleLogs"><span class="hs-identifier hs-var">getStaleLogs</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679105988"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">NonNegative Int
-</span><a href="#local-6989586621679105987"><span class="hs-identifier hs-var">nat</span></a></span><span> </span><span class="annot"><span class="annottext">Day
-</span><a href="#local-6989586621679105986"><span class="hs-identifier hs-var">day</span></a></span><span>
-</span><span id="line-143"></span><span>  </span><span id="local-6989586621679105985"><span class="annot"><span class="annottext">toBranches :: Maybe FilePath
+</span><a href="#local-6989586621679134125"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int
+</span><a href="#local-6989586621679134124"><span class="hs-identifier hs-var">nat</span></a></span><span> </span><span class="annot"><span class="annottext">Day
+</span><a href="#local-6989586621679134123"><span class="hs-identifier hs-var">day</span></a></span><span>
+</span><span id="line-143"></span><span>  </span><span id="local-6989586621679134122"><span class="annot"><span class="annottext">toBranches :: Maybe FilePath
 -&gt; Text
 -&gt; Filtered (Handler (AppT Env m) NameAuthDay)
 -&gt; AppT Env m [Handler (AppT Env m) AnyBranch]
-</span><a href="#local-6989586621679105985"><span class="hs-identifier hs-var hs-var hs-var hs-var">toBranches</span></a></span></span><span> </span><span id="local-6989586621679105984"><span class="annot"><span class="annottext">path :: Maybe FilePath
-</span><a href="#local-6989586621679105984"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679105983"><span class="annot"><span class="annottext">master :: Text
-</span><a href="#local-6989586621679105983"><span class="hs-identifier hs-var">master</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m [Handler m AnyBranch] -&gt; AppT Env m [Handler m AnyBranch]
+</span><a href="#local-6989586621679134122"><span class="hs-identifier hs-var hs-var hs-var hs-var">toBranches</span></a></span></span><span> </span><span id="local-6989586621679134121"><span class="annot"><span class="annottext">path :: Maybe FilePath
+</span><a href="#local-6989586621679134121"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679134120"><span class="annot"><span class="annottext">master :: Text
+</span><a href="#local-6989586621679134120"><span class="hs-identifier hs-var">master</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m [Handler m AnyBranch] -&gt; AppT Env m [Handler m AnyBranch]
 forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
 (MonadTrans t, Monad m) =&gt;
 m a -&gt; t m a
@@ -380,11 +380,11 @@ Maybe FilePath
 -&gt; Filtered (Handler m NameAuthDay)
 -&gt; m [Handler m AnyBranch]
 </span><a href="Git.Stale.Core.MonadFindBranches.html#toBranches"><span class="hs-identifier hs-var">toBranches</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679105984"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679105983"><span class="hs-identifier hs-var">master</span></a></span><span>
-</span><span id="line-144"></span><span>  </span><span id="local-6989586621679105982"><span class="annot"><span class="annottext">collectResults :: [Handler (AppT Env m) AnyBranch]
+</span><a href="#local-6989586621679134121"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679134120"><span class="hs-identifier hs-var">master</span></a></span><span>
+</span><span id="line-144"></span><span>  </span><span id="local-6989586621679134119"><span class="annot"><span class="annottext">collectResults :: [Handler (AppT Env m) AnyBranch]
 -&gt; AppT Env m (FinalResults (AppT Env m))
-</span><a href="#local-6989586621679105982"><span class="hs-identifier hs-var hs-var hs-var hs-var">collectResults</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m (FinalResults m) -&gt; AppT Env m (FinalResults m)
+</span><a href="#local-6989586621679134119"><span class="hs-identifier hs-var hs-var hs-var hs-var">collectResults</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m (FinalResults m) -&gt; AppT Env m (FinalResults m)
 forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
 (MonadTrans t, Monad m) =&gt;
 m a -&gt; t m a
@@ -398,9 +398,9 @@ forall (m :: * -&gt; *).
 MonadFindBranches m =&gt;
 [Handler m AnyBranch] -&gt; m (FinalResults m)
 </span><a href="Git.Stale.Core.MonadFindBranches.html#collectResults"><span class="hs-identifier hs-var">collectResults</span></a></span><span>
-</span><span id="line-145"></span><span>  </span><span id="local-6989586621679105981"><span class="annot"><span class="annottext">display :: Text -&gt; FinalResults (AppT Env m) -&gt; AppT Env m ()
-</span><a href="#local-6989586621679105981"><span class="hs-identifier hs-var hs-var hs-var hs-var">display</span></a></span></span><span> </span><span id="local-6989586621679105980"><span class="annot"><span class="annottext">remoteName :: Text
-</span><a href="#local-6989586621679105980"><span class="hs-identifier hs-var">remoteName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m () -&gt; AppT Env m ()
+</span><span id="line-145"></span><span>  </span><span id="local-6989586621679134118"><span class="annot"><span class="annottext">display :: Text -&gt; FinalResults (AppT Env m) -&gt; AppT Env m ()
+</span><a href="#local-6989586621679134118"><span class="hs-identifier hs-var hs-var hs-var hs-var">display</span></a></span></span><span> </span><span id="local-6989586621679134117"><span class="annot"><span class="annottext">remoteName :: Text
+</span><a href="#local-6989586621679134117"><span class="hs-identifier hs-var">remoteName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m () -&gt; AppT Env m ()
 forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
 (MonadTrans t, Monad m) =&gt;
 m a -&gt; t m a
@@ -412,66 +412,66 @@ forall (m :: * -&gt; *).
 MonadFindBranches m =&gt;
 Text -&gt; FinalResults m -&gt; m ()
 </span><a href="Git.Stale.Core.MonadFindBranches.html#display"><span class="hs-identifier hs-var">display</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679105980"><span class="hs-identifier hs-var">remoteName</span></a></span></span><span>
+</span><a href="#local-6989586621679134117"><span class="hs-identifier hs-var">remoteName</span></a></span></span><span>
 </span><span id="line-146"></span><span>
 </span><span id="line-147"></span><span class="hs-comment">-- | High level logic of `MonadFindBranches` usage. This function is the</span><span>
 </span><span id="line-148"></span><span class="hs-comment">-- entrypoint for any `MonadFindBranches` instance.</span><span>
-</span><span id="line-149"></span><span id="local-6989586621679105979"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#runFindBranches"><span class="hs-identifier hs-type">runFindBranches</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">R.MonadReader</span></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679105979"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#MonadFindBranches"><span class="hs-identifier hs-type">MonadFindBranches</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679105979"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679105979"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-149"></span><span id="local-6989586621679134116"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#runFindBranches"><span class="hs-identifier hs-type">runFindBranches</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">R.MonadReader</span></span><span> </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134116"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#MonadFindBranches"><span class="hs-identifier hs-type">MonadFindBranches</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134116"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679134116"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
 </span><span id="line-150"></span><span id="runFindBranches"><span class="annot"><span class="annottext">runFindBranches :: m ()
 </span><a href="Git.Stale.Core.MonadFindBranches.html#runFindBranches"><span class="hs-identifier hs-var hs-var">runFindBranches</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-151"></span><span>  </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679105977"><span class="annot"><span class="annottext">Maybe FilePath
+</span><span id="line-151"></span><span>  </span><span class="annot"><a href="Git.Stale.Types.Env.html#Env"><span class="hs-identifier hs-type">Env</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679134114"><span class="annot"><span class="annottext">Maybe FilePath
 path :: Env -&gt; Maybe FilePath
 path :: Maybe FilePath
-</span><a href="Git.Stale.Types.Env.html#path"><span class="hs-identifier hs-var hs-var">path</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105975"><span class="annot"><span class="annottext">BranchType
+</span><a href="Git.Stale.Types.Env.html#path"><span class="hs-identifier hs-var hs-var">path</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134112"><span class="annot"><span class="annottext">BranchType
 branchType :: Env -&gt; BranchType
 branchType :: BranchType
-</span><a href="Git.Stale.Types.Env.html#branchType"><span class="hs-identifier hs-var hs-var">branchType</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105973"><span class="annot"><span class="annottext">Maybe Text
+</span><a href="Git.Stale.Types.Env.html#branchType"><span class="hs-identifier hs-var hs-var">branchType</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134110"><span class="annot"><span class="annottext">Maybe Text
 grepStr :: Env -&gt; Maybe Text
 grepStr :: Maybe Text
-</span><a href="Git.Stale.Types.Env.html#grepStr"><span class="hs-identifier hs-var hs-var">grepStr</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105971"><span class="annot"><span class="annottext">NonNegative Int
-limit :: Env -&gt; NonNegative Int
-limit :: NonNegative Int
-</span><a href="Git.Stale.Types.Env.html#limit"><span class="hs-identifier hs-var hs-var">limit</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105969"><span class="annot"><span class="annottext">Text
+</span><a href="Git.Stale.Types.Env.html#grepStr"><span class="hs-identifier hs-var hs-var">grepStr</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134108"><span class="annot"><span class="annottext">RNonNegative Int
+limit :: Env -&gt; RNonNegative Int
+limit :: RNonNegative Int
+</span><a href="Git.Stale.Types.Env.html#limit"><span class="hs-identifier hs-var hs-var">limit</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134106"><span class="annot"><span class="annottext">Text
 remoteName :: Env -&gt; Text
 remoteName :: Text
-</span><a href="Git.Stale.Types.Env.html#remoteName"><span class="hs-identifier hs-var hs-var">remoteName</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105967"><span class="annot"><span class="annottext">Text
+</span><a href="Git.Stale.Types.Env.html#remoteName"><span class="hs-identifier hs-var hs-var">remoteName</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134104"><span class="annot"><span class="annottext">Text
 master :: Env -&gt; Text
 master :: Text
-</span><a href="Git.Stale.Types.Env.html#master"><span class="hs-identifier hs-var hs-var">master</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105965"><span class="annot"><span class="annottext">Day
+</span><a href="Git.Stale.Types.Env.html#master"><span class="hs-identifier hs-var hs-var">master</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134102"><span class="annot"><span class="annottext">Day
 today :: Env -&gt; Day
 today :: Day
 </span><a href="Git.Stale.Types.Env.html#today"><span class="hs-identifier hs-var hs-var">today</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">m Env
 forall r (m :: * -&gt; *). MonadReader r m =&gt; m r
 </span><span class="hs-identifier hs-var">R.ask</span></span><span>
-</span><span id="line-152"></span><span>  </span><span id="local-6989586621679105962"><span class="annot"><span class="annottext">[Handler m Name]
-</span><a href="#local-6989586621679105962"><span class="hs-identifier hs-var">branchNames</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath -&gt; BranchType -&gt; Maybe Text -&gt; m [Handler m Name]
+</span><span id="line-152"></span><span>  </span><span id="local-6989586621679134099"><span class="annot"><span class="annottext">[Handler m Name]
+</span><a href="#local-6989586621679134099"><span class="hs-identifier hs-var">branchNames</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath -&gt; BranchType -&gt; Maybe Text -&gt; m [Handler m Name]
 forall (m :: * -&gt; *).
 MonadFindBranches m =&gt;
 Maybe FilePath -&gt; BranchType -&gt; Maybe Text -&gt; m [Handler m Name]
 </span><a href="Git.Stale.Core.MonadFindBranches.html#branchNamesByGrep"><span class="hs-identifier hs-var">branchNamesByGrep</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679105977"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">BranchType
-</span><a href="#local-6989586621679105975"><span class="hs-identifier hs-var">branchType</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
-</span><a href="#local-6989586621679105973"><span class="hs-identifier hs-var">grepStr</span></a></span><span>
-</span><span id="line-153"></span><span>  </span><span id="local-6989586621679105961"><span class="annot"><span class="annottext">Filtered (Handler m NameAuthDay)
-</span><a href="#local-6989586621679105961"><span class="hs-identifier hs-var">staleLogs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
--&gt; NonNegative Int
+</span><a href="#local-6989586621679134114"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">BranchType
+</span><a href="#local-6989586621679134112"><span class="hs-identifier hs-var">branchType</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Text
+</span><a href="#local-6989586621679134110"><span class="hs-identifier hs-var">grepStr</span></a></span><span>
+</span><span id="line-153"></span><span>  </span><span id="local-6989586621679134098"><span class="annot"><span class="annottext">Filtered (Handler m NameAuthDay)
+</span><a href="#local-6989586621679134098"><span class="hs-identifier hs-var">staleLogs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+-&gt; RNonNegative Int
 -&gt; Day
 -&gt; [Handler m Name]
 -&gt; m (Filtered (Handler m NameAuthDay))
 forall (m :: * -&gt; *).
 MonadFindBranches m =&gt;
 Maybe FilePath
--&gt; NonNegative Int
+-&gt; RNonNegative Int
 -&gt; Day
 -&gt; [Handler m Name]
 -&gt; m (Filtered (Handler m NameAuthDay))
 </span><a href="Git.Stale.Core.MonadFindBranches.html#getStaleLogs"><span class="hs-identifier hs-var">getStaleLogs</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679105977"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">NonNegative Int
-</span><a href="#local-6989586621679105971"><span class="hs-identifier hs-var">limit</span></a></span><span> </span><span class="annot"><span class="annottext">Day
-</span><a href="#local-6989586621679105965"><span class="hs-identifier hs-var">today</span></a></span><span> </span><span class="annot"><span class="annottext">[Handler m Name]
-</span><a href="#local-6989586621679105962"><span class="hs-identifier hs-var">branchNames</span></a></span><span>
-</span><span id="line-154"></span><span>  </span><span id="local-6989586621679105960"><span class="annot"><span class="annottext">[Handler m AnyBranch]
-</span><a href="#local-6989586621679105960"><span class="hs-identifier hs-var">staleBranches</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
+</span><a href="#local-6989586621679134114"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">RNonNegative Int
+</span><a href="#local-6989586621679134108"><span class="hs-identifier hs-var">limit</span></a></span><span> </span><span class="annot"><span class="annottext">Day
+</span><a href="#local-6989586621679134102"><span class="hs-identifier hs-var">today</span></a></span><span> </span><span class="annot"><span class="annottext">[Handler m Name]
+</span><a href="#local-6989586621679134099"><span class="hs-identifier hs-var">branchNames</span></a></span><span>
+</span><span id="line-154"></span><span>  </span><span id="local-6989586621679134097"><span class="annot"><span class="annottext">[Handler m AnyBranch]
+</span><a href="#local-6989586621679134097"><span class="hs-identifier hs-var">staleBranches</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
 -&gt; Text
 -&gt; Filtered (Handler m NameAuthDay)
 -&gt; m [Handler m AnyBranch]
@@ -482,33 +482,33 @@ Maybe FilePath
 -&gt; Filtered (Handler m NameAuthDay)
 -&gt; m [Handler m AnyBranch]
 </span><a href="Git.Stale.Core.MonadFindBranches.html#toBranches"><span class="hs-identifier hs-var">toBranches</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe FilePath
-</span><a href="#local-6989586621679105977"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679105967"><span class="hs-identifier hs-var">master</span></a></span><span> </span><span class="annot"><span class="annottext">Filtered (Handler m NameAuthDay)
-</span><a href="#local-6989586621679105961"><span class="hs-identifier hs-var">staleLogs</span></a></span><span>
-</span><span id="line-155"></span><span>  </span><span id="local-6989586621679105959"><span class="annot"><span class="annottext">FinalResults m
-</span><a href="#local-6989586621679105959"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[Handler m AnyBranch] -&gt; m (FinalResults m)
+</span><a href="#local-6989586621679134114"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679134104"><span class="hs-identifier hs-var">master</span></a></span><span> </span><span class="annot"><span class="annottext">Filtered (Handler m NameAuthDay)
+</span><a href="#local-6989586621679134098"><span class="hs-identifier hs-var">staleLogs</span></a></span><span>
+</span><span id="line-155"></span><span>  </span><span id="local-6989586621679134096"><span class="annot"><span class="annottext">FinalResults m
+</span><a href="#local-6989586621679134096"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[Handler m AnyBranch] -&gt; m (FinalResults m)
 forall (m :: * -&gt; *).
 MonadFindBranches m =&gt;
 [Handler m AnyBranch] -&gt; m (FinalResults m)
 </span><a href="Git.Stale.Core.MonadFindBranches.html#collectResults"><span class="hs-identifier hs-var">collectResults</span></a></span><span> </span><span class="annot"><span class="annottext">[Handler m AnyBranch]
-</span><a href="#local-6989586621679105960"><span class="hs-identifier hs-var">staleBranches</span></a></span><span>
+</span><a href="#local-6989586621679134097"><span class="hs-identifier hs-var">staleBranches</span></a></span><span>
 </span><span id="line-156"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; FinalResults m -&gt; m ()
 forall (m :: * -&gt; *).
 MonadFindBranches m =&gt;
 Text -&gt; FinalResults m -&gt; m ()
 </span><a href="Git.Stale.Core.MonadFindBranches.html#display"><span class="hs-identifier hs-var">display</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679105969"><span class="hs-identifier hs-var">remoteName</span></a></span><span> </span><span class="annot"><span class="annottext">FinalResults m
-</span><a href="#local-6989586621679105959"><span class="hs-identifier hs-var">res</span></a></span><span>
+</span><a href="#local-6989586621679134106"><span class="hs-identifier hs-var">remoteName</span></a></span><span> </span><span class="annot"><span class="annottext">FinalResults m
+</span><a href="#local-6989586621679134096"><span class="hs-identifier hs-var">res</span></a></span><span>
 </span><span id="line-157"></span><span>
-</span><span id="line-158"></span><span id="local-6989586621679106081"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#logResultsWithErrs"><span class="hs-identifier hs-type">logResultsWithErrs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679106081"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Git.Stale.Types.ResultsWithErrs.html#ResultsWithErrsDisp"><span class="hs-identifier hs-type">ResultsWithErrsDisp</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679106081"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-158"></span><span id="local-6989586621679134218"><span class="annot"><a href="Git.Stale.Core.MonadFindBranches.html#logResultsWithErrs"><span class="hs-identifier hs-type">logResultsWithErrs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Common.MonadLogger.html#MonadLogger"><span class="hs-identifier hs-type">MonadLogger</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679134218"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Git.Stale.Types.ResultsWithErrs.html#ResultsWithErrsDisp"><span class="hs-identifier hs-type">ResultsWithErrsDisp</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679134218"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
 </span><span id="line-159"></span><span id="logResultsWithErrs"><span class="annot"><span class="annottext">logResultsWithErrs :: ResultsWithErrsDisp -&gt; m ()
-</span><a href="Git.Stale.Core.MonadFindBranches.html#logResultsWithErrs"><span class="hs-identifier hs-var hs-var">logResultsWithErrs</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.ResultsWithErrs.html#ResultsWithErrsDisp"><span class="hs-identifier hs-type">ResultsWithErrsDisp</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679105957"><span class="annot"><span class="annottext">errDisp :: ErrDisp
-</span><a href="#local-6989586621679105957"><span class="hs-identifier hs-var">errDisp</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105956"><span class="annot"><span class="annottext">resultsDisp :: ResultsDisp
-</span><a href="#local-6989586621679105956"><span class="hs-identifier hs-var">resultsDisp</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-160"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.ResultsWithErrs.html#ErrDisp"><span class="hs-identifier hs-type">ErrDisp</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679105954"><span class="annot"><span class="annottext">errs :: Text
-</span><a href="#local-6989586621679105954"><span class="hs-identifier hs-var">errs</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105953"><span class="annot"><span class="annottext">numErrs :: Int
-</span><a href="#local-6989586621679105953"><span class="hs-identifier hs-var">numErrs</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ErrDisp
-</span><a href="#local-6989586621679105957"><span class="hs-identifier hs-var">errDisp</span></a></span><span>
+</span><a href="Git.Stale.Core.MonadFindBranches.html#logResultsWithErrs"><span class="hs-identifier hs-var hs-var">logResultsWithErrs</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.ResultsWithErrs.html#ResultsWithErrsDisp"><span class="hs-identifier hs-type">ResultsWithErrsDisp</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679134094"><span class="annot"><span class="annottext">errDisp :: ErrDisp
+</span><a href="#local-6989586621679134094"><span class="hs-identifier hs-var">errDisp</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134093"><span class="annot"><span class="annottext">resultsDisp :: ResultsDisp
+</span><a href="#local-6989586621679134093"><span class="hs-identifier hs-var">resultsDisp</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-160"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.ResultsWithErrs.html#ErrDisp"><span class="hs-identifier hs-type">ErrDisp</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679134091"><span class="annot"><span class="annottext">errs :: Text
+</span><a href="#local-6989586621679134091"><span class="hs-identifier hs-var">errs</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134090"><span class="annot"><span class="annottext">numErrs :: Int
+</span><a href="#local-6989586621679134090"><span class="hs-identifier hs-var">numErrs</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ErrDisp
+</span><a href="#local-6989586621679134094"><span class="hs-identifier hs-var">errDisp</span></a></span><span>
 </span><span id="line-161"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; m ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
 </span><a href="Common.MonadLogger.html#logWarn"><span class="hs-identifier hs-var">logWarn</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; m ()) -&gt; Text -&gt; m ()
@@ -521,23 +521,23 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; FilePath
 forall a. Show a =&gt; a -&gt; FilePath
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679105953"><span class="hs-identifier hs-var">numErrs</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679134090"><span class="hs-identifier hs-var">numErrs</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-164"></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\n------\n&quot;</span></span><span>
 </span><span id="line-165"></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679105954"><span class="hs-identifier hs-var">errs</span></a></span><span>
+</span><a href="#local-6989586621679134091"><span class="hs-identifier hs-var">errs</span></a></span><span>
 </span><span id="line-166"></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\n&quot;</span></span><span>
-</span><span id="line-167"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Results.html#ResultsDisp"><span class="hs-identifier hs-type">ResultsDisp</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Results.html#MergedDisp"><span class="hs-identifier hs-type">MergedDisp</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679105948"><span class="annot"><span class="annottext">ms :: Text
-</span><a href="#local-6989586621679105948"><span class="hs-identifier hs-var">ms</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105947"><span class="annot"><span class="annottext">numMs :: Int
-</span><a href="#local-6989586621679105947"><span class="hs-identifier hs-var">numMs</span></a></span></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Git.Stale.Types.Results.html#UnMergedDisp"><span class="hs-identifier hs-type">UnMergedDisp</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679105945"><span class="annot"><span class="annottext">unms :: Text
-</span><a href="#local-6989586621679105945"><span class="hs-identifier hs-var">unms</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679105944"><span class="annot"><span class="annottext">numUnMs :: Int
-</span><a href="#local-6989586621679105944"><span class="hs-identifier hs-var">numUnMs</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ResultsDisp
-</span><a href="#local-6989586621679105956"><span class="hs-identifier hs-var">resultsDisp</span></a></span><span>
+</span><span id="line-167"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Results.html#ResultsDisp"><span class="hs-identifier hs-type">ResultsDisp</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Git.Stale.Types.Results.html#MergedDisp"><span class="hs-identifier hs-type">MergedDisp</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679134085"><span class="annot"><span class="annottext">ms :: Text
+</span><a href="#local-6989586621679134085"><span class="hs-identifier hs-var">ms</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134084"><span class="annot"><span class="annottext">numMs :: Int
+</span><a href="#local-6989586621679134084"><span class="hs-identifier hs-var">numMs</span></a></span></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Git.Stale.Types.Results.html#UnMergedDisp"><span class="hs-identifier hs-type">UnMergedDisp</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679134082"><span class="annot"><span class="annottext">unms :: Text
+</span><a href="#local-6989586621679134082"><span class="hs-identifier hs-var">unms</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679134081"><span class="annot"><span class="annottext">numUnMs :: Int
+</span><a href="#local-6989586621679134081"><span class="hs-identifier hs-var">numUnMs</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ResultsDisp
+</span><a href="#local-6989586621679134093"><span class="hs-identifier hs-var">resultsDisp</span></a></span><span>
 </span><span id="line-168"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; m ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
 </span><a href="Common.MonadLogger.html#logInfoSuccess"><span class="hs-identifier hs-var">logInfoSuccess</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; m ()) -&gt; Text -&gt; m ()
@@ -550,14 +550,14 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; FilePath
 forall a. Show a =&gt; a -&gt; FilePath
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679105947"><span class="hs-identifier hs-var">numMs</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679134084"><span class="hs-identifier hs-var">numMs</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-171"></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\n------\n&quot;</span></span><span>
 </span><span id="line-172"></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679105948"><span class="hs-identifier hs-var">ms</span></a></span><span>
+</span><a href="#local-6989586621679134085"><span class="hs-identifier hs-var">ms</span></a></span><span>
 </span><span id="line-173"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; m ()
 forall (m :: * -&gt; *). MonadLogger m =&gt; Text -&gt; m ()
 </span><a href="Common.MonadLogger.html#logInfoCyan"><span class="hs-identifier hs-var">logInfoCyan</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; m ()) -&gt; Text -&gt; m ()
@@ -570,12 +570,12 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">T.pack</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; FilePath
 forall a. Show a =&gt; a -&gt; FilePath
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679105944"><span class="hs-identifier hs-var">numUnMs</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679134081"><span class="hs-identifier hs-var">numUnMs</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-176"></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\n--------\n&quot;</span></span><span>
 </span><span id="line-177"></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679105945"><span class="hs-identifier hs-var">unms</span></a></span><span>
+</span><a href="#local-6989586621679134082"><span class="hs-identifier hs-var">unms</span></a></span><span>
 </span><span id="line-178"></span></pre></body></html>
