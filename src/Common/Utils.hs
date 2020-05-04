@@ -1,4 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 -- |
 -- Module      : Common.Utils
@@ -8,6 +10,10 @@
 module Common.Utils
   ( diffTime,
     divWithRem,
+    eitherCompose,
+    eitherComposeMay,
+    eitherJoin,
+    eitherToMaybe,
     formatSeconds,
     matchAndStrip,
     monoBimap,
@@ -16,10 +22,8 @@ module Common.Utils
   )
 where
 
-import Common.Types.NonNegative
-import Common.Types.Positive
+import Common.RefinedUtils
 import qualified Data.Bifunctor as BF
-import qualified Data.Maybe as May
 import qualified Data.Text as T
 import qualified System.Clock as C
 
@@ -60,13 +64,12 @@ startsWith (x : xs) (y : ys)
 matchAndStrip :: Eq a => [a] -> [a] -> Maybe [a]
 matchAndStrip = flip startsWith
 
--- | For given \(x, y\), returns the absolute difference \(|x - y|\)
--- in seconds.
-diffTime :: Integral a => C.TimeSpec -> C.TimeSpec -> NonNegative a
+-- | For given \(x, y\), returns the absolute difference \(|x - y|\).
+diffTime :: C.TimeSpec -> C.TimeSpec -> RNonNegative Int
 diffTime t1 t2 =
   let diff = fromIntegral $ C.sec $ C.diffTimeSpec t1 t2
    in -- Safe because 'C.diffTimeSpec' guaranteed to be non-zero
-      May.fromJust $ toNonNegative diff
+      unsafeRef diff
 
 -- | For \(n \ge 0, d > 0\), returns non-negative \((e, r)\) such that
 --
@@ -76,17 +79,18 @@ diffTime t1 t2 =
 --      r < n \\
 --    \end{align}
 -- \]
-divWithRem :: Integral a => NonNegative a -> Positive a -> (a, a)
+divWithRem :: Integral a => RNonNegative a -> RPositive a -> (a, a)
 divWithRem n d = (n' `div` d', n' `rem` d')
   where
-    n' = getNonNegative n
-    d' = getPositive d
+    n' = unrefine n
+    d' = unrefine d
 
 -- | For \(n \ge 0\) seconds, returns a 'T.Text' description of the minutes
 -- and seconds.
-formatSeconds :: (Show a, Integral a) => NonNegative a -> T.Text
+-- formatSeconds :: (Show a, Integral a) => NonNegative a -> T.Text
+formatSeconds :: RNonNegative Int -> T.Text
 formatSeconds seconds =
-  let d = May.fromJust $ toPositive 60
+  let d = $$(refineTH 60) :: RPositive Int
       (m, s) = divWithRem seconds d
       pluralize i t
         | i == 1 = t
@@ -104,6 +108,20 @@ formatSeconds seconds =
 -- a monomorphic bifunctor.
 monoBimap :: BF.Bifunctor f => (a -> b) -> f a a -> f b b
 monoBimap g = BF.bimap g g
+
+eitherJoin :: Either a (Either b c) -> Either () c
+eitherJoin (Right (Right x)) = Right x
+eitherJoin _ = Left ()
+
+eitherToMaybe :: Either a b -> Maybe b
+eitherToMaybe (Left _) = Nothing
+eitherToMaybe (Right x) = Just x
+
+eitherCompose :: (a -> Either b c) -> (c -> Either d e) -> a -> Either () e
+eitherCompose f g x = eitherJoin (g <$> f x)
+
+eitherComposeMay :: (a -> Either b c) -> (c -> Either d e) -> a -> Maybe e
+eitherComposeMay f g = eitherToMaybe . eitherCompose f g
 
 -- | Transforms a showable to 'T.Text'.
 showToText :: Show a => a -> T.Text

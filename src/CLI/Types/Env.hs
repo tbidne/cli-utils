@@ -8,7 +8,7 @@ module CLI.Types.Env
   )
 where
 
-import Common.Types.NonNegative
+import Common.RefinedUtils
 import qualified Data.Map.Strict as M
 import qualified Data.Text as T
 
@@ -16,7 +16,7 @@ import qualified Data.Text as T
 data Env
   = Env
       { legend :: M.Map T.Text T.Text,
-        timeout :: Maybe (NonNegative Int),
+        timeout :: Maybe (RNonNegative Int),
         commands :: [T.Text]
       }
   deriving (Show)

@@ -6,17 +6,14 @@ module Common.UtilsSpec
   )
 where
 
-import Common.ArbNonNegative ()
-import Common.ArbPositive ()
-import Common.Types.NonNegative
-import Common.Types.Positive
+import qualified Common.RefinedUtils as R
 import Common.Utils
 import Control.Applicative ((<|>))
 import qualified Data.Maybe as May
 import qualified System.Clock as Clock
 import Test.Hspec
 import Test.Hspec.QuickCheck
-import qualified Test.QuickCheck as Q
+import Test.QuickCheck
 
 spec :: Spec
 spec = do
@@ -28,19 +25,15 @@ spec = do
     it "diffTime should return absolute time diff" $ do
       let s1 = Clock.fromNanoSecs 5_000_000_000
       let s2 = Clock.fromNanoSecs 10_000_000_000
-      diffTime s1 s2 `shouldSatisfy` ((==) 5) . (getNonNegative :: NonNegative Int -> Int)
-      diffTime s2 s1 `shouldSatisfy` ((==) 5) . (getNonNegative :: NonNegative Int -> Int)
-      diffTime s1 s1 `shouldSatisfy` ((==) 0) . (getNonNegative :: NonNegative Int -> Int)
-    prop "divWithRem n d should be (e, r) s.t. de + r = n, r <= n" vDivWithRem
+      diffTime s1 s2 `shouldSatisfy` ((==) 5) . R.unrefine
+      diffTime s2 s1 `shouldSatisfy` ((==) 5) . R.unrefine
+      diffTime s1 s1 `shouldSatisfy` ((==) 0) . R.unrefine
+    prop "divWithRem n d, d <= n should be (e, r) s.t. de + r = n" vDivWithRem
     it "formatSeconds should format the seconds" $ do
-      formatSeconds (May.fromJust (iToNonNegative 0))
-        `shouldBe` "0 minutes and 0 seconds  "
-      formatSeconds (May.fromJust (iToNonNegative 30))
-        `shouldBe` "0 minutes and 30 seconds  "
-      formatSeconds (May.fromJust (iToNonNegative 60))
-        `shouldBe` "1 minute and 0 seconds  "
-      formatSeconds (May.fromJust (iToNonNegative 301))
-        `shouldBe` "5 minutes and 1 second  "
+      formatSeconds (R.unsafeNonNeg 0) `shouldBe` "0 minutes and 0 seconds  "
+      formatSeconds (R.unsafeNonNeg 30) `shouldBe` "0 minutes and 30 seconds  "
+      formatSeconds (R.unsafeNonNeg 60) `shouldBe` "1 minute and 0 seconds  "
+      formatSeconds (R.unsafeNonNeg 301) `shouldBe` "5 minutes and 1 second  "
 
 validStartsWith :: ValidStartsWith -> Bool
 validStartsWith (ValidStartsWith (prefix, rest)) =
@@ -58,22 +51,22 @@ invalidStartsWith (prefix, rest) =
 vDivWithRem :: NatAndPosNonZero -> Bool
 vDivWithRem (NatAndPosNonZero (n, d)) =
   let (e, r) = divWithRem n d
-   in ((getPositive d) * e) + r == (getNonNegative n)
-        && r <= getNonNegative n
+   in ((R.unrefine d) * e) + r == (R.unrefine n)
+        && r <= (R.unrefine n)
 
 newtype ValidStartsWith = ValidStartsWith (String, String) deriving (Show)
 
-instance Q.Arbitrary ValidStartsWith where
+instance Arbitrary ValidStartsWith where
   arbitrary = do
-    prefix <- Q.arbitrary
-    rest <- Q.arbitrary
+    prefix <- arbitrary
+    rest <- arbitrary
     pure $ ValidStartsWith (prefix, prefix <> rest)
 
-newtype NatAndPosNonZero = NatAndPosNonZero (NonNegative Int, Positive Int)
+newtype NatAndPosNonZero = NatAndPosNonZero (R.RNonNegative Int, R.RPositive Int)
   deriving (Show)
 
-instance Q.Arbitrary NatAndPosNonZero where
+instance Arbitrary NatAndPosNonZero where
   arbitrary = do
-    n <- Q.arbitrary
-    d <- Q.arbitrary
-    pure $ NatAndPosNonZero (n, d)
+    (NonNegative n) <- arbitrary :: Gen (NonNegative Int)
+    (Positive d) <- arbitrary :: Gen (Positive Int)
+    pure $ NatAndPosNonZero (R.unsafeNonNeg n, R.unsafePos d)

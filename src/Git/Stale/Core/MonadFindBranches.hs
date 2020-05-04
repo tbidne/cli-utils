@@ -19,7 +19,7 @@ where
 
 import App
 import Common.MonadLogger
-import Common.Types.NonNegative
+import Common.RefinedUtils
 import qualified Control.Concurrent.ParallelIO.Global as Par
 import qualified Control.Monad.Reader as R
 import qualified Data.Kind as K
@@ -54,7 +54,7 @@ class Monad m => MonadFindBranches m where
   -- | Maps [`Name`] to [`NameAuthDay`], filtering out non-stale branches.
   getStaleLogs ::
     Maybe FilePath ->
-    NonNegative Int ->
+    RNonNegative Int ->
     Cal.Day ->
     [Handler m Name] ->
     m (Filtered (Handler m NameAuthDay))
@@ -108,7 +108,7 @@ instance MonadFindBranches IO where
 
   getStaleLogs ::
     Maybe FilePath ->
-    NonNegative Int ->
+    RNonNegative Int ->
     Cal.Day ->
     [ErrOr Name] ->
     IO (Filtered (ErrOr NameAuthDay))

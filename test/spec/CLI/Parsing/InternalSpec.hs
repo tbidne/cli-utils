@@ -10,9 +10,8 @@ where
 
 import CLI.Parsing.Internal
 import CLI.Types.Env
-import Common.ArbNonNegative ()
 import Common.Parsing.ParseAnd
-import qualified Common.Types.NonNegative as NN
+import qualified Common.RefinedUtils as R
 import Common.Utils
 import qualified Data.Set as S
 import qualified Data.Text as T
@@ -28,6 +27,7 @@ spec = do
     prop "Correctly parses valid args" parsesArgs
     prop "Correctly parses legend map" vMapStrToEnv
     prop "Invalid map line dies" vInvalidMapLine
+    prop "Invalid timeout dies" vInvalidTimeout
 
 verifyDefaults :: ParseAnd Acc -> Bool
 verifyDefaults =
@@ -39,13 +39,13 @@ verifyDefaults =
         && accCommands == []
 
 parsesArgs :: ValidArgs -> Bool
-parsesArgs ValidArgs {validLegendPath, validTimeout, validCommands, order} =
-  case pureParseArgs order of
+parsesArgs (ValidArgs legend timeout commands) =
+  case pureParseArgs (legend : timeout : commands) of
     (ParseAnd (PFailure _)) -> False
     (ParseAnd (PSuccess (Acc {accLegend, accTimeout, accCommands}))) ->
-      verifyLegendPath validLegendPath accLegend
-        && verifyCommands validCommands accCommands
-        && verifyTimeout validTimeout accTimeout
+      verifyLegendPath legend accLegend
+        && verifyCommands commands accCommands
+        && verifyTimeout timeout accTimeout
 
 verifyLegendPath :: String -> Maybe FilePath -> Bool
 verifyLegendPath "--legend=" Nothing = True
@@ -58,29 +58,24 @@ verifyCommands xs ts = and (fmap f ts)
     strSet = S.fromList $ fmap T.pack xs
     f = flip S.member strSet
 
-verifyTimeout :: String -> Maybe (NN.NonNegative Int) -> Bool
-verifyTimeout "--timeout=" Nothing = True
-verifyTimeout (matchAndStrip "--timeout=" -> Just s) t =
-  NN.toNonNegative (read s) == t
+verifyTimeout :: String -> Maybe (R.RNonNegative Int) -> Bool
+verifyTimeout "" Nothing = True
+verifyTimeout (matchAndStrip "--timeout=" -> Just s) (Just t) =
+  (read s) == R.unrefine t
 verifyTimeout _ _ = False
 
-vMapStrToEnv :: [String] -> Maybe (NN.NonNegative Int) -> [ValidMapLine] -> Bool
-vMapStrToEnv commands t validLines =
-  let txtCommands = fmap T.pack commands
-      mapStr = intercalate (fmap unvalidMapLine validLines) "\n"
+vMapStrToEnv :: [ValidMapLine] -> Bool
+vMapStrToEnv validLines =
+  let mapStr = intercalate (fmap unvalidMapLine validLines) "\n"
       -- this seems dumb but we need to do this after intercalate
       -- because the lines themselves could have '\n' in them
       numLines = length $ lines mapStr
-   in case mapStrToEnv txtCommands t mapStr of
-        Left _ -> False
-        Right (Env mp t' commands') ->
-          -- all commands are added to Env
-          txtCommands == commands'
-            -- timeout is copied
-            && t == t'
-            -- key size of the map <= number of text lines
-            -- potential duplicate keys is why we can't check simple equality
-            && length mp <= numLines
+   in case mapStrToEnv [] Nothing mapStr of
+        Right (Env mp Nothing _) ->
+          -- key size of the map <= number of text lines
+          -- potential duplicate keys is why we can't check simple equality
+          length mp <= numLines
+        _ -> False
 
 vInvalidMapLine :: InvalidMapLines -> Bool
 vInvalidMapLine (InvalidMapLines (_, _, allLines)) =
@@ -88,12 +83,17 @@ vInvalidMapLine (InvalidMapLines (_, _, allLines)) =
     Left _ -> True
     _ -> False
 
+vInvalidTimeout :: InvalidTimeout -> Bool
+vInvalidTimeout (InvalidTimeout t) =
+  case pureParseArgs [t] of
+    (ParseAnd (PFailure _)) -> True
+    _ -> False
+
 data ValidArgs
   = ValidArgs
       { validLegendPath :: String,
         validTimeout :: String,
-        validCommands :: [String],
-        order :: [String]
+        validCommands :: [String]
       }
   deriving (Show)
 
@@ -102,20 +102,28 @@ instance Arbitrary ValidArgs where
     p <- genLegendPath
     t <- genTimeout
     cs <- genCommands
-    order <- shuffle (p : t : cs)
-    pure $ ValidArgs p t cs order
+    pure $ ValidArgs p t cs
     where
       genLegendPath = do
         (PrintableString s) <- arbitrary
         pure $ "--legend=" <> s
       genCommands = fmap getPrintableString <$> listOf arbitrary
       genTimeout = do
-        n <- arbitrary :: Gen (NN.NonNegative Int)
-        elements ["--timeout=", "--timeout=" <> show (NN.getNonNegative n)]
-
-  shrink (ValidArgs legend t commands _) =
-    let shrunk = shrink commands
-     in fmap (\cs -> ValidArgs legend t cs (legend : t : cs)) shrunk
+        (NonNegative n) <- arbitrary :: Gen (NonNegative Int)
+        pure $ "--timeout=" <> show n
+  shrink (ValidArgs "" "" []) = []
+  shrink (ValidArgs _ "" []) = []
+  shrink (ValidArgs "" _ []) = []
+  shrink (ValidArgs "" "" [_]) = []
+  shrink (ValidArgs "" "" (c : cs)) = [ValidArgs "" "" [c], ValidArgs "" "" cs]
+  shrink (ValidArgs p t cs) =
+    -- shrink to legend
+    [ ValidArgs p "" [],
+      -- shrink to timeout
+      ValidArgs "" t [],
+      -- shrink to commands
+      ValidArgs "" "" cs
+    ]
 
 newtype ValidMapLine = ValidMapLine {unvalidMapLine :: String}
   deriving (Show)
@@ -173,3 +181,17 @@ validMapLine s = go s False
     go ('=' : _) True = False
     go ('=' : xs) False = go xs True
     go (_ : xs) b = go xs b
+
+newtype InvalidTimeout = InvalidTimeout String deriving (Show)
+
+instance Arbitrary InvalidTimeout where
+  arbitrary = do
+    (PrintableString s) <- arbitrary
+    (Negative n) <- arbitrary :: Gen (Negative Int)
+    -- empty, negative, and unparsable string should all die
+    InvalidTimeout
+      <$> elements
+        [ "--timeout=",
+          "--timeout=" <> show n,
+          "--timeout=a" <> s
+        ]

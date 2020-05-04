@@ -9,13 +9,13 @@ module Git.Stale.ParsingSpec
 where
 
 import Common.Parsing.Core
+import Common.RefinedUtils
 import Common.Utils
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as Cal
 import Git.Stale.Arbitraries
 import Git.Stale.Parsing
 import Git.Stale.Types.Env
-import Common.Types.NonNegative
 import qualified System.IO as IO
 import Test.Hspec
 import Test.Hspec.QuickCheck
@@ -37,7 +37,7 @@ verifyDefaults day =
     Right Env {grepStr, path, limit, branchType, today} ->
       grepStr == Nothing
         && path == Nothing
-        && Just limit == toNonNegative (30 :: Int)
+        && limit == unsafeNonNeg 30
         && branchType == Remote
         && today == day
 
@@ -84,8 +84,8 @@ verifyPath (matchAndStrip "--path=" -> Just s) =
     Just t -> s == t
 verifyPath _ = error "Bad path passed to test"
 
-verifyLimit :: String -> NonNegative Int -> Bool
-verifyLimit (matchAndStrip "--limit=" -> Just s) = ((s ==) . show . getNonNegative)
+verifyLimit :: String -> RNonNegative Int -> Bool
+verifyLimit (matchAndStrip "--limit=" -> Just s) = (s ==) . show . unrefine
 verifyLimit _ = error "Bad limit passed to test"
 
 verifyBranchType :: String -> BranchType -> Bool

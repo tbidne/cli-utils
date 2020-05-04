@@ -16,12 +16,13 @@ where
 
 import CLI.Types.Env
 import Common.Parsing.Core
-import Common.Types.NonNegative
+import Common.RefinedUtils
+import Common.Utils
 import Control.Applicative ((<|>))
 import qualified Control.Applicative as A
 import qualified Data.Map as M
 import qualified Data.Text as T
-import qualified Text.Read as R
+import qualified Text.Read as TR
 
 -- | Parses arguments into @'ParseAnd' acc@.
 pureParseArgs :: [String] -> ParseAnd Acc
@@ -31,7 +32,7 @@ pureParseArgs = parseAll allParsers
 -- Each non-empty, non-comment (comments start with #) line in the
 -- map string are expected to have the form @key=val@. If any parse
 -- errors are encountered then 'Left' 'ParseErr' is returned.
-mapStrToEnv :: [T.Text] -> Maybe (NonNegative Int) -> String -> Either ParseErr Env
+mapStrToEnv :: [T.Text] -> Maybe (RNonNegative Int) -> String -> Either ParseErr Env
 mapStrToEnv cmds t contents =
   let eitherMap = linesToMap (T.lines (T.pack contents))
    in fmap (\mp -> Env mp t cmds) eitherMap
@@ -42,7 +43,7 @@ linesToMap = foldr f (Right M.empty)
     f "" mp = mp
     f (T.stripPrefix "#" -> Just _) mp = mp
     f line mp = A.liftA2 insertPair (parseLine line) mp
-    insertPair (key, cmd) mp = M.insert key cmd mp
+    insertPair (key, cmd) = M.insert key cmd
 
 parseLine :: T.Text -> Either ParseErr (T.Text, T.Text)
 parseLine l =
@@ -52,13 +53,13 @@ parseLine l =
     [key, cmd] -> Right (key, cmd)
     _ -> Left $ Err $ "Could not parse line `" <> T.unpack l <> "` from legend file"
 
--- | Monoid accumulator for CLI.
+-- | Monoid accumulator for CLI
 data Acc
   = Acc
       { -- | Path to the legend file.
         accLegend :: Maybe FilePath,
         -- | Maximum time to run commands
-        accTimeout :: Maybe (NonNegative Int),
+        accTimeout :: Maybe (RNonNegative Int),
         -- | List of commands to run.
         accCommands :: [T.Text]
       }
@@ -87,15 +88,16 @@ pathParser = AnyParser $ PrefixParser ("--legend=", parser, updater)
 timeoutParser :: AnyParser Acc
 timeoutParser = AnyParser $ PrefixParser ("--timeout=", parser, updater)
   where
-    parser "" = Just Nothing
     parser s =
-      case R.readMaybe s >>= toNonNegative of
-        Just t -> Just $ Just t
-        Nothing -> Nothing
+      let readAndRefine = eitherComposeMay TR.readEither refine
+       in Just <$> readAndRefine s
     updater acc t = acc {accTimeout = t}
 
+-- always succeeds _except_ when it's a --legend or --timeout arg
 cmdParser :: AnyParser Acc
 cmdParser = AnyParser $ ExactParser (parser, updater)
   where
-    parser = Just . T.pack
-    updater acc@(Acc {accCommands}) c = acc {accCommands = (c : accCommands)}
+    parser (matchAndStrip "--legend=" -> Just _) = Nothing
+    parser (matchAndStrip "--timeout=" -> Just _) = Nothing
+    parser s = Just $ T.pack s
+    updater acc@Acc {accCommands} c = acc {accCommands = c : accCommands}

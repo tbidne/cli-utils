@@ -22,7 +22,7 @@ import CLI.Internal
 import CLI.Types.Env
 import Common.IO
 import Common.MonadLogger
-import Common.Types.NonNegative
+import Common.RefinedUtils
 import Common.Utils
 import qualified Control.Concurrent.Async as A
 import Control.Monad ((>=>))
@@ -36,18 +36,18 @@ import qualified System.Clock as C
 -- of 'T.Text' commands.
 class Monad m => MonadCLI m where
   -- | Runs the list of commands.
-  runCommands :: [T.Text] -> Maybe (NonNegative Int) -> m ()
+  runCommands :: [T.Text] -> Maybe (RNonNegative Int) -> m ()
 
 -- | `MonadCLI` instance for `IO`. Runs each command concurrently,
 -- timing each one, and printing the outcome as success/failure.
 instance MonadCLI IO where
-  runCommands :: [T.Text] -> Maybe (NonNegative Int) -> IO ()
+  runCommands :: [T.Text] -> Maybe (RNonNegative Int) -> IO ()
   runCommands commands timeout = do
     start <- C.getTime C.Monotonic
     actionAsync <- A.async $ A.mapConcurrently_ runCommand commands
     counter actionAsync timeout
     end <- C.getTime C.Monotonic
-    let totalTime = diffTime start end :: NonNegative Integer
+    let totalTime = diffTime start end
     clearLine
     logInfoBlue "Finished!"
     logInfoBlue $ "Total time elapsed: " <> formatSeconds totalTime
@@ -66,24 +66,24 @@ runCLI = do
 runCommand :: T.Text -> IO ()
 runCommand cmd = do
   res <- tryTimeSh cmd Nothing
-  (seconds :: NonNegative Integer, logFn, msg) <- case res of
+  (seconds, logFn, msg) <- case res of
     Left (t, err) -> pure (t, logError, err)
     Right (t, _) -> pure (t, logInfoSuccess, "Successfully ran `" <> cmd <> "`")
   clearLine
   logFn msg
   logFn $ "Time elapsed: " <> formatSeconds seconds <> "\n"
 
-counter :: A.Async a -> Maybe (NonNegative Int) -> IO ()
+counter :: A.Async a -> Maybe (RNonNegative Int) -> IO ()
 counter asyn timeout = do
   start <- C.getTime C.Monotonic
   L.whileM_ (keepRunning asyn start timeout) $ do
     sh_ "sleep 1" Nothing
     elapsed <- C.getTime C.Monotonic
-    let diff = diffTime start elapsed :: NonNegative Integer
+    let diff = diffTime start elapsed
     resetCR
     logNoLine $ "Running time: " <> formatSeconds diff
 
-keepRunning :: A.Async a -> C.TimeSpec -> Maybe (NonNegative Int) -> IO Bool
+keepRunning :: A.Async a -> C.TimeSpec -> Maybe (RNonNegative Int) -> IO Bool
 keepRunning asyn start to = do
   running <- unfinished asyn
   currTime <- C.getTime C.Monotonic
@@ -96,7 +96,7 @@ keepRunning asyn start to = do
       pure False
     else pure running
 
-timedOut :: C.TimeSpec -> C.TimeSpec -> Maybe (NonNegative Int) -> Bool
+timedOut :: C.TimeSpec -> C.TimeSpec -> Maybe (RNonNegative Int) -> Bool
 timedOut start curr =
   \case
     Nothing -> False
