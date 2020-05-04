@@ -401,7 +401,7 @@ module CLI.Parsing
 --   --legend=&lt;string&gt;
 --       Path to the legend file.
 --   
---   --timeout=<a>seconds</a>
+--   --timeout=&lt;seconds&gt;
 --       Non-negative integer. If we reach the timeout then all remaining
 --       commands will be cancelled. If no timeout is given then the
 --       timeout is infinite, i.e., we will keep running until all
