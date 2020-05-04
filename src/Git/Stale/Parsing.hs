@@ -1,5 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 -- |
 -- Module      : Git.Stale.Parsing
@@ -12,14 +13,14 @@ module Git.Stale.Parsing
 where
 
 import Common.Parsing.Core
+import Common.RefinedUtils
+import Common.Utils
 import Control.Applicative ((<|>))
-import qualified Data.Maybe as May
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as Cal
 import Git.Stale.Types.Env
-import Common.Types.NonNegative
 import qualified System.IO as IO
-import qualified Text.Read as R
+import qualified Text.Read as TR
 
 -- | Maps `Cal.Day` and parsed [`String`] args into `Right` `Env`, returning
 -- any errors as `Left` `ParseErr`. All arguments are optional
@@ -68,15 +69,15 @@ parseArgs d args =
       Left $ Err $ "Could not parse `" <> arg <> "`. Try --help."
     ParseAnd (PSuccess acc) -> Right $ accToEnv d acc
 
-newtype AccLimit = AccLimit (NonNegative Int) deriving (Show)
+newtype AccLimit = AccLimit (RNonNegative Int) deriving (Show)
 
 instance Semigroup AccLimit where
   (AccLimit l) <> r
-    | (getNonNegative l == 30) = r
+    | (unrefine l == 30) = r
     | otherwise = (AccLimit l)
 
 instance Monoid AccLimit where
-  mempty = AccLimit $ May.fromJust $ toNonNegative 30
+  mempty = AccLimit $ $$(refineTH 30)
 
 newtype AccBranchType = AccBranchType BranchType deriving (Show)
 
@@ -187,8 +188,9 @@ pathParser = AnyParser $ PrefixParser ("--path=", parser, updater)
 limitParser :: AnyParser Acc
 limitParser = AnyParser $ PrefixParser ("--limit=", parser, updater)
   where
-    parser "" = Nothing
-    parser s = fmap AccLimit (R.readMaybe s >>= toNonNegative)
+    parser s =
+      let readAndRefine = eitherComposeMay TR.readEither refine
+       in AccLimit <$> readAndRefine s
     updater acc l = acc {accLimit = l}
 
 branchTypeParser :: AnyParser Acc

@@ -21,13 +21,13 @@ module Git.Stale.Core.Internal
   )
 where
 
+import Common.RefinedUtils
 import Control.Monad ((>=>))
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as C
 import Git.Stale.Types.Error
-import Common.Types.NonNegative
 import Git.Types.GitTypes
-import qualified Text.Read as R
+import qualified Text.Read as TR
 
 -- | Parses `NameLog` into `NameAuthDay`, recording errors
 -- as `ErrOr`.
@@ -54,13 +54,13 @@ parseDay (n, a, t) = fmap (n,a,) eitherDay
 -- | Determines if `NameAuthDay` is stale given by
 --
 -- > stale lim day (_, _, d) <=> day - d >= lim
-stale :: NonNegative Int -> C.Day -> NameAuthDay -> Bool
-stale lim day (_, _, d) = C.diffDays day d >= (fromIntegral (getNonNegative lim))
+stale :: RNonNegative Int -> C.Day -> NameAuthDay -> Bool
+stale lim day (_, _, d) = C.diffDays day d >= fromIntegral (unrefine lim)
 
 -- | For `Right` `NameAuthDay`, behaves the same as `stale`.
 -- But for `Left` `Err` it is always true, since we do not want
 -- to filter out errors.
-staleNonErr :: NonNegative Int -> C.Day -> ErrOr NameAuthDay -> Bool
+staleNonErr :: RNonNegative Int -> C.Day -> ErrOr NameAuthDay -> Bool
 staleNonErr _ _ (Left _) = True
 staleNonErr i d (Right nad) = stale i d nad
 
@@ -70,7 +70,7 @@ unsafeToInt = read . T.unpack
 
 -- | Safely reads `T.Text` into `ErrOr` `Int`.
 safeRead :: T.Text -> ErrOr Int
-safeRead t = case R.readMaybe (T.unpack t) of
+safeRead t = case TR.readMaybe (T.unpack t) of
   Nothing -> Left $ ReadInt t
   Just i -> Right i
 

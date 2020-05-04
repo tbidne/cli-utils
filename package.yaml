@@ -28,6 +28,7 @@ dependencies:
 - parallel-io
 - pretty-terminal
 - process
+- refined
 - silently
 - text
 - time

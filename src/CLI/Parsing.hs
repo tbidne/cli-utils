@@ -37,7 +37,7 @@ import qualified Data.Map.Strict as M
 --       a separate command.
 -- @
 parseArgs :: [String] -> IO (Either ParseErr Env)
-parseArgs args = do
+parseArgs args =
   case pureParseArgs args of
     ParseAnd (PFailure (Help _)) -> pure $ Left $ Help help
     ParseAnd (PFailure (Err arg)) ->
@@ -45,7 +45,7 @@ parseArgs args = do
     ParseAnd (PSuccess acc) -> accToEnv acc
 
 accToEnv :: Acc -> IO (Either ParseErr Env)
-accToEnv Acc {accLegend, accTimeout, accCommands} = do
+accToEnv Acc {accLegend, accTimeout, accCommands} = 
   case accLegend of
     Nothing -> pure $ Right $ Env M.empty accTimeout accCommands
     Just path -> do

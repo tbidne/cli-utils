@@ -6,8 +6,7 @@ module Git.Stale.Core.InternalSpec
   )
 where
 
-import Common.ArbNonNegative
-import Common.Types.NonNegative
+import Common.RefinedUtils
 import qualified Data.Either as E
 import qualified Data.Text as Txt
 import qualified Data.Time.Calendar as C
@@ -54,10 +53,18 @@ badDateStrFails (NameAuthDateErr nad@(_, _, t)) = case parseDay nad of
     ts = Txt.splitOn "-" t
     goodRead xs = E.isRight $ traverse safeRead xs
 
-vStale :: NonNegative Int -> C.Day -> NameAuthDay -> Bool
-vStale lim day nad@(_, _, d) = (C.diffDays day d > (fromIntegral (getNonNegative lim))) == isStale
+vStale :: Limit -> C.Day -> NameAuthDay -> Bool
+vStale (Limit lim) day nad@(_, _, d) = (C.diffDays day d > (fromIntegral (unrefine lim))) == isStale
   where
     isStale = stale lim day nad
+
+newtype Limit = Limit (RNonNegative Int)
+  deriving (Show)
+
+instance Q.Arbitrary Limit where
+  arbitrary = do
+    (Q.NonNegative n) <- arbitrary :: Q.Gen (Q.NonNegative Int)
+    pure $ Limit $ unsafeNonNeg n
 
 newtype NameLogSuccess = NameLogSuccess NameLog
   deriving (Show)

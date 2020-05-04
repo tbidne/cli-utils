@@ -7,13 +7,13 @@ module Git.Stale.Core.MockFindBranches
   )
 where
 
+import Common.RefinedUtils
 import qualified Data.Text as T
 import qualified Data.Time.Calendar as Cal
 import Git.Stale.Core.MonadFindBranches
 import Git.Stale.Types.Branch
 import Git.Stale.Types.Env
 import Git.Stale.Types.Filtered
-import Common.Types.NonNegative
 import Git.Types.GitTypes
 import Output
 
@@ -21,20 +21,33 @@ instance MonadFindBranches Output where
   type Handler Output a = a
   type FinalResults Output = [AnyBranch]
 
-  branchNamesByGrep :: Maybe FilePath -> BranchType -> Maybe T.Text -> Output [Name]
+  branchNamesByGrep ::
+    Maybe FilePath ->
+    BranchType ->
+    Maybe T.Text ->
+    Output [Name]
   branchNamesByGrep _ _ g = do
     let maybeFilter = case g of
           Nothing -> id
           Just s -> filter (\(Name n) -> s `T.isInfixOf` n)
     pure $ maybeFilter allBranches
 
-  getStaleLogs :: Maybe FilePath -> NonNegative Int -> Cal.Day -> [Name] -> Output (Filtered NameAuthDay)
+  getStaleLogs ::
+    Maybe FilePath ->
+    RNonNegative Int ->
+    Cal.Day ->
+    [Name] ->
+    Output (Filtered NameAuthDay)
   getStaleLogs _ _ _ ns = do
     let removeStale ((Name n), _, _) = not $ "stale" `T.isInfixOf` n
         toLog nm@(Name n) = (nm, Author n, error "MockFindBranches -> getStaleLogs: day not defined")
     pure $ (mkFiltered removeStale . fmap toLog) ns
 
-  toBranches :: Maybe FilePath -> T.Text -> Filtered NameAuthDay -> Output [AnyBranch]
+  toBranches ::
+    Maybe FilePath ->
+    T.Text ->
+    Filtered NameAuthDay ->
+    Output [AnyBranch]
   toBranches _ _ = pure . fmap toBranch . unFiltered
     where
       toBranch (n, a, d) = mkAnyBranch n a d True
