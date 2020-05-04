@@ -25,7 +25,7 @@ import qualified Data.Map.Strict as M
 --   --legend=\<string>\
 --       Path to the legend file.
 --
---   --timeout=<seconds>
+--   --timeout=\<seconds\>
 --       Non-negative integer. If we reach the timeout then all remaining
 --       commands will be cancelled. If no timeout is given then the
 --       timeout is infinite, i.e., we will keep running until all
